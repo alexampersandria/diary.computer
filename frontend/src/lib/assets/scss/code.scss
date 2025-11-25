@@ -41,7 +41,10 @@ pre[class*='language-'] {
   }
 }
 
-.token.comment,
+.token.comment {
+  color: var(--text-dimmed);
+}
+
 .token.prolog,
 .token.doctype,
 .token.cdata,
@@ -49,9 +52,12 @@ pre[class*='language-'] {
   color: var(--text-muted);
 }
 
-.token.string,
+.token.string {
+  color: var(--text-muted);
+}
+
 .token.attr-value {
-  color: var(--color-pink-50);
+  color: var(--color-pink-60);
 }
 
 .token.punctuation,
@@ -60,9 +66,8 @@ pre[class*='language-'] {
 }
 
 .token.variable,
-.token.constant,
-.token.property {
-  color: var(--color-red-60);
+.token.constant {
+  color: var(--color-orange-60);
 }
 
 .token.entity,
@@ -75,11 +80,15 @@ pre[class*='language-'] {
   color: var(--color-purple-60);
 }
 
+.token.keyword {
+  color: var(--text-dimmed);
+}
+
 .token.atrule,
-.token.keyword,
 .token.attr-name,
+.token.property,
 .language-autohotkey .token.selector {
-  color: var(--color-green-60);
+  color: var(--color-red-50);
 }
 
 .token.function,
@@ -91,7 +100,7 @@ pre[class*='language-'] {
 .token.tag,
 .token.selector,
 .language-autohotkey .token.keyword {
-  color: var(--color-blue-60);
+  color: var(--color-orange-60);
 }
 
 .docs-example {
