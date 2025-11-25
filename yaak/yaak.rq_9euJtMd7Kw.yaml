@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_9euJtMd7Kw
 createdAt: 2025-10-30T18:58:54.411260
-updatedAt: 2025-10-31T10:50:29.967453
+updatedAt: 2025-11-25T13:47:53.422054
 workspaceId: wk_BESCzWuhSE
 folderId: fl_d8b3aPxGc3
 authentication: {}
@@ -18,5 +18,5 @@ headers: []
 method: DELETE
 name: delete category
 sortPriority: 2000.0
-url: ${[ base_url ]}/v1/category
+url: ${[ base_url ]}/v1/category/123123213
 urlParameters: []

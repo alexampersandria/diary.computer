@@ -3,7 +3,7 @@ model: environment
 id: ev_pviY9YJbAi
 workspaceId: wk_BESCzWuhSE
 createdAt: 2025-10-30T15:13:35.129809
-updatedAt: 2025-11-20T13:21:22.407321
+updatedAt: 2025-11-25T13:49:25.593620
 name: Global Variables
 public: true
 base: true
@@ -24,7 +24,7 @@ variables:
   id: Q9BF7UNY0K
 - enabled: true
   name: session
-  value: 9e6c4265-59a9-4f02-876c-8fa96de13a8d
+  value: bcd1efc9-276c-4ace-8397-c0bc668e4916
   id: DcIDHC9tQy
 color: null
 sortPriority: 0.0

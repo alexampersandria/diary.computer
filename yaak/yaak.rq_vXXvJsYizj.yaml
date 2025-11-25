@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_vXXvJsYizj
 createdAt: 2025-10-30T19:03:22.576893
-updatedAt: 2025-10-31T10:51:18.972033
+updatedAt: 2025-11-25T13:51:13.777545
 workspaceId: wk_BESCzWuhSE
 folderId: fl_MutDAEV82K
 authentication: {}
@@ -25,5 +25,5 @@ headers:
 method: PATCH
 name: update entry
 sortPriority: 1000.0
-url: ${[ base_url ]}/v1/entry/93c8fef1-99e5-43c7-966e-653c96043d0d
+url: ${[ base_url ]}/v1/entry/3250e7f2-7e24-4ef1-bffa-3d0c3e823615
 urlParameters: []
