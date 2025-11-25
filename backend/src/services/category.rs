@@ -186,6 +186,12 @@ pub fn delete_category(category_id: &str, user_id: &str) -> Result<bool, Ephemer
     return Err(EphemerideError::UserNotFound);
   }
 
+  let category = get_category(category_id, user_id);
+
+  if category.is_err() {
+    return Err(EphemerideError::CategoryNotFound);
+  }
+
   let mut conn = establish_connection();
 
   let deleted_tags = delete_all_category_tags(category_id, user_id);
