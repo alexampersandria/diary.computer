@@ -59,7 +59,7 @@ incrementCount()
 Chips inside an `a` tag, or other interactable elements like the [Button](/docs/components/button) component or `button` tag, have styling to show that they are interactable. This is useful for things like tags that are interactable, but not a replacement for the Button component and should not be used as such.
 
 <DocsExample>
-  <a href="#">
+  <a href="#interactable-chip">
     <Chip>new</Chip>
   </a>
   <button>
@@ -71,7 +71,7 @@ Chips inside an `a` tag, or other interactable elements like the [Button](/docs/
 </DocsExample>
 
 ```svelte
-<a href="#">
+<a href="#interactable-chip">
   <Chip>new</Chip>
 </a>
 <button>
