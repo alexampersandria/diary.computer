@@ -44,12 +44,6 @@ repos:
         language: rust
         files: ^backend/
         types_or: [rust, toml]
-      - id: bun-install
-        name: bun install
-        entry: bash -c 'cd frontend && bun install'
-        language: node
-        files: ^frontend/
-        types_or: [javascript, ts, svelte, json]
       - id: bun-lint
         name: bun run lint
         entry: bash -c 'cd frontend && bun run lint'
