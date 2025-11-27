@@ -232,6 +232,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "diary-dot-computer-backend"
+version = "0.0.1"
+dependencies = [
+ "bcrypt",
+ "chrono",
+ "diesel",
+ "dotenvy",
+ "poem",
+ "regex",
+ "serde",
+ "serde_json",
+ "syn",
+ "tokio",
+ "tracing-subscriber",
+ "uuid",
+ "validator",
+]
+
+[[package]]
 name = "diesel"
 version = "2.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -320,25 +339,6 @@ name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
-
-[[package]]
-name = "ephemeride-backend"
-version = "0.0.1"
-dependencies = [
- "bcrypt",
- "chrono",
- "diesel",
- "dotenvy",
- "poem",
- "regex",
- "serde",
- "serde_json",
- "syn",
- "tokio",
- "tracing-subscriber",
- "uuid",
- "validator",
-]
 
 [[package]]
 name = "equivalent"

@@ -56,7 +56,7 @@ const title = $derived.by(() => {
   if (pre === '') {
     pre = 'Frontend'
   }
-  return pre + ' — Ephemeride Documentation'
+  return pre + ' — diary.computer Documentation'
 })
 </script>
 
@@ -89,8 +89,9 @@ const title = $derived.by(() => {
       <div class="docs-route-title">Get Started</div>
       <div class="docs-route-link">
         <a href="/docs/" use:active>Readme</a>
-        <a href="https://github.com/alexampersandria/ephemeride" target="_blank"
-          >GitHub</a>
+        <a
+          href="https://github.com/alexampersandria/diary.computer"
+          target="_blank">GitHub</a>
       </div>
     </div>
 

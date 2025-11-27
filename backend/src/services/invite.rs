@@ -1,7 +1,7 @@
 use crate::{
   establish_connection,
   schema::{self, invites},
-  util::error::EphemerideError,
+  util::error::APIError,
   util::generate_invite_code,
 };
 use diesel::{
@@ -19,7 +19,7 @@ pub struct Invite {
   pub used: bool,
 }
 
-pub fn get_invite(code: &str) -> Result<Invite, EphemerideError> {
+pub fn get_invite(code: &str) -> Result<Invite, APIError> {
   let mut conn = establish_connection();
 
   let result = schema::invites::table
@@ -28,17 +28,17 @@ pub fn get_invite(code: &str) -> Result<Invite, EphemerideError> {
 
   match result {
     Ok(invite) => Ok(invite),
-    Err(_) => Err(EphemerideError::InviteNotFound),
+    Err(_) => Err(APIError::InviteNotFound),
   }
 }
 
-pub fn use_invite(code: &str) -> Result<Invite, EphemerideError> {
+pub fn use_invite(code: &str) -> Result<Invite, APIError> {
   let mut conn = establish_connection();
 
   let invite = get_invite(code)?;
 
   if invite.used {
-    return Err(EphemerideError::InviteUsed);
+    return Err(APIError::InviteUsed);
   }
 
   let result = diesel::update(schema::invites::table.filter(schema::invites::code.eq(&code)))
@@ -47,11 +47,11 @@ pub fn use_invite(code: &str) -> Result<Invite, EphemerideError> {
 
   match result {
     Ok(invite) => Ok(invite),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn generate_invite(code: Option<&str>) -> Result<Invite, EphemerideError> {
+pub fn generate_invite(code: Option<&str>) -> Result<Invite, APIError> {
   let mut conn = establish_connection();
 
   let code = match code {
@@ -75,6 +75,6 @@ pub fn generate_invite(code: Option<&str>) -> Result<Invite, EphemerideError> {
 
   match result {
     Ok(_) => Ok(new_invite),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }

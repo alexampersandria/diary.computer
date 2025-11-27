@@ -18,7 +18,7 @@ let open = $state(false)
 
   <Modal bind:open>
     <h3>Share link</h3>
-    <Input fullwidth value="https://github.com/alexampersandria/ephemeride" />
+    <Input fullwidth value="https://github.com/alexampersandria/diary.computer" />
   </Modal>
 </DocsExample>
 

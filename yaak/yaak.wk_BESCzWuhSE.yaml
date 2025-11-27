@@ -8,7 +8,7 @@ authentication:
 authenticationType: bearer
 description: ''
 headers: []
-name: Ephemeride
+name: diary.computer
 encryptionKeyChallenge: null
 settingValidateCertificates: true
 settingFollowRedirects: true

@@ -1,6 +1,6 @@
-use ephemeride_backend::{
+use diary_dot_computer_backend::{
   services::{log, user},
-  util::EphemerideError,
+  util::APIError,
 };
 use uuid::Uuid;
 
@@ -134,7 +134,7 @@ fn get_category_with_tags_not_found() {
   let result = log::get_category_with_tags("nonexistent_id", &user.id);
 
   assert!(result.is_err());
-  assert_eq!(result.err().unwrap(), EphemerideError::CategoryNotFound);
+  assert_eq!(result.err().unwrap(), APIError::CategoryNotFound);
 }
 
 #[test]

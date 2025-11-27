@@ -8,7 +8,7 @@ use crate::{
   schema::{self, sessions},
   services::user,
   util,
-  util::error::EphemerideError,
+  util::error::APIError,
 };
 
 #[derive(Debug, Deserialize, Serialize, Insertable, Queryable)]
@@ -52,35 +52,35 @@ fn token_from_header(request: &Request) -> Option<String> {
   token.map(|token| token.replace("Bearer ", ""))
 }
 
-pub fn authorize_request(request: &Request) -> Result<Session, EphemerideError> {
+pub fn authorize_request(request: &Request) -> Result<Session, APIError> {
   match token_from_header(request) {
     Some(token) => get_user_session_by_id(&token),
-    None => Err(EphemerideError::Unauthorized),
+    None => Err(APIError::Unauthorized),
   }
 }
 
 pub fn create_user_session(
   user_credentials: UserCredentials,
   metadata: SessionMetadata,
-) -> Result<Session, EphemerideError> {
+) -> Result<Session, APIError> {
   let mut conn = establish_connection();
 
   let user_id = match user::get_user_id(&user_credentials.email) {
     Ok(id) => id,
-    Err(_) => return Err(EphemerideError::UserNotFound),
+    Err(_) => return Err(APIError::UserNotFound),
   };
 
   let password_hash = match user::get_password_hash(&user_id) {
     Ok(hash) => hash,
-    Err(_) => return Err(EphemerideError::DatabaseError),
+    Err(_) => return Err(APIError::DatabaseError),
   };
 
   match bcrypt::verify(&user_credentials.password, &password_hash) {
     Ok(valid) => match valid {
       true => (),
-      false => return Err(EphemerideError::InvalidPassword),
+      false => return Err(APIError::InvalidPassword),
     },
-    Err(_) => return Err(EphemerideError::InternalServerError),
+    Err(_) => return Err(APIError::InternalServerError),
   };
 
   let session = Session {
@@ -98,11 +98,11 @@ pub fn create_user_session(
 
   match result {
     Ok(_) => Ok(session),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn update_accessed_at(session_id: &str) -> Result<bool, EphemerideError> {
+pub fn update_accessed_at(session_id: &str) -> Result<bool, APIError> {
   let mut conn = establish_connection();
 
   let result = diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
@@ -111,11 +111,11 @@ pub fn update_accessed_at(session_id: &str) -> Result<bool, EphemerideError> {
 
   match result {
     Ok(_) => Ok(true),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn get_user_session_by_id(session_id: &str) -> Result<Session, EphemerideError> {
+pub fn get_user_session_by_id(session_id: &str) -> Result<Session, APIError> {
   let mut conn = establish_connection();
 
   let result = schema::sessions::table
@@ -124,16 +124,16 @@ pub fn get_user_session_by_id(session_id: &str) -> Result<Session, EphemerideErr
 
   match update_accessed_at(session_id) {
     Ok(_) => (),
-    Err(_) => return Err(EphemerideError::DatabaseError),
+    Err(_) => return Err(APIError::DatabaseError),
   }
 
   match result {
     Ok(session) => Ok(session),
-    Err(_) => Err(EphemerideError::SessionNotFound),
+    Err(_) => Err(APIError::SessionNotFound),
   }
 }
 
-pub fn get_all_user_sessions(user_id: &str) -> Result<Vec<Session>, EphemerideError> {
+pub fn get_all_user_sessions(user_id: &str) -> Result<Vec<Session>, APIError> {
   let mut conn = establish_connection();
 
   let result = schema::sessions::table
@@ -143,11 +143,11 @@ pub fn get_all_user_sessions(user_id: &str) -> Result<Vec<Session>, EphemerideEr
 
   match result {
     Ok(sessions) => Ok(sessions),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn delete_user_session(session_id: &str) -> Result<bool, EphemerideError> {
+pub fn delete_user_session(session_id: &str) -> Result<bool, APIError> {
   let mut conn = establish_connection();
 
   let result = diesel::delete(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
@@ -155,11 +155,11 @@ pub fn delete_user_session(session_id: &str) -> Result<bool, EphemerideError> {
 
   match result {
     Ok(rows_affected) => Ok(rows_affected > 0),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn delete_all_user_sessions(user_id: &str) -> Result<bool, EphemerideError> {
+pub fn delete_all_user_sessions(user_id: &str) -> Result<bool, APIError> {
   let mut conn = establish_connection();
 
   let result =
@@ -168,6 +168,6 @@ pub fn delete_all_user_sessions(user_id: &str) -> Result<bool, EphemerideError> 
 
   match result {
     Ok(rows_affected) => Ok(rows_affected > 0),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }

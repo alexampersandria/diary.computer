@@ -18,7 +18,7 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
 </script>
 
 <svelte:head>
-  <title>Ephemeride — Your life, documented</title>
+  <title>diary.computer — Your life, documented</title>
 </svelte:head>
 
 <div class="landing-page">
@@ -34,7 +34,7 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
       <div class="right">
         <Button
           type="ghost"
-          href="https://github.com/alexampersandria/ephemeride"
+          href="https://github.com/alexampersandria/diary.computer"
           target="_blank">
           <Github />
           GitHub
@@ -91,7 +91,7 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
         <div class="fade-in fade-in-3">
           <Button
             type="ghost"
-            href="https://github.com/alexampersandria/ephemeride"
+            href="https://github.com/alexampersandria/diary.computer"
             target="_blank">
             <Github />
             GitHub

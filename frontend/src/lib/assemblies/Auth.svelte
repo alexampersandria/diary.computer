@@ -188,7 +188,7 @@ onMount(async () => {
         {errorMessage}
       {:else}
         Failed to contact the server, please try again later or <a
-          href="https://github.com/alexampersandria/ephemeride/issues/new"
+          href="https://github.com/alexampersandria/diary.computer/issues/new"
           target="_blank">create an issue</a> if the problem persists.
       {/if}
     </Alert>

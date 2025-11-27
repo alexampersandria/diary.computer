@@ -1,6 +1,6 @@
 use crate::{
   services::{authorize_request, log},
-  util::{error::error_response, response, EphemerideError},
+  util::{error::error_response, response, APIError},
 };
 use poem::{
   handler,
@@ -81,6 +81,6 @@ pub fn delete_tag(Path(id): Path<String>, request: &Request) -> Response {
 
   match deleted_tag {
     true => response(StatusCode::NO_CONTENT, &()),
-    false => error_response(EphemerideError::TagNotFound),
+    false => error_response(APIError::TagNotFound),
   }
 }

@@ -1,4 +1,4 @@
-use crate::util::error::{error_response, EphemerideError};
+use crate::util::error::{error_response, APIError};
 use poem::{http::StatusCode, Body, Response};
 
 fn json_response(status_code: StatusCode, body: impl Into<Body>) -> Response {
@@ -11,7 +11,7 @@ fn json_response(status_code: StatusCode, body: impl Into<Body>) -> Response {
 pub fn response(status_code: StatusCode, body: &impl serde::Serialize) -> Response {
   let body = match serde_json::to_string(body) {
     Ok(body) => body,
-    Err(_) => return error_response(EphemerideError::InternalServerError),
+    Err(_) => return error_response(APIError::InternalServerError),
   };
   json_response(status_code, body)
 }

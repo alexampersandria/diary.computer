@@ -13,7 +13,7 @@ let uiStore = useUiStore()
 
 let { children } = $props()
 
-const title = $derived('Ephemeride')
+const title = $derived('diary.computer')
 </script>
 
 <svelte:head>

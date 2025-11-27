@@ -1,6 +1,6 @@
 use crate::{
   services::{authorize_request, log},
-  util::{error::error_response, response, EphemerideError},
+  util::{error::error_response, response, APIError},
 };
 use poem::{
   handler,
@@ -75,6 +75,6 @@ pub fn delete_category(Path(id): Path<String>, request: &Request) -> Response {
 
   match deleted_category {
     true => response(StatusCode::NO_CONTENT, &()),
-    false => error_response(EphemerideError::CategoryNotFound),
+    false => error_response(APIError::CategoryNotFound),
   }
 }

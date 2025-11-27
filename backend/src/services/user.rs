@@ -2,7 +2,7 @@ use crate::{
   establish_connection,
   schema::{self, users},
   services::{create_default_data, log},
-  util::{self, error::EphemerideError},
+  util::{self, error::APIError},
 };
 use diesel::{
   deserialize::Queryable, prelude::Insertable, AggregateExpressionMethods, ExpressionMethods,
@@ -79,7 +79,7 @@ fn user_details(user: User) -> UserDetails {
   }
 }
 
-pub fn get_user_id(email: &str) -> Result<String, EphemerideError> {
+pub fn get_user_id(email: &str) -> Result<String, APIError> {
   let mut conn = establish_connection();
 
   let result = schema::users::table
@@ -89,11 +89,11 @@ pub fn get_user_id(email: &str) -> Result<String, EphemerideError> {
 
   match result {
     Ok(id) => Ok(id),
-    Err(_) => Err(EphemerideError::UserNotFound),
+    Err(_) => Err(APIError::UserNotFound),
   }
 }
 
-pub fn get_user(id: &str) -> Result<UserDetails, EphemerideError> {
+pub fn get_user(id: &str) -> Result<UserDetails, APIError> {
   let mut conn = establish_connection();
 
   // should only select some fields here not all
@@ -107,11 +107,11 @@ pub fn get_user(id: &str) -> Result<UserDetails, EphemerideError> {
   match result {
     // #TODO: see above todo, but this needs to be fixed
     Ok(user) => Ok(user_details(user)),
-    Err(_) => Err(EphemerideError::UserNotFound),
+    Err(_) => Err(APIError::UserNotFound),
   }
 }
 
-pub fn get_password_hash(id: &str) -> Result<String, EphemerideError> {
+pub fn get_password_hash(id: &str) -> Result<String, APIError> {
   let mut conn: diesel::PgConnection = establish_connection();
 
   let result = schema::users::table
@@ -120,18 +120,18 @@ pub fn get_password_hash(id: &str) -> Result<String, EphemerideError> {
 
   match result {
     Ok(user) => Ok(user.password),
-    Err(_) => Err(EphemerideError::UserNotFound),
+    Err(_) => Err(APIError::UserNotFound),
   }
 }
 
-pub fn create_user(user: CreateUser) -> Result<UserDetails, EphemerideError> {
+pub fn create_user(user: CreateUser) -> Result<UserDetails, APIError> {
   match user.validate() {
     Ok(_) => (),
-    Err(_) => return Err(EphemerideError::BadRequest),
+    Err(_) => return Err(APIError::BadRequest),
   }
 
   if get_user_id(&user.email).is_ok() {
-    return Err(EphemerideError::EmailAlreadyInUse);
+    return Err(APIError::EmailAlreadyInUse);
   }
 
   let mut conn = establish_connection();
@@ -147,7 +147,7 @@ pub fn create_user(user: CreateUser) -> Result<UserDetails, EphemerideError> {
 
   let password_hash = match bcrypt::hash(&user.password, cost) {
     Ok(hash) => hash,
-    Err(_) => return Err(EphemerideError::InternalServerError),
+    Err(_) => return Err(APIError::InternalServerError),
   };
 
   let new_user = User {
@@ -164,29 +164,29 @@ pub fn create_user(user: CreateUser) -> Result<UserDetails, EphemerideError> {
     .execute(&mut conn);
 
   if result.is_err() {
-    return Err(EphemerideError::DatabaseError);
+    return Err(APIError::DatabaseError);
   }
 
   let created_user_defaults = create_default_data(new_user.id.clone());
 
   if created_user_defaults.is_err() {
-    return Err(EphemerideError::DatabaseError);
+    return Err(APIError::DatabaseError);
   }
 
   Ok(user_details(new_user))
 }
 
-pub fn delete_user(id: &str) -> Result<bool, EphemerideError> {
+pub fn delete_user(id: &str) -> Result<bool, APIError> {
   let mut conn = establish_connection();
 
   match delete_all_user_sessions(id) {
     Ok(_) => (),
-    Err(_) => return Err(EphemerideError::DatabaseError),
+    Err(_) => return Err(APIError::DatabaseError),
   };
 
   match log::delete_all_user_data(id) {
     Ok(_) => (),
-    Err(_) => return Err(EphemerideError::DatabaseError),
+    Err(_) => return Err(APIError::DatabaseError),
   };
 
   let result =
@@ -194,19 +194,19 @@ pub fn delete_user(id: &str) -> Result<bool, EphemerideError> {
 
   match result {
     Ok(rows_affected) => Ok(rows_affected > 0),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn update_user(id: &str, user: UpdateUser) -> Result<bool, EphemerideError> {
+pub fn update_user(id: &str, user: UpdateUser) -> Result<bool, APIError> {
   match user.validate() {
     Ok(_) => (),
-    Err(_) => return Err(EphemerideError::BadRequest),
+    Err(_) => return Err(APIError::BadRequest),
   }
 
   if let Ok(existing_user_id) = get_user_id(&user.email) {
     if existing_user_id != id {
-      return Err(EphemerideError::EmailAlreadyInUse);
+      return Err(APIError::EmailAlreadyInUse);
     }
   }
 
@@ -221,16 +221,16 @@ pub fn update_user(id: &str, user: UpdateUser) -> Result<bool, EphemerideError> 
 
   match result {
     Ok(rows_affected) => Ok(rows_affected > 0),
-    Err(_) => Err(EphemerideError::UserNotFound),
+    Err(_) => Err(APIError::UserNotFound),
   }
 }
 
-pub fn update_password(id: &str, password: UpdatePassword) -> Result<bool, EphemerideError> {
+pub fn update_password(id: &str, password: UpdatePassword) -> Result<bool, APIError> {
   let mut conn = establish_connection();
 
   let password_hash = match bcrypt::hash(&password.password, bcrypt::DEFAULT_COST) {
     Ok(hash) => hash,
-    Err(_) => return Err(EphemerideError::InternalServerError),
+    Err(_) => return Err(APIError::InternalServerError),
   };
 
   let result = diesel::update(schema::users::table.filter(schema::users::id.eq(id)))
@@ -239,22 +239,22 @@ pub fn update_password(id: &str, password: UpdatePassword) -> Result<bool, Ephem
 
   match result {
     Ok(rows_affected) => Ok(rows_affected > 0),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn user_count() -> Result<i64, EphemerideError> {
+pub fn user_count() -> Result<i64, APIError> {
   let mut conn = establish_connection();
 
   let result = schema::users::table.count().get_result::<i64>(&mut conn);
 
   match result {
     Ok(count) => Ok(count),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn active_user_count(since_timestamp: i64) -> Result<i64, EphemerideError> {
+pub fn active_user_count(since_timestamp: i64) -> Result<i64, APIError> {
   let mut conn = establish_connection();
 
   let result = schema::users::table
@@ -265,6 +265,6 @@ pub fn active_user_count(since_timestamp: i64) -> Result<i64, EphemerideError> {
 
   match result {
     Ok(count) => Ok(count),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
