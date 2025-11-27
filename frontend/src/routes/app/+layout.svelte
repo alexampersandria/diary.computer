@@ -27,6 +27,7 @@ import Logo from '$lib/components/Logo.svelte'
 import Calendar from '$lib/components/Calendar.svelte'
 import { useDataStore } from '$lib/store/dataStore.svelte'
 import { page } from '$app/state'
+import { watch } from 'runed'
 
 let { children } = $props()
 
@@ -75,11 +76,14 @@ const handleLogout = () => {
   userStore.logOut()
 }
 
-$effect(() => {
-  if (page.url.pathname) {
-    leftMenuOpenMobile = false
-  }
-})
+watch(
+  () => page.url.pathname,
+  (to, from) => {
+    if (to && to !== from) {
+      leftMenuOpenMobile = false
+    }
+  },
+)
 </script>
 
 <svelte:head>

@@ -171,12 +171,6 @@ onMount(async () => {
       serverError = 'FETCH_CONFIG'
     })
 })
-
-$effect(() => {
-  if (serverError) {
-    console.error('Server error detected:', serverError)
-  }
-})
 </script>
 
 <div class="auth-assembly">

@@ -6,6 +6,7 @@ import { useDataStore } from '$lib/store/dataStore.svelte'
 import type { EditEntry, Entry as EntryType, NewEntry } from '$lib/types/log'
 import { isValidDate } from '$lib/utils/log'
 import { takeAtLeast } from '$lib/utils/takeAtLeast'
+import { watch } from 'runed'
 import type { PageProps } from './$types'
 
 let { data }: PageProps = $props()
@@ -29,11 +30,12 @@ const getData = () => {
   }, 0)
 }
 
-$effect(() => {
-  if (data.date) {
+watch(
+  () => data.date,
+  () => {
     getData()
-  }
-})
+  },
+)
 
 const onCreate = async (newEntry: NewEntry) => {
   const created = await dataStore.createEntry({

@@ -9,6 +9,7 @@ import {
 import Logo from '$lib/components/Logo.svelte'
 import { Menu, X } from 'lucide-svelte'
 import ThemeToggle from '$lib/components/ThemeToggle.svelte'
+import { watch } from 'runed'
 
 const design = getRoutes(/\/docs\/design\/[^/]+\//)
 const components = getRoutes(/\/docs\/components\/[^/]+\//)
@@ -21,13 +22,14 @@ let { children } = $props()
 let sidebarOpen = $state(false)
 let content: HTMLElement
 
-$effect(() => {
-  if (page.route.id) {
+watch(
+  () => page.route.id,
+  () => {
     // close sidebar and scroll to top when navigating to a new page
     sidebarOpen = false
     content.scrollTop = 0
-  }
-})
+  },
+)
 
 const sidebarToggle = () => {
   sidebarOpen = !sidebarOpen

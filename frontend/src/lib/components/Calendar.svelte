@@ -18,6 +18,7 @@ import { useDataStore } from '$lib/store/dataStore.svelte'
 import { page } from '$app/state'
 import { onMount } from 'svelte'
 import type { Range } from '$lib/types/range'
+import { watch } from 'runed'
 
 let dataStore = useDataStore()
 
@@ -220,7 +221,11 @@ const clickDay = (day: number) => {
   }
 }
 
-$effect(() => {
+watch([() => to, () => from], () => {
+  // skip assignment if mode isn't rangepicker
+  if (mode !== 'rangepicker') {
+    return
+  }
   if (to && from) {
     value = { from, to }
   } else if (from && !to) {
@@ -232,18 +237,27 @@ $effect(() => {
   }
 })
 
-$effect(() => {
-  if (value === undefined) {
-    from = undefined
-    to = undefined
-  } else if (typeof value === 'string') {
-    from = undefined
-    to = undefined
-  } else if (typeof value === 'object') {
-    from = value.from
-    to = value.to
-  }
-})
+watch(
+  () => value,
+  () => {
+    // skip assignment if value hasn't changed so we don't create an infinite loop though i don't think it would anyway
+    if (typeof value === 'object') {
+      if (value.from === from && value.to === to) {
+        return
+      }
+    }
+    if (value === undefined) {
+      from = undefined
+      to = undefined
+    } else if (typeof value === 'string') {
+      from = undefined
+      to = undefined
+    } else if (typeof value === 'object') {
+      from = value.from
+      to = value.to
+    }
+  },
+)
 </script>
 
 <div class="calendar">
