@@ -26,39 +26,46 @@ repos:
         language: rust
         files: ^backend/
         types_or: [rust, toml]
+        pass_filenames: false
       - id: cargo-clippy
         name: cargo clippy
         entry: bash -c 'cd backend && cargo clippy --verbose'
         language: rust
         files: ^backend/
         types_or: [rust, toml]
+        pass_filenames: false
       - id: cargo-build
         name: cargo build
         entry: bash -c 'cd backend && cargo build'
         language: rust
         files: ^backend/
         types_or: [rust, toml]
+        pass_filenames: false
       - id: cargo-test
         name: cargo test
         entry: bash -c 'cd backend && cargo test --verbose'
         language: rust
         files: ^backend/
         types_or: [rust, toml]
+        pass_filenames: false
       - id: bun-lint
         name: bun run lint
         entry: bash -c 'cd frontend && bun run lint'
         language: node
         files: ^frontend/
         types_or: [javascript, ts, svelte, json]
+        pass_filenames: false
       - id: bun-check
         name: bun run check
         entry: bash -c 'cd frontend && bun run check'
         language: node
         files: ^frontend/
         types_or: [javascript, ts, svelte, json]
+        pass_filenames: false
       - id: bun-test
         name: bun run test
         entry: bash -c 'cd frontend && bun run test'
         language: node
         files: ^frontend/
         types_or: [javascript, ts, svelte, json]
+        pass_filenames: false
