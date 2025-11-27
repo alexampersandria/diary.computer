@@ -383,7 +383,8 @@ watch(
       position: relative;
       top: calc(-1 * var(--padding-s));
       height: 100%;
-      overflow: auto;
+      overflow: hidden;
+      width: 100%;
 
       .actions,
       .footer {
@@ -395,6 +396,10 @@ watch(
         flex-direction: column;
         flex-shrink: 1;
         overflow: auto;
+        width: calc(100% + var(--padding-s) * 2);
+        margin-left: calc(-1 * var(--padding-s));
+        margin-top: calc(-1 * var(--padding-s));
+        padding: var(--padding-s);
       }
 
       .footer {
