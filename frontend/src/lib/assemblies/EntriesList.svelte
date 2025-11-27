@@ -32,7 +32,7 @@ const clickMore = async () => {
   {:else}
     {#if pagination}
       <div class="count">
-        showing {entries.length} of {pagination.total_count} entries
+        Showing {entries.length} of {pagination.total_count} entries
       </div>
     {/if}
 
