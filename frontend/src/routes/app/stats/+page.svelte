@@ -54,7 +54,7 @@ const navigateYear = async (year: number) => {
   <div class="container">
     <div class="app-page-title">
       <ChartLine />
-      Stats (WIP)
+      Stats
     </div>
 
     <div class="section heatmap-current-year">

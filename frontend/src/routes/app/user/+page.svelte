@@ -262,7 +262,7 @@ onMount(async () => {
 
     {#if sessionsEnabled}
       <div class="section sessions">
-        <div class="section-title">Active Sessions (WIP)</div>
+        <div class="section-title">Active Sessions</div>
         {#if sessions}
           <table>
             <thead>
