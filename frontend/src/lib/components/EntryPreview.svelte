@@ -63,6 +63,8 @@ let mood = $derived.by(() => {
   color: var(--text-primary);
   height: var(--entry-preview-height);
   padding: var(--padding-s);
+  flex: 1 0 auto;
+  width: 100%;
 
   &.small {
     height: var(--entry-preview-height-small);
@@ -146,7 +148,6 @@ let mood = $derived.by(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
 
     @for $i from 1 through 5 {
       &.mood-#{$i} {
