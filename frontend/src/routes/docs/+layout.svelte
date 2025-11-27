@@ -9,7 +9,7 @@ import {
 import Logo from '$lib/components/Logo.svelte'
 import { Menu, X } from 'lucide-svelte'
 import ThemeToggle from '$lib/components/ThemeToggle.svelte'
-import { watch } from 'runed'
+import { beforeNavigate } from '$app/navigation'
 
 const design = getRoutes(/\/docs\/design\/[^/]+\//)
 const components = getRoutes(/\/docs\/components\/[^/]+\//)
@@ -22,14 +22,17 @@ let { children } = $props()
 let sidebarOpen = $state(false)
 let content: HTMLElement
 
-watch(
-  () => page.route.id,
-  () => {
-    // close sidebar and scroll to top when navigating to a new page
-    sidebarOpen = false
-    content.scrollTop = 0
-  },
-)
+beforeNavigate(nav => {
+  // close sidebar and scroll to top when navigating to a new page
+  sidebarOpen = false
+  content.scrollTop = 0
+
+  if (nav.to?.route.id?.startsWith('/app')) {
+    // prevent navigation to /app routes from docs
+    // this is being triggered from a doc example and should not direct the user to the app
+    nav.cancel()
+  }
+})
 
 const sidebarToggle = () => {
   sidebarOpen = !sidebarOpen
