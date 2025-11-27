@@ -1,4 +1,4 @@
-use ephemeride_backend::services::{auth, log, user};
+use diary_dot_computer_backend::services::{auth, log, user};
 use uuid::Uuid;
 
 #[test]

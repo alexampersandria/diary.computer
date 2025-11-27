@@ -87,7 +87,7 @@ watch(
 </script>
 
 <svelte:head>
-  <title>Ephemeride</title>
+  <title>diary.computer</title>
 </svelte:head>
 
 <div
@@ -257,7 +257,7 @@ watch(
       </div>
 
       <Button
-        href="https://github.com/alexampersandria/ephemeride"
+        href="https://github.com/alexampersandria/diary.computer"
         target="_blank"
         fullwidth>
         <Github /> GitHub

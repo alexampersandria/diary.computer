@@ -1,4 +1,4 @@
-use ephemeride_backend::services::invite;
+use diary_dot_computer_backend::services::invite;
 use uuid::Uuid;
 
 #[test]

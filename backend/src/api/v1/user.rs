@@ -1,7 +1,7 @@
 use crate::{
   services::{auth, authorize_request, invite, log, user, UserCredentials},
   util::{
-    error::{error_response, EphemerideError},
+    error::{error_response, APIError},
     response,
   },
 };
@@ -18,9 +18,9 @@ pub fn create_user(Json(user): Json<user::CreateUser>, request: &Request) -> Res
     match &user.invite {
       Some(invite) => match invite::use_invite(invite) {
         Ok(_) => (),
-        Err(_) => return error_response(EphemerideError::InviteNotFound),
+        Err(_) => return error_response(APIError::InviteNotFound),
       },
-      None => return error_response(EphemerideError::InviteNotFound),
+      None => return error_response(APIError::InviteNotFound),
     }
   }
 
@@ -73,7 +73,7 @@ pub fn delete_user(request: &Request) -> Response {
 
   match deleted {
     true => response(StatusCode::NO_CONTENT, &()),
-    false => error_response(EphemerideError::UserNotFound),
+    false => error_response(APIError::UserNotFound),
   }
 }
 
@@ -91,7 +91,7 @@ pub fn update_user(Json(user): Json<user::UpdateUser>, request: &Request) -> Res
 
   match updated_user {
     true => response(StatusCode::NO_CONTENT, &()),
-    false => error_response(EphemerideError::UserNotFound),
+    false => error_response(APIError::UserNotFound),
   }
 }
 
@@ -109,7 +109,7 @@ pub fn update_password(Json(password): Json<user::UpdatePassword>, request: &Req
 
   match updated_password {
     true => response(StatusCode::NO_CONTENT, &()),
-    false => error_response(EphemerideError::UserNotFound),
+    false => error_response(APIError::UserNotFound),
   }
 }
 

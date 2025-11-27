@@ -15,7 +15,7 @@ let userStore = useUserStore()
     <br />
     <div class="muted small">
       If you believe this to be an error <a
-        href="http://github.com/alexampersandria/ephemeride/issues/new"
+        href="https://github.com/alexampersandria/diary.computer/issues/new"
         target="_blank"
         rel="noopener noreferrer">create an issue</a>
       <br />

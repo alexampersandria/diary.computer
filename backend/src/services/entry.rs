@@ -8,7 +8,7 @@ use crate::{
     tag::{get_tag, Tag},
     Paginated, PaginationObject,
   },
-  util::{self, EphemerideError},
+  util::{self, APIError},
 };
 use diesel::{
   define_sql_function,
@@ -83,19 +83,19 @@ pub struct EntryTag {
   pub tag_id: String,
 }
 
-pub fn create_entry(entry: CreateEntry) -> Result<EntryWithTags, EphemerideError> {
+pub fn create_entry(entry: CreateEntry) -> Result<EntryWithTags, APIError> {
   match entry.validate() {
     Ok(_) => (),
-    Err(_) => return Err(EphemerideError::BadRequest),
+    Err(_) => return Err(APIError::BadRequest),
   }
 
   let naive_date = match chrono::NaiveDate::parse_from_str(&entry.date, "%Y-%m-%d") {
     Ok(date) => date,
-    Err(_) => return Err(EphemerideError::BadRequest),
+    Err(_) => return Err(APIError::BadRequest),
   };
 
   if get_entry_by_date(naive_date, &entry.user_id).is_ok() {
-    return Err(EphemerideError::EntryAlreadyExistsForDate);
+    return Err(APIError::EntryAlreadyExistsForDate);
   }
 
   let mut tags: Vec<Tag> = Vec::new();
@@ -111,7 +111,7 @@ pub fn create_entry(entry: CreateEntry) -> Result<EntryWithTags, EphemerideError
   let user = get_user(&entry.user_id);
 
   if user.is_err() {
-    return Err(EphemerideError::UserNotFound);
+    return Err(APIError::UserNotFound);
   }
 
   let mut conn = establish_connection();
@@ -130,7 +130,7 @@ pub fn create_entry(entry: CreateEntry) -> Result<EntryWithTags, EphemerideError
     .execute(&mut conn);
 
   if result.is_err() {
-    return Err(EphemerideError::DatabaseError);
+    return Err(APIError::DatabaseError);
   }
 
   for tag in &tags {
@@ -145,7 +145,7 @@ pub fn create_entry(entry: CreateEntry) -> Result<EntryWithTags, EphemerideError
       .execute(&mut conn);
 
     if tag_result.is_err() {
-      return Err(EphemerideError::DatabaseError);
+      return Err(APIError::DatabaseError);
     }
   }
 
@@ -162,20 +162,20 @@ pub fn create_entry(entry: CreateEntry) -> Result<EntryWithTags, EphemerideError
   Ok(entry_with_tags)
 }
 
-pub fn edit_entry(entry: EditEntry) -> Result<EntryWithTags, EphemerideError> {
+pub fn edit_entry(entry: EditEntry) -> Result<EntryWithTags, APIError> {
   match entry.validate() {
     Ok(_) => (),
-    Err(_) => return Err(EphemerideError::BadRequest),
+    Err(_) => return Err(APIError::BadRequest),
   }
 
   let naive_date = match chrono::NaiveDate::parse_from_str(&entry.date, "%Y-%m-%d") {
     Ok(date) => date,
-    Err(_) => return Err(EphemerideError::BadRequest),
+    Err(_) => return Err(APIError::BadRequest),
   };
 
   if let Ok(entry_for_date) = get_entry_by_date(naive_date, &entry.user_id) {
     if entry_for_date.id != entry.id {
-      return Err(EphemerideError::EntryAlreadyExistsForDate);
+      return Err(APIError::EntryAlreadyExistsForDate);
     }
   }
 
@@ -204,7 +204,7 @@ pub fn edit_entry(entry: EditEntry) -> Result<EntryWithTags, EphemerideError> {
   .execute(&mut conn);
 
   if result.is_err() {
-    return Err(EphemerideError::DatabaseError);
+    return Err(APIError::DatabaseError);
   }
 
   let delete_result = diesel::delete(
@@ -213,7 +213,7 @@ pub fn edit_entry(entry: EditEntry) -> Result<EntryWithTags, EphemerideError> {
   .execute(&mut conn);
 
   if delete_result.is_err() {
-    return Err(EphemerideError::DatabaseError);
+    return Err(APIError::DatabaseError);
   }
 
   for tag in &tags {
@@ -228,14 +228,14 @@ pub fn edit_entry(entry: EditEntry) -> Result<EntryWithTags, EphemerideError> {
       .execute(&mut conn);
 
     if tag_result.is_err() {
-      return Err(EphemerideError::DatabaseError);
+      return Err(APIError::DatabaseError);
     }
   }
 
   get_entry_with_tags(&entry.id, &entry.user_id)
 }
 
-pub fn get_entry_by_date(date: chrono::NaiveDate, user_id: &str) -> Result<Entry, EphemerideError> {
+pub fn get_entry_by_date(date: chrono::NaiveDate, user_id: &str) -> Result<Entry, APIError> {
   let mut conn = establish_connection();
 
   let result = schema::entries::table
@@ -245,14 +245,11 @@ pub fn get_entry_by_date(date: chrono::NaiveDate, user_id: &str) -> Result<Entry
 
   match result {
     Ok(entry) => Ok(entry),
-    Err(_) => Err(EphemerideError::EntryNotFound),
+    Err(_) => Err(APIError::EntryNotFound),
   }
 }
 
-pub fn get_entry_with_tags(
-  entry_id: &str,
-  user_id: &str,
-) -> Result<EntryWithTags, EphemerideError> {
+pub fn get_entry_with_tags(entry_id: &str, user_id: &str) -> Result<EntryWithTags, APIError> {
   let mut conn = establish_connection();
 
   let entry_result = schema::entries::table
@@ -262,7 +259,7 @@ pub fn get_entry_with_tags(
 
   let entry = match entry_result {
     Ok(entry) => entry,
-    Err(_) => return Err(EphemerideError::EntryNotFound),
+    Err(_) => return Err(APIError::EntryNotFound),
   };
 
   let entry_tags_result = schema::entry_tags::table
@@ -271,7 +268,7 @@ pub fn get_entry_with_tags(
 
   let entry_tags = match entry_tags_result {
     Ok(entry_tags) => entry_tags,
-    Err(_) => return Err(EphemerideError::DatabaseError),
+    Err(_) => return Err(APIError::DatabaseError),
   };
 
   let tag_ids: Vec<String> = entry_tags.into_iter().map(|et| et.tag_id).collect();
@@ -289,11 +286,11 @@ pub fn get_entry_with_tags(
   Ok(entry_with_tags)
 }
 
-pub fn delete_entry(entry_id: &str, user_id: &str) -> Result<bool, EphemerideError> {
+pub fn delete_entry(entry_id: &str, user_id: &str) -> Result<bool, APIError> {
   let user = get_user(user_id);
 
   if user.is_err() {
-    return Err(EphemerideError::UserNotFound);
+    return Err(APIError::UserNotFound);
   }
 
   let mut conn = establish_connection();
@@ -307,7 +304,7 @@ pub fn delete_entry(entry_id: &str, user_id: &str) -> Result<bool, EphemerideErr
 
   match result {
     Ok(count) => Ok(count > 0),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
@@ -349,7 +346,7 @@ impl Default for GetEntriesOptions {
 pub fn get_entries(
   user_id: &str,
   options: Option<GetEntriesOptions>,
-) -> Result<Paginated<EntryWithTags>, EphemerideError> {
+) -> Result<Paginated<EntryWithTags>, APIError> {
   define_sql_function!(
     #[aggregate]
     fn array_agg(x: Nullable<VarChar>) -> Array<Nullable<VarChar>>;
@@ -387,7 +384,7 @@ pub fn get_entries(
       if let Some(from_date) = options.from_date {
         let from_naive_date = match chrono::NaiveDate::parse_from_str(&from_date, "%Y-%m-%d") {
           Ok(date) => date,
-          Err(_) => return Err(EphemerideError::BadRequest),
+          Err(_) => return Err(APIError::BadRequest),
         };
         query = query.filter(schema::entries::date.ge(from_naive_date));
       }
@@ -395,7 +392,7 @@ pub fn get_entries(
       if let Some(to_date) = options.to_date {
         let to_naive_date = match chrono::NaiveDate::parse_from_str(&to_date, "%Y-%m-%d") {
           Ok(date) => date,
-          Err(_) => return Err(EphemerideError::BadRequest),
+          Err(_) => return Err(APIError::BadRequest),
         };
         query = query.filter(schema::entries::date.le(to_naive_date));
       }
@@ -485,7 +482,7 @@ pub fn get_entries(
 
   let rows = match result {
     Ok(rows) => rows,
-    Err(_) => return Err(EphemerideError::DatabaseError),
+    Err(_) => return Err(APIError::DatabaseError),
   };
 
   if let Some(first_row) = &rows.first() {

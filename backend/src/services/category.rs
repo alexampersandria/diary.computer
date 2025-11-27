@@ -5,7 +5,7 @@ use crate::{
     get_user,
     tag::{delete_all_category_tags, get_category_tags, Tag},
   },
-  util::{self, EphemerideError},
+  util::{self, APIError},
 };
 use diesel::{
   prelude::{Insertable, Queryable},
@@ -51,16 +51,16 @@ pub struct CategoryWithTags {
   pub tags: Vec<Tag>,
 }
 
-pub fn create_category(category: CreateCategory) -> Result<Category, EphemerideError> {
+pub fn create_category(category: CreateCategory) -> Result<Category, APIError> {
   match category.validate() {
     Ok(_) => (),
-    Err(_) => return Err(EphemerideError::BadRequest),
+    Err(_) => return Err(APIError::BadRequest),
   }
 
   let user = get_user(&category.user_id);
 
   if user.is_err() {
-    return Err(EphemerideError::UserNotFound);
+    return Err(APIError::UserNotFound);
   }
 
   let mut conn = establish_connection();
@@ -78,20 +78,20 @@ pub fn create_category(category: CreateCategory) -> Result<Category, EphemerideE
 
   match result {
     Ok(_) => Ok(new_category),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn edit_category(category: EditCategory) -> Result<Category, EphemerideError> {
+pub fn edit_category(category: EditCategory) -> Result<Category, APIError> {
   match category.validate() {
     Ok(_) => (),
-    Err(_) => return Err(EphemerideError::BadRequest),
+    Err(_) => return Err(APIError::BadRequest),
   }
 
   let user = get_user(&category.user_id);
 
   if user.is_err() {
-    return Err(EphemerideError::UserNotFound);
+    return Err(APIError::UserNotFound);
   }
 
   let mut conn = establish_connection();
@@ -106,11 +106,11 @@ pub fn edit_category(category: EditCategory) -> Result<Category, EphemerideError
 
   match result {
     Ok(_) => get_category(&category.id, &category.user_id),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn get_category(category_id: &str, user_id: &str) -> Result<Category, EphemerideError> {
+pub fn get_category(category_id: &str, user_id: &str) -> Result<Category, APIError> {
   let mut conn = establish_connection();
 
   let result = categories::table
@@ -120,22 +120,22 @@ pub fn get_category(category_id: &str, user_id: &str) -> Result<Category, Epheme
 
   match result {
     Ok(category) => Ok(category),
-    Err(_) => Err(EphemerideError::CategoryNotFound),
+    Err(_) => Err(APIError::CategoryNotFound),
   }
 }
 
 pub fn get_category_with_tags(
   category_id: &str,
   user_id: &str,
-) -> Result<CategoryWithTags, EphemerideError> {
+) -> Result<CategoryWithTags, APIError> {
   let category = match get_category(category_id, user_id) {
     Ok(category) => category,
-    Err(_) => return Err(EphemerideError::CategoryNotFound),
+    Err(_) => return Err(APIError::CategoryNotFound),
   };
 
   let tags = match get_category_tags(category_id, user_id) {
     Ok(tags) => tags,
-    Err(_) => return Err(EphemerideError::DatabaseError),
+    Err(_) => return Err(APIError::DatabaseError),
   };
 
   let category_with_tags = CategoryWithTags {
@@ -149,12 +149,10 @@ pub fn get_category_with_tags(
   Ok(category_with_tags)
 }
 
-pub fn get_user_categories_with_tags(
-  user_id: &str,
-) -> Result<Vec<CategoryWithTags>, EphemerideError> {
+pub fn get_user_categories_with_tags(user_id: &str) -> Result<Vec<CategoryWithTags>, APIError> {
   let categories = match get_all_categories(user_id) {
     Ok(categories) => categories,
-    Err(_) => return Err(EphemerideError::DatabaseError),
+    Err(_) => return Err(APIError::DatabaseError),
   };
 
   let mut categories_with_tags: Vec<CategoryWithTags> = Vec::new();
@@ -162,7 +160,7 @@ pub fn get_user_categories_with_tags(
   for category in categories {
     let tags = match get_category_tags(&category.id, user_id) {
       Ok(tags) => tags,
-      Err(_) => return Err(EphemerideError::DatabaseError),
+      Err(_) => return Err(APIError::DatabaseError),
     };
 
     let category_with_tags = CategoryWithTags {
@@ -179,17 +177,17 @@ pub fn get_user_categories_with_tags(
   Ok(categories_with_tags)
 }
 
-pub fn delete_category(category_id: &str, user_id: &str) -> Result<bool, EphemerideError> {
+pub fn delete_category(category_id: &str, user_id: &str) -> Result<bool, APIError> {
   let user = get_user(user_id);
 
   if user.is_err() {
-    return Err(EphemerideError::UserNotFound);
+    return Err(APIError::UserNotFound);
   }
 
   let category = get_category(category_id, user_id);
 
   if category.is_err() {
-    return Err(EphemerideError::CategoryNotFound);
+    return Err(APIError::CategoryNotFound);
   }
 
   let mut conn = establish_connection();
@@ -197,7 +195,7 @@ pub fn delete_category(category_id: &str, user_id: &str) -> Result<bool, Ephemer
   let deleted_tags = delete_all_category_tags(category_id, user_id);
 
   if deleted_tags.is_err() {
-    return Err(EphemerideError::DatabaseError);
+    return Err(APIError::DatabaseError);
   }
 
   let result = diesel::delete(
@@ -209,15 +207,15 @@ pub fn delete_category(category_id: &str, user_id: &str) -> Result<bool, Ephemer
 
   match result {
     Ok(count) => Ok(count > 0),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }
 
-pub fn get_all_categories(user_id: &str) -> Result<Vec<Category>, EphemerideError> {
+pub fn get_all_categories(user_id: &str) -> Result<Vec<Category>, APIError> {
   let user = get_user(user_id);
 
   if user.is_err() {
-    return Err(EphemerideError::UserNotFound);
+    return Err(APIError::UserNotFound);
   }
 
   let mut conn = establish_connection();
@@ -229,6 +227,6 @@ pub fn get_all_categories(user_id: &str) -> Result<Vec<Category>, EphemerideErro
 
   match result {
     Ok(categories) => Ok(categories),
-    Err(_) => Err(EphemerideError::DatabaseError),
+    Err(_) => Err(APIError::DatabaseError),
   }
 }

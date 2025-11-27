@@ -2,7 +2,7 @@ use dotenvy::dotenv;
 use std::env;
 use tracing_subscriber::fmt::format::FmtSpan;
 
-use ephemeride_backend::api;
+use diary_dot_computer_backend::api;
 use poem::{
   endpoint::StaticFilesEndpoint,
   listener::TcpListener,

@@ -1,7 +1,7 @@
 use crate::{
   services::{auth, user, AuthConfig, UserCredentials},
   util::{
-    error::{error_response, EphemerideError},
+    error::{error_response, APIError},
     response,
   },
 };
@@ -16,7 +16,7 @@ use std::env;
 pub fn authenticate_user(Json(user): Json<user::AuthUser>, request: &Request) -> Response {
   match user.validate() {
     Ok(_) => (),
-    Err(_) => return error_response(EphemerideError::BadRequest),
+    Err(_) => return error_response(APIError::BadRequest),
   }
 
   let session = auth::create_user_session(

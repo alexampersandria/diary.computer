@@ -1,6 +1,6 @@
 use crate::{
   services::user,
-  util::{error_response, response, unix_ms, EphemerideError},
+  util::{error_response, response, unix_ms, APIError},
 };
 use poem::{handler, http::StatusCode, Response};
 
@@ -17,23 +17,23 @@ pub struct MetricsResponse {
 pub fn metrics() -> Response {
   let total_users = match user::user_count() {
     Ok(count) => count,
-    Err(_) => return error_response(EphemerideError::InternalServerError),
+    Err(_) => return error_response(APIError::InternalServerError),
   };
   let active_1h = match user::active_user_count(unix_ms() - 60 * 60 * 1000) {
     Ok(count) => count,
-    Err(_) => return error_response(EphemerideError::InternalServerError),
+    Err(_) => return error_response(APIError::InternalServerError),
   };
   let active_24h = match user::active_user_count(unix_ms() - 24 * 60 * 60 * 1000) {
     Ok(count) => count,
-    Err(_) => return error_response(EphemerideError::InternalServerError),
+    Err(_) => return error_response(APIError::InternalServerError),
   };
   let active_7d = match user::active_user_count(unix_ms() - 7 * 24 * 60 * 60 * 1000) {
     Ok(count) => count,
-    Err(_) => return error_response(EphemerideError::InternalServerError),
+    Err(_) => return error_response(APIError::InternalServerError),
   };
   let active_30d = match user::active_user_count(unix_ms() - 30 * 24 * 60 * 60 * 1000) {
     Ok(count) => count,
-    Err(_) => return error_response(EphemerideError::InternalServerError),
+    Err(_) => return error_response(APIError::InternalServerError),
   };
 
   response(

@@ -9,11 +9,11 @@ use crate::{
   establish_connection,
   schema::{categories, entries, tags},
   services::get_user,
-  util::EphemerideError,
+  util::APIError,
 };
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 
-pub fn create_default_data(user_id: String) -> Result<bool, EphemerideError> {
+pub fn create_default_data(user_id: String) -> Result<bool, APIError> {
   let default_categories = vec!["Activities", "Tags"];
 
   let default_tags = vec![
@@ -36,7 +36,7 @@ pub fn create_default_data(user_id: String) -> Result<bool, EphemerideError> {
 
     let category = match category_result {
       Ok(category) => category,
-      Err(_) => return Err(EphemerideError::DatabaseError),
+      Err(_) => return Err(APIError::DatabaseError),
     };
 
     for (cat_name, tag_name, color) in &default_tags {
@@ -49,7 +49,7 @@ pub fn create_default_data(user_id: String) -> Result<bool, EphemerideError> {
         });
 
         if tag_result.is_err() {
-          return Err(EphemerideError::DatabaseError);
+          return Err(APIError::DatabaseError);
         }
       }
     }
@@ -58,11 +58,11 @@ pub fn create_default_data(user_id: String) -> Result<bool, EphemerideError> {
   Ok(true)
 }
 
-pub fn delete_all_user_data(user_id: &str) -> Result<bool, EphemerideError> {
+pub fn delete_all_user_data(user_id: &str) -> Result<bool, APIError> {
   let user = get_user(user_id);
 
   if user.is_err() {
-    return Err(EphemerideError::UserNotFound);
+    return Err(APIError::UserNotFound);
   }
 
   let mut conn = establish_connection();
@@ -71,21 +71,21 @@ pub fn delete_all_user_data(user_id: &str) -> Result<bool, EphemerideError> {
     diesel::delete(entries::table.filter(entries::user_id.eq(user_id))).execute(&mut conn);
 
   if delete_entries.is_err() {
-    return Err(EphemerideError::DatabaseError);
+    return Err(APIError::DatabaseError);
   }
 
   let delete_tags =
     diesel::delete(tags::table.filter(tags::user_id.eq(user_id))).execute(&mut conn);
 
   if delete_tags.is_err() {
-    return Err(EphemerideError::DatabaseError);
+    return Err(APIError::DatabaseError);
   }
 
   let delete_categories =
     diesel::delete(categories::table.filter(categories::user_id.eq(user_id))).execute(&mut conn);
 
   if delete_categories.is_err() {
-    return Err(EphemerideError::DatabaseError);
+    return Err(APIError::DatabaseError);
   }
 
   Ok(true)
