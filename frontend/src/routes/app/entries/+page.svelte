@@ -1,5 +1,4 @@
 <script lang="ts">
-import Spinner from '$lib/components/Spinner.svelte'
 import { getEntries, type FetchEntriesOptions } from '$lib/utils/api'
 import type { Entry } from '$lib/types/log'
 import { FilterX, ScrollText, SlidersHorizontal } from 'lucide-svelte'
@@ -10,17 +9,16 @@ import Button from '$lib/components/Button.svelte'
 import Input from '$lib/components/Input.svelte'
 import Select from '$lib/components/Select.svelte'
 import { goto } from '$app/navigation'
-import EntryPreview from '$lib/components/EntryPreview.svelte'
 import type { PaginationObject } from '$lib/types/paginated'
 import Checkbox from '$lib/components/Checkbox.svelte'
 import Label from '$lib/components/Label.svelte'
-import Message from '$lib/components/Message.svelte'
 import {
   DEFAULT_TAKEATLEAST_DURATION,
   takeAtLeast,
 } from '$lib/utils/takeAtLeast'
 import Calendar from '$lib/components/Calendar.svelte'
 import Modal from '$lib/components/Modal.svelte'
+import EntriesList from '$lib/assemblies/EntriesList.svelte'
 
 let {
   data,
@@ -44,7 +42,6 @@ let search = $derived.by(() => {
 })
 
 let list: Entry[] = $state([])
-let error = $state<string | undefined>(undefined)
 let pagination: PaginationObject = $state({
   limit: 0,
   offset: 0,
@@ -126,7 +123,7 @@ const getData = async (more = false) => {
       pagination = res.pagination
     } else {
       list = []
-      error = 'Failed to fetch entries'
+      console.error('Failed to fetch entries')
     }
 
     loading = false
@@ -171,39 +168,11 @@ const filtersApplied = $derived.by(() => {
       </div>
     </div>
 
-    {#if loading && options.offset === 0}
-      <div class="loading">
-        <Spinner />
-      </div>
-    {:else if error}
-      <div class="flex-center">
-        <Message type="error">{error}</Message>
-      </div>
-    {:else if list.length === 0}
-      <div class="no-entries centered dimmed">
-        No entries found {#if filtersApplied}matching filters{/if}
-      </div>
-    {:else}
-      <div class="entries">
-        <div class="count">
-          showing {list.length} of {pagination.total_count} entries
-        </div>
-        {#each list as entry}
-          <div class="entry-item">
-            <EntryPreview date={entry.date} {entry} small />
-          </div>
-        {/each}
-      </div>
-      <div class="more">
-        <Button
-          fullwidth
-          onclick={() => getData(true)}
-          {loading}
-          disabled={list.length >= pagination.total_count}>
-          Load more
-        </Button>
-      </div>
-    {/if}
+    <EntriesList
+      entries={list}
+      {pagination}
+      {loading}
+      onloadmore={() => getData(true)} />
   </div>
 </div>
 
@@ -284,42 +253,6 @@ const filtersApplied = $derived.by(() => {
 .entries-page {
   .toggle-filters {
     margin-left: auto;
-  }
-
-  .no-entries {
-    padding: var(--padding-l) 0;
-  }
-
-  .entries {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--padding-s);
-
-    .count {
-      font-size: var(--font-size-s);
-      color: var(--text-muted);
-      text-align: right;
-      width: 100%;
-      flex-basis: 100%;
-      flex-grow: 1;
-      flex-shrink: 0;
-    }
-
-    .entry-item {
-      flex: 1 1 100%;
-      max-width: 100%;
-    }
-  }
-
-  .more {
-    margin-top: var(--padding-m);
-  }
-
-  .loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: var(--padding-l) 0;
   }
 }
 
