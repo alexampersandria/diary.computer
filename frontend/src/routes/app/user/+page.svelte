@@ -100,7 +100,6 @@ const saveChanges = async () => {
 
     editLoading = true
     const res = await takeAtLeast(userStore.updateUserDetails(editModel), 500)
-    console.log('Update result:', res)
     editLoading = false
     if (res) {
       editUser = false

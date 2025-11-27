@@ -61,7 +61,6 @@ const updateUserDetails = async (details: Partial<UserDetails>) => {
         return res.json()
       })
       .then((data: UserDetails) => {
-        console.log('Updated user details:', data)
         userDetails = data
         return userDetails
       })
