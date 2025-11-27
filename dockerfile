@@ -1,0 +1,32 @@
+# Build frontend
+FROM oven/bun:1 AS frontend-builder
+WORKDIR /usr/diary.computer/frontend
+
+# install dependencies into temp directory
+# this will cache them and speed up future builds
+FROM frontend-builder AS install
+RUN mkdir -p /temp/dev
+COPY frontend/package.json frontend/bun.lock /temp/dev/
+RUN cd /temp/dev && bun install --frozen-lockfile
+
+# install with --production (exclude devDependencies)
+RUN mkdir -p /temp/prod
+COPY frontend/package.json frontend/bun.lock /temp/prod/
+RUN cd /temp/prod && bun install --frozen-lockfile --production
+
+# copy node_modules from temp directory
+# then copy all (non-ignored) project files into the image
+FROM frontend-builder AS prerelease
+COPY --from=install /temp/dev/node_modules node_modules
+COPY frontend/ .
+
+# build using npm because running vite commands via bun hangs indefinitely
+FROM node:20 AS release
+WORKDIR /usr/diary.computer/frontend
+COPY --from=prerelease /usr/diary.computer/frontend .
+COPY --from=install /temp/prod/node_modules node_modules
+ENV NODE_ENV=production
+RUN npm run build
+
+# Build backend
+# TODO
