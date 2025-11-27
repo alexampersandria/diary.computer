@@ -22,10 +22,14 @@ async fn main() -> Result<(), std::io::Error> {
     .allow_origin("http://localhost:5173")
     .allow_origin("http://127.0.0.1:5173")
     .allow_origin(format!("http://localhost:{port}"))
-    .allow_origin(format!("http://127.0.0.1:{port}"));
-  let prod_cors = Cors::new().allow_origin(url);
+    .allow_origin(format!("http://127.0.0.1:{port}"))
+    .allow_origin(format!("http://0.0.0.0:{port}"));
+  let prod_cors = Cors::new()
+    .allow_origin(url)
+    .allow_origin(format!("http://0.0.0.0:{port}"));
 
-  let cors = if environment == "development" {
+  // #TODO: actually use CORS
+  let _cors = if environment == "development" {
     dev_cors
   } else {
     prod_cors
@@ -49,12 +53,12 @@ async fn main() -> Result<(), std::io::Error> {
         // this allows for sveltekit routing to take over
         .fallback_to_index(),
     )
-    .with((NormalizePath::new(TrailingSlash::Trim), cors))
+    .with(NormalizePath::new(TrailingSlash::Trim))
     .with(Tracing);
 
   println!("listening on port {port}");
 
-  Server::new(TcpListener::bind(format!("127.0.0.1:{port}")))
+  Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
     .run(app)
     .await
 }

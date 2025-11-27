@@ -1,14 +1,10 @@
 # TIME START
 start=$(date +%s%N)
 
-echo "\033[0;35m🔨 BUILD\033[0m → building frontend\033[0m"
-cd frontend
-bun install
-bun run build
-
-echo "\033[0;35m🔨 BUILD\033[0m → building backend\033[0m"
-cd ../backend
-cargo build --release
+version="$(cat VERSION)"
+image_name="diary.computer.${version}"
+echo "\033[0;35m🔨 BUILD\033[0m → building Docker image: \033[0;32m${image_name}\033[0m"
+docker build --pull -t "${image_name}" .
 
 # TIME END
 end=$(date +%s%N)
