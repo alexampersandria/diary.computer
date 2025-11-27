@@ -4,7 +4,7 @@ import Label from '$lib/components/Label.svelte'
 import Spinner from '$lib/components/Spinner.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
 import { type UserDetails, type Session } from '$lib/types/user'
-import { getSessions } from '$lib/utils/api'
+import { getSessions, updatePassword } from '$lib/utils/api'
 import { takeAtLeast } from '$lib/utils/takeAtLeast'
 import {
   Pencil,
@@ -23,6 +23,12 @@ import { timestampToDate } from '$lib/utils/log'
 import EmailInput from '$lib/assemblies/EmailInput.svelte'
 import type { InputState } from '$lib/types/input'
 import Modal from '$lib/components/Modal.svelte'
+import PasswordInput from '$lib/assemblies/PasswordInput.svelte'
+import Alert from '$lib/components/Alert.svelte'
+
+// temporary feature flag
+// #TODO: remove when sessions management is implemented
+let sessionsEnabled = false
 
 let userStore = useUserStore()
 
@@ -54,7 +60,9 @@ const startEdit = () => {
 
 const getData = async () => {
   if (userStore.sessionId) {
-    sessions = (await takeAtLeast(getSessions(userStore.sessionId))) || null
+    if (sessionsEnabled) {
+      sessions = (await takeAtLeast(getSessions(userStore.sessionId))) || null
+    }
   }
 }
 
@@ -105,6 +113,41 @@ const saveChanges = async () => {
 const confirmDelete = async () => {
   if (deleteValid) {
     await takeAtLeast(userStore.deleteAccount(), 500)
+  }
+}
+
+let changePassword: {
+  value: string
+  inputstate: InputState
+  loading: boolean
+  changed: boolean
+  error?: string
+} = $state({
+  value: '',
+  inputstate: 'untouched',
+  loading: false,
+  changed: false,
+  error: undefined,
+})
+
+const submitChangePassword = async () => {
+  if (userStore.sessionId && changePassword.inputstate === 'touched') {
+    changePassword.loading = true
+    changePassword.error = undefined
+    const res = await takeAtLeast(
+      updatePassword(userStore.sessionId, changePassword.value),
+    )
+    if (res) {
+      changePassword.value = ''
+      changePassword.inputstate = 'untouched'
+      changePassword.changed = true
+      setTimeout(() => {
+        changePassword.changed = false
+      }, 5000)
+    } else {
+      changePassword.error = 'Failed to change password'
+    }
+    changePassword.loading = false
   }
 }
 
@@ -181,39 +224,79 @@ onMount(async () => {
       </div>
     {/if}
 
-    <div class="section sessions">
-      <div class="section-title">Active Sessions (WIP)</div>
-      {#if sessions}
-        <table>
-          <thead>
-            <tr>
-              <th>Session ID</th>
-              <th>Created At</th>
-              <th>Accessed At</th>
-              <th>IP Address</th>
-              <th>User Agent</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each sessions as session}
-              <tr class:active={isActive(session)}>
-                <td>{session.id}</td>
-                <td>{new Date(session.created_at).toLocaleString()}</td>
-                <td>{new Date(session.accessed_at).toLocaleString()}</td>
-                <td>{session.ip_address}</td>
-                <td>{session.user_agent}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      {:else}
-        <div class="loading">
-          <Spinner />
+    <div class="section password">
+      <div class="section-title">Change password</div>
+      <div class="inputs">
+        <div class="password-input">
+          <PasswordInput
+            bind:value={changePassword.value}
+            bind:inputstate={changePassword.inputstate} />
+        </div>
+        <div class="change-button">
+          <Button
+            type="primary"
+            fullwidth
+            onclick={submitChangePassword}
+            loading={changePassword.loading}
+            disabled={changePassword.inputstate !== 'touched'}>
+            <Save /> Change Password
+          </Button>
+        </div>
+      </div>
+
+      {#if changePassword.changed}
+        <div class="center">
+          <Alert type="success" size="small">
+            Password successfully changed
+          </Alert>
+        </div>
+      {/if}
+
+      {#if changePassword.error}
+        <div class="center">
+          <Alert type="error" size="small">
+            {changePassword.error}
+          </Alert>
         </div>
       {/if}
     </div>
 
+    {#if sessionsEnabled}
+      <div class="section sessions">
+        <div class="section-title">Active Sessions (WIP)</div>
+        {#if sessions}
+          <table>
+            <thead>
+              <tr>
+                <th>Session ID</th>
+                <th>Created At</th>
+                <th>Accessed At</th>
+                <th>IP Address</th>
+                <th>User Agent</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each sessions as session}
+                <tr class:active={isActive(session)}>
+                  <td>{session.id}</td>
+                  <td>{new Date(session.created_at).toLocaleString()}</td>
+                  <td>{new Date(session.accessed_at).toLocaleString()}</td>
+                  <td>{session.ip_address}</td>
+                  <td>{session.user_agent}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        {:else}
+          <div class="loading">
+            <Spinner />
+          </div>
+        {/if}
+      </div>
+    {/if}
+
     <div class="section delete">
+      <div class="section-title">Delete account</div>
       <div class="delete-button">
         <Button type="destructive" onclick={() => (deleteModal = true)}>
           <Trash />
@@ -313,6 +396,32 @@ onMount(async () => {
         align-items: center;
         justify-content: space-between;
         margin-top: var(--padding-xs);
+      }
+    }
+
+    &.password {
+      display: flex;
+      flex-direction: column;
+      gap: var(--padding-s);
+
+      .inputs {
+        display: flex;
+        gap: var(--padding-s);
+        flex-wrap: wrap;
+
+        .password-input {
+          flex: 1 0 auto;
+        }
+
+        @media screen and (max-width: 768px) {
+          flex-direction: column;
+
+          .change-button,
+          .password-input {
+            flex: 1 0 100%;
+            width: 100%;
+          }
+        }
       }
     }
 

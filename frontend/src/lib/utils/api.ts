@@ -83,3 +83,27 @@ export const getSessions = (sessionId: string) => {
       console.error('Error fetching sessions:', err)
     })
 }
+
+export const updatePassword = (sessionId: string, newPassword: string) => {
+  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/user/password`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${sessionId}`,
+    },
+    body: JSON.stringify({ password: newPassword }),
+  })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Failed to update password')
+      }
+      if (res.status === 204) {
+        return true
+      }
+      return false
+    })
+    .catch(err => {
+      console.error('Error updating password:', err)
+      return false
+    })
+}
