@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 pub mod api;
+pub mod middleware;
 pub mod schema;
 pub mod services;
 pub mod util;
@@ -17,7 +18,7 @@ pub fn establish_connection() -> Result<pg::PgConnection, ServiceError> {
   let database_url = match env::var("DATABASE_URL") {
     Ok(url) => url,
     Err(_) => {
-      println!("error running migrations: DATABASE_URL not set");
+      tracing::event!(tracing::Level::ERROR, "DATABASE_URL must be set");
       return Err(ServiceError::MigrationError);
     }
   };
@@ -25,7 +26,7 @@ pub fn establish_connection() -> Result<pg::PgConnection, ServiceError> {
   let conn = match pg::PgConnection::establish(&database_url) {
     Ok(connection) => connection,
     Err(e) => {
-      println!("error connecting to database: {e:?}");
+      tracing::event!(tracing::Level::ERROR, "error connecting to database: {e:?}");
       return Err(ServiceError::MigrationError);
     }
   };
@@ -37,12 +38,12 @@ pub const EMBEDDED_MIGRATIONS: diesel_migrations::EmbeddedMigrations =
   embed_migrations!("./migrations");
 
 pub fn run_migrations() -> Result<(), ServiceError> {
-  println!("running database migrations...");
+  tracing::event!(tracing::Level::INFO, "running database migrations...");
 
   let mut conn = match establish_connection() {
     Ok(connection) => connection,
     Err(e) => {
-      println!("error connecting to database: {e:?}");
+      tracing::event!(tracing::Level::ERROR, "error connecting to database: {e:?}");
       return Err(ServiceError::MigrationError);
     }
   };
@@ -50,32 +51,35 @@ pub fn run_migrations() -> Result<(), ServiceError> {
   let pending = match conn.pending_migrations(EMBEDDED_MIGRATIONS) {
     Ok(migrations) => migrations,
     Err(e) => {
-      println!("error checking pending migrations: {e}");
+      tracing::event!(
+        tracing::Level::ERROR,
+        "error checking pending migrations: {e}"
+      );
       return Err(ServiceError::MigrationError);
     }
   };
 
   if pending.is_empty() {
-    println!("no pending migrations found");
+    tracing::event!(tracing::Level::INFO, "no pending migrations found");
     return Ok(());
   } else {
-    println!("pending migrations:");
+    tracing::event!(tracing::Level::INFO, "pending migrations:");
     for migration in pending {
-      println!("+ {}", migration.name());
+      tracing::event!(tracing::Level::INFO, "+ {}", migration.name());
     }
   }
 
   let migrations = conn.run_pending_migrations(EMBEDDED_MIGRATIONS);
   match migrations {
     Ok(applied_migrations) => {
-      println!("applied migrations:");
+      tracing::event!(tracing::Level::INFO, "applied migrations:");
       for migration in applied_migrations {
-        println!("+ {migration}");
+        tracing::event!(tracing::Level::INFO, "+ {migration}");
       }
       Ok(())
     }
     Err(e) => {
-      println!("error running migrations: {e}");
+      tracing::event!(tracing::Level::ERROR, "error running migrations: {e}");
       Err(ServiceError::MigrationError)
     }
   }

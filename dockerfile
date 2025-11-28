@@ -37,9 +37,9 @@ FROM ubuntu:22.04 AS final
 WORKDIR /usr/diary.computer
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install postgresql -y
-COPY --from=backend-builder /usr/diary.computer/backend/target/release/diary-dot-computer-backend ./server/diary-dot-computer
+COPY --from=backend-builder /usr/diary.computer/backend/target/release/diarycomputer ./server/diary.computer
 COPY --from=release /usr/diary.computer/www www
 ENV PORT=3137
 EXPOSE 3137
 WORKDIR /usr/diary.computer/server
-ENTRYPOINT [ "./diary-dot-computer" ]
+ENTRYPOINT [ "./diary.computer" ]
