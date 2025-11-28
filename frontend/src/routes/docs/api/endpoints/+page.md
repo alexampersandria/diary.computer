@@ -26,7 +26,7 @@ Returns package information and version
 
 ```json
 {
-  "name": "diary-dot-computer-backend",
+  "name": "diarycomputer",
   "version": "0.0.1"
 }
 ```

@@ -20,21 +20,21 @@ start=$(date +%s%N)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS setup
     echo -e '\033[0;35m🪛 SETUP\033[0m → Installing PostgreSQL on macOS...'
-    
+
     # Install PostgreSQL using Homebrew
     if ! command -v brew &> /dev/null; then
         echo "Homebrew not found. Please install Homebrew first: https://brew.sh"
         exit 1
     fi
-    
+
     brew install postgresql libpq
-    
+
     # Start PostgreSQL service
     brew services start postgresql
-    
+
     # Wait a moment for the service to start
     sleep 2
-    
+
     # Create user and database (no sudo -u postgres needed on macOS)
     createuser $username
     createdb $database
@@ -52,7 +52,7 @@ else
     sudo -u postgres psql -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE \"$database\" TO \"$username\";"
 fi
 cargo install diesel_cli --no-default-features --features postgres
-echo -e "DATABASE_URL=postgres://$username:$password@localhost/$database\nDIESEL_CONFIG_FILE=./diesel.toml\nINVITE_REQUIRED=true\nPORT=3000\nENVIRONMENT=development\nURL=http://localhost:3000\nBCRYPT_COST=8" > backend/.env
+echo -e "DATABASE_URL=postgres://$username:$password@localhost/$database\nDIESEL_CONFIG_FILE=./diesel.toml\nINVITE_REQUIRED=true\nPORT=3000\nENVIRONMENT=development\nBCRYPT_COST=8" > backend/.env
 echo -e "PUBLIC_VITE_API_URL=http://localhost:3000/api" > frontend/.env
 cd backend
 diesel setup

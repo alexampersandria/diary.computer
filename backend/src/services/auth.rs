@@ -63,7 +63,10 @@ pub fn create_user_session(
   user_credentials: UserCredentials,
   metadata: SessionMetadata,
 ) -> Result<Session, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let user_id = match user::get_user_id(&user_credentials.email) {
     Ok(id) => id,
@@ -103,7 +106,10 @@ pub fn create_user_session(
 }
 
 pub fn update_accessed_at(session_id: &str) -> Result<bool, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
     .set(schema::sessions::accessed_at.eq(util::unix_time::unix_ms()))
@@ -116,7 +122,10 @@ pub fn update_accessed_at(session_id: &str) -> Result<bool, APIError> {
 }
 
 pub fn get_user_session_by_id(session_id: &str) -> Result<Session, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = schema::sessions::table
     .filter(schema::sessions::id.eq(session_id))
@@ -134,7 +143,10 @@ pub fn get_user_session_by_id(session_id: &str) -> Result<Session, APIError> {
 }
 
 pub fn get_all_user_sessions(user_id: &str) -> Result<Vec<Session>, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = schema::sessions::table
     .filter(schema::sessions::user_id.eq(&user_id))
@@ -148,7 +160,10 @@ pub fn get_all_user_sessions(user_id: &str) -> Result<Vec<Session>, APIError> {
 }
 
 pub fn delete_user_session(session_id: &str) -> Result<bool, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = diesel::delete(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
     .execute(&mut conn);
@@ -160,7 +175,10 @@ pub fn delete_user_session(session_id: &str) -> Result<bool, APIError> {
 }
 
 pub fn delete_all_user_sessions(user_id: &str) -> Result<bool, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result =
     diesel::delete(schema::sessions::table.filter(schema::sessions::user_id.eq(user_id)))

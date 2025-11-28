@@ -1,8 +1,8 @@
 [package]
-name = "diary-dot-computer-backend"
+name = "diarycomputer"
 version = "0.0.1"
 edition = "2021"
-default-run = "diary-dot-computer-backend"
+default-run = "diarycomputer"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -20,3 +20,5 @@ tokio = { version = "1.36.0", features = ["rt-multi-thread", "macros"] }
 tracing-subscriber = "0.3.19"
 validator = { version = "0.20.0", features = ["derive"] }
 uuid = { version = "1.7.0", features = ["v4", "fast-rng", "macro-diagnostics"] }
+diesel_migrations = { version = "2.3.1", features = ["postgres"] }
+tracing = "0.1.43"

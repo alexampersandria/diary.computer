@@ -1,4 +1,4 @@
-use diary_dot_computer_backend::services::{auth, log, user};
+use diarycomputer::services::{auth, log, user};
 use uuid::Uuid;
 
 #[test]

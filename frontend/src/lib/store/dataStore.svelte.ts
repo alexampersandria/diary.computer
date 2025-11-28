@@ -1,6 +1,5 @@
 import { browser } from '$app/environment'
 import { page } from '$app/state'
-import { env } from '$env/dynamic/public'
 import type {
   Category,
   CategoryWithTags,
@@ -15,6 +14,7 @@ import type {
   TagWithCategory,
 } from '$lib/types/log'
 import { getEntries, type FetchEntriesOptions } from '$lib/utils/api'
+import { API_URL } from '$lib/utils/env'
 import {
   calendarDefaults,
   currentDateObject,
@@ -71,7 +71,7 @@ let loaded: boolean = $state(false)
 let fetchedAt: number = $state(0)
 
 const fetchCategories = async () => {
-  await fetch(`${env.PUBLIC_VITE_API_URL}/v1/user/categories`, {
+  await fetch(API_URL('/v1/user/categories'), {
     headers: { Authorization: `Bearer ${userStore?.sessionId}` },
   })
     .then(res => {
@@ -171,7 +171,7 @@ const getEntry = (date: string): Entry | null => {
 }
 
 const createEntry = async (entry: NewEntry): Promise<Entry | null> => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/entry`, {
+  return fetch(API_URL('/v1/entry'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -201,7 +201,7 @@ const createEntry = async (entry: NewEntry): Promise<Entry | null> => {
 }
 
 const updateEntry = async (entry: EditEntry): Promise<Entry | null> => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/entry/${entry.id}`, {
+  return fetch(API_URL(`/v1/entry/${entry.id}`), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -233,7 +233,7 @@ const updateEntry = async (entry: EditEntry): Promise<Entry | null> => {
 }
 
 const deleteEntry = async (id: string): Promise<boolean | null> => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/entry/${id}`, {
+  return fetch(API_URL(`/v1/entry/${id}`), {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${userStore?.sessionId}`,
@@ -266,7 +266,7 @@ const deleteEntry = async (id: string): Promise<boolean | null> => {
 const createCategory = async (
   category: NewCategory,
 ): Promise<CategoryWithTags | null> => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/category`, {
+  return fetch(API_URL('/v1/category'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -295,7 +295,7 @@ const createCategory = async (
 const updateCategory = async (
   category: EditCategory,
 ): Promise<CategoryWithTags | null> => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/category/${category.id}`, {
+  return fetch(API_URL(`/v1/category/${category.id}`), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -330,7 +330,7 @@ const updateCategory = async (
 }
 
 const deleteCategory = async (id: string): Promise<boolean | null> => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/category/${id}`, {
+  return fetch(API_URL(`/v1/category/${id}`), {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${userStore?.sessionId}`,
@@ -360,7 +360,7 @@ const deleteCategory = async (id: string): Promise<boolean | null> => {
 }
 
 const createTag = async (tag: NewTag): Promise<Tag | null> => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/tag`, {
+  return fetch(API_URL('/v1/tag'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -390,7 +390,7 @@ const createTag = async (tag: NewTag): Promise<Tag | null> => {
 }
 
 const updateTag = async (tag: EditTag): Promise<Tag | null> => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/tag/${tag.id}`, {
+  return fetch(API_URL(`/v1/tag/${tag.id}`), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -426,7 +426,7 @@ const updateTag = async (tag: EditTag): Promise<Tag | null> => {
 }
 
 const deleteTag = async (id: string): Promise<boolean | null> => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/tag/${id}`, {
+  return fetch(API_URL(`/v1/tag/${id}`), {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${userStore?.sessionId}`,

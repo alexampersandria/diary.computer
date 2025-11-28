@@ -80,7 +80,10 @@ fn user_details(user: User) -> UserDetails {
 }
 
 pub fn get_user_id(email: &str) -> Result<String, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = schema::users::table
     .filter(schema::users::email.eq(email))
@@ -94,7 +97,10 @@ pub fn get_user_id(email: &str) -> Result<String, APIError> {
 }
 
 pub fn get_user(id: &str) -> Result<UserDetails, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   // should only select some fields here not all
   // we remove password has with the user_details function
@@ -112,7 +118,10 @@ pub fn get_user(id: &str) -> Result<UserDetails, APIError> {
 }
 
 pub fn get_password_hash(id: &str) -> Result<String, APIError> {
-  let mut conn: diesel::PgConnection = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = schema::users::table
     .filter(schema::users::id.eq(&id))
@@ -134,7 +143,10 @@ pub fn create_user(user: CreateUser) -> Result<UserDetails, APIError> {
     return Err(APIError::EmailAlreadyInUse);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   dotenv().ok();
   let cost = match env::var("BCRYPT_COST") {
@@ -177,7 +189,10 @@ pub fn create_user(user: CreateUser) -> Result<UserDetails, APIError> {
 }
 
 pub fn delete_user(id: &str) -> Result<bool, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   match delete_all_user_sessions(id) {
     Ok(_) => (),
@@ -210,7 +225,10 @@ pub fn update_user(id: &str, user: UpdateUser) -> Result<bool, APIError> {
     }
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = diesel::update(schema::users::table.filter(schema::users::id.eq(id)))
     .set((
@@ -226,7 +244,10 @@ pub fn update_user(id: &str, user: UpdateUser) -> Result<bool, APIError> {
 }
 
 pub fn update_password(id: &str, password: UpdatePassword) -> Result<bool, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let password_hash = match bcrypt::hash(&password.password, bcrypt::DEFAULT_COST) {
     Ok(hash) => hash,
@@ -244,7 +265,10 @@ pub fn update_password(id: &str, password: UpdatePassword) -> Result<bool, APIEr
 }
 
 pub fn user_count() -> Result<i64, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = schema::users::table.count().get_result::<i64>(&mut conn);
 
@@ -255,7 +279,10 @@ pub fn user_count() -> Result<i64, APIError> {
 }
 
 pub fn active_user_count(since_timestamp: i64) -> Result<i64, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = schema::users::table
     .inner_join(schema::sessions::table.on(schema::users::id.eq(schema::sessions::user_id)))

@@ -20,6 +20,11 @@ pub enum APIError {
   EntryAlreadyExistsForDate,
 }
 
+#[derive(Debug, Serialize, Clone, Copy, PartialEq, Eq)]
+pub enum ServiceError {
+  MigrationError,
+}
+
 #[derive(Serialize)]
 struct ErrorBody {
   code: APIError,

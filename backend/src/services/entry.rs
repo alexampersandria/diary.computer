@@ -114,7 +114,10 @@ pub fn create_entry(entry: CreateEntry) -> Result<EntryWithTags, APIError> {
     return Err(APIError::UserNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let new_entry = Entry {
     id: Uuid::new_v4().to_string(),
@@ -189,7 +192,10 @@ pub fn edit_entry(entry: EditEntry) -> Result<EntryWithTags, APIError> {
     }
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = diesel::update(
     schema::entries::table
@@ -236,7 +242,10 @@ pub fn edit_entry(entry: EditEntry) -> Result<EntryWithTags, APIError> {
 }
 
 pub fn get_entry_by_date(date: chrono::NaiveDate, user_id: &str) -> Result<Entry, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = schema::entries::table
     .filter(schema::entries::date.eq(date))
@@ -250,7 +259,10 @@ pub fn get_entry_by_date(date: chrono::NaiveDate, user_id: &str) -> Result<Entry
 }
 
 pub fn get_entry_with_tags(entry_id: &str, user_id: &str) -> Result<EntryWithTags, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let entry_result = schema::entries::table
     .filter(schema::entries::id.eq(entry_id))
@@ -293,7 +305,10 @@ pub fn delete_entry(entry_id: &str, user_id: &str) -> Result<bool, APIError> {
     return Err(APIError::UserNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = diesel::delete(
     schema::entries::table
@@ -352,7 +367,10 @@ pub fn get_entries(
     fn array_agg(x: Nullable<VarChar>) -> Array<Nullable<VarChar>>;
   );
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let selected_tags = array_agg(schema::entry_tags::tag_id.nullable());
   let row_count = sql::<diesel::sql_types::BigInt>("COUNT(*) OVER()");

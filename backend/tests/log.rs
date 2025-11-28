@@ -1,4 +1,4 @@
-use diary_dot_computer_backend::{
+use diarycomputer::{
   services::{log, user},
   util::APIError,
 };

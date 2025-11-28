@@ -63,7 +63,10 @@ pub fn create_category(category: CreateCategory) -> Result<Category, APIError> {
     return Err(APIError::UserNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let new_category = Category {
     id: Uuid::new_v4().to_string(),
@@ -94,7 +97,10 @@ pub fn edit_category(category: EditCategory) -> Result<Category, APIError> {
     return Err(APIError::UserNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = diesel::update(
     categories::table
@@ -111,7 +117,10 @@ pub fn edit_category(category: EditCategory) -> Result<Category, APIError> {
 }
 
 pub fn get_category(category_id: &str, user_id: &str) -> Result<Category, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = categories::table
     .filter(categories::id.eq(category_id))
@@ -190,7 +199,10 @@ pub fn delete_category(category_id: &str, user_id: &str) -> Result<bool, APIErro
     return Err(APIError::CategoryNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let deleted_tags = delete_all_category_tags(category_id, user_id);
 
@@ -218,7 +230,10 @@ pub fn get_all_categories(user_id: &str) -> Result<Vec<Category>, APIError> {
     return Err(APIError::UserNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = categories::table
     .filter(categories::user_id.eq(user_id))

@@ -1,4 +1,4 @@
-use diary_dot_computer_backend::services::invite;
+use diarycomputer::services::invite;
 use uuid::Uuid;
 
 #[test]
