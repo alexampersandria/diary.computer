@@ -2,7 +2,7 @@ use dotenvy::dotenv;
 use std::env;
 use tracing_subscriber::fmt::format::FmtSpan;
 
-use diary_dot_computer_backend::api;
+use diary_dot_computer_backend::{api, run_migrations};
 use poem::{
   endpoint::StaticFilesEndpoint,
   listener::TcpListener,
@@ -13,23 +13,48 @@ use poem::{
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
   dotenv().ok();
+  run_migrations().ok();
 
   let port = env::var("PORT").unwrap_or("3000".to_string());
   let environment = env::var("ENVIRONMENT").unwrap_or("development".to_string());
-  let url = env::var("URL").unwrap_or(format!("http://localhost:{port}"));
 
-  let dev_cors = Cors::new()
-    .allow_origin("http://localhost:5173")
-    .allow_origin("http://127.0.0.1:5173")
-    .allow_origin(format!("http://localhost:{port}"))
-    .allow_origin(format!("http://127.0.0.1:{port}"))
-    .allow_origin(format!("http://0.0.0.0:{port}"));
-  let prod_cors = Cors::new()
-    .allow_origin(url)
-    .allow_origin(format!("http://0.0.0.0:{port}"));
+  // #TODO: remove this when docker is confirmed working
+  if environment == "development" {
+    println!("debug env vars set/null: ");
+    // DATABASE_URL
+    match env::var("DATABASE_URL") {
+      Ok(_) => println!("DATABASE_URL: SET"),
+      Err(_) => println!("DATABASE_URL: NOT SET"),
+    }
+    // INVITE_REQUIRED
+    match env::var("INVITE_REQUIRED") {
+      Ok(_) => println!("INVITE_REQUIRED: SET"),
+      Err(_) => println!("INVITE_REQUIRED: NOT SET"),
+    }
+    // PORT
+    match env::var("PORT") {
+      Ok(_) => println!("PORT: SET"),
+      Err(_) => println!("PORT: NOT SET"),
+    }
+    // ENVIRONMENT
+    match env::var("ENVIRONMENT") {
+      Ok(_) => println!("ENVIRONMENT: SET"),
+      Err(_) => println!("ENVIRONMENT: NOT SET"),
+    }
+    // BCRYPT_COST
+    match env::var("BCRYPT_COST") {
+      Ok(_) => println!("BCRYPT_COST: SET"),
+      Err(_) => println!("BCRYPT_COST: NOT SET"),
+    }
+  }
 
-  // #TODO: actually use CORS
-  let _cors = if environment == "development" {
+  // no allow_origin means all origins are allowed, dev allows all
+  let dev_cors = Cors::new();
+  // #TODO: restrict in production
+  // let prod_cors = Cors::new().allow_origin(url);
+  let prod_cors = Cors::new();
+
+  let cors = if environment == "development" {
     dev_cors
   } else {
     prod_cors
@@ -54,6 +79,7 @@ async fn main() -> Result<(), std::io::Error> {
         .fallback_to_index(),
     )
     .with(NormalizePath::new(TrailingSlash::Trim))
+    .with(cors)
     .with(Tracing);
 
   println!("listening on port {port}");

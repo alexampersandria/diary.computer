@@ -67,7 +67,10 @@ pub fn create_tag(tag: CreateTag) -> Result<Tag, APIError> {
 
   let color_value = Color::from(tag.color.as_str());
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let tag = Tag {
     id: Uuid::new_v4().to_string(),
@@ -102,7 +105,10 @@ pub fn edit_tag(tag: EditTag) -> Result<Tag, APIError> {
 
   let color_value = Color::from(tag.color.as_str());
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = diesel::update(
     tags::table
@@ -128,7 +134,10 @@ pub fn get_tag(tag_id: &str, user_id: &str) -> Result<Tag, APIError> {
     return Err(APIError::UserNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = tags::table
     .filter(tags::id.eq(tag_id))
@@ -148,7 +157,10 @@ pub fn get_tags(tag_ids: Vec<&str>, user_id: &str) -> Result<Vec<Tag>, APIError>
     return Err(APIError::UserNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = tags::table
     .filter(tags::id.eq_any(tag_ids))
@@ -169,7 +181,10 @@ pub fn delete_tag(tag_id: &str, user_id: &str) -> Result<bool, APIError> {
     return Err(APIError::UserNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = diesel::delete(
     tags::table
@@ -219,7 +234,10 @@ pub fn get_category_tags(category_id: &str, user_id: &str) -> Result<Vec<Tag>, A
     return Err(APIError::CategoryNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = tags::table
     .filter(tags::category_id.eq(category_id))

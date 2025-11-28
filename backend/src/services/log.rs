@@ -65,7 +65,10 @@ pub fn delete_all_user_data(user_id: &str) -> Result<bool, APIError> {
     return Err(APIError::UserNotFound);
   }
 
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let delete_entries =
     diesel::delete(entries::table.filter(entries::user_id.eq(user_id))).execute(&mut conn);

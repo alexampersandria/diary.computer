@@ -20,3 +20,4 @@ tokio = { version = "1.36.0", features = ["rt-multi-thread", "macros"] }
 tracing-subscriber = "0.3.19"
 validator = { version = "0.20.0", features = ["derive"] }
 uuid = { version = "1.7.0", features = ["v4", "fast-rng", "macro-diagnostics"] }
+diesel_migrations = { version = "2.3.1", features = ["postgres"] }

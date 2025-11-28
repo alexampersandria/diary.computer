@@ -1,7 +1,7 @@
-import { env } from '$env/dynamic/public'
 import type { EditUserDetails, UserDetails } from '$lib/types/user'
 import { goto } from '$app/navigation'
 import { useDataStore, type DataState } from './dataStore.svelte'
+import { API_URL } from '$lib/utils/env'
 
 let dataStore: DataState | null = null
 
@@ -43,7 +43,7 @@ const updateUserDetails = async (details: Partial<UserDetails>) => {
       name: updatedDetails.name,
       email: updatedDetails.email,
     }
-    const res = await fetch(`${env.PUBLIC_VITE_API_URL}/v1/user`, {
+    const res = await fetch(API_URL('/v1/user'), {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ const updateUserDetails = async (details: Partial<UserDetails>) => {
 
 const deleteAccount = async (): Promise<boolean> => {
   if (userDetails) {
-    const res = await fetch(`${env.PUBLIC_VITE_API_URL}/v1/user`, {
+    const res = await fetch(API_URL('/v1/user'), {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${sessionId}`,
@@ -111,7 +111,7 @@ export const useUserStore: () => UserState = () => {
 
   $effect(() => {
     if (sessionId) {
-      fetch(`${env.PUBLIC_VITE_API_URL}/v1/user`, {
+      fetch(API_URL('/v1/user'), {
         headers: { Authorization: `Bearer ${sessionId}` },
       })
         .then(res => {

@@ -6,12 +6,12 @@ import Button from '$lib/components/Button.svelte'
 import type { AuthModel, AuthProps } from '$lib/types/assemblies/auth'
 import Message from '$lib/components/Message.svelte'
 import { onMount } from 'svelte'
-import { env } from '$env/dynamic/public'
 import Alert from '$lib/components/Alert.svelte'
 import type { ServerError } from '$lib/types/error'
 import Checkbox from '$lib/components/Checkbox.svelte'
 import Label from '$lib/components/Label.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
+import { API_URL } from '$lib/utils/env'
 
 let userStore = useUserStore()
 
@@ -21,7 +21,6 @@ let inviteRequired = $state(false)
 let loading = $state(false)
 
 let serverError: ServerError | undefined = $state()
-let errorMessage: string | undefined = $state()
 
 let model: AuthModel = $state({
   name: {
@@ -100,11 +99,10 @@ const submit = async () => {
   if (disabled || loading || userStore.sessionId) return
 
   loading = true
-  errorMessage = undefined
   serverError = undefined
 
   if (mode === 'login') {
-    await fetch(env.PUBLIC_VITE_API_URL + '/v1/auth/', {
+    await fetch(API_URL('/v1/auth/'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -116,8 +114,6 @@ const submit = async () => {
     })
       .then(async res => {
         if (!res.ok) {
-          const errorData = await res.json()
-          errorMessage = errorData.message || 'Failed to log in'
           throw new Error('Failed to log in')
         }
         return await res.json()
@@ -131,7 +127,7 @@ const submit = async () => {
         loading = false
       })
   } else {
-    await fetch(env.PUBLIC_VITE_API_URL + '/v1/user/', {
+    await fetch(API_URL('/v1/user/'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -161,7 +157,7 @@ const submit = async () => {
 }
 
 onMount(async () => {
-  await fetch(env.PUBLIC_VITE_API_URL + '/v1/auth/config')
+  await fetch(API_URL('/v1/auth/config'))
     .then(res => res.json())
     .then(data => {
       inviteRequired = data.invite_required
@@ -184,13 +180,9 @@ onMount(async () => {
 
   {#if serverError === 'POST'}
     <Alert type="error" size="small" solid>
-      {#if errorMessage}
-        {errorMessage}
-      {:else}
-        Failed to contact the server, please try again later or <a
-          href="https://github.com/alexampersandria/diary.computer/issues/new"
-          target="_blank">create an issue</a> if the problem persists.
-      {/if}
+      Failed to contact the server, please try again later or <a
+        href="https://github.com/alexampersandria/diary.computer/issues/new"
+        target="_blank">create an issue</a> if the problem persists.
     </Alert>
   {/if}
 

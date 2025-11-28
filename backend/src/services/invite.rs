@@ -20,7 +20,10 @@ pub struct Invite {
 }
 
 pub fn get_invite(code: &str) -> Result<Invite, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let result = schema::invites::table
     .filter(schema::invites::code.eq(&code))
@@ -33,7 +36,10 @@ pub fn get_invite(code: &str) -> Result<Invite, APIError> {
 }
 
 pub fn use_invite(code: &str) -> Result<Invite, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let invite = get_invite(code)?;
 
@@ -52,7 +58,10 @@ pub fn use_invite(code: &str) -> Result<Invite, APIError> {
 }
 
 pub fn generate_invite(code: Option<&str>) -> Result<Invite, APIError> {
-  let mut conn = establish_connection();
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
   let code = match code {
     Some(c) => match get_invite(c) {

@@ -2,9 +2,9 @@
 start=$(date +%s%N)
 
 version="$(cat VERSION)"
-image_name="diary.computer.${version}"
+image_name="diary.computer"
 echo "\033[0;35m🔨 BUILD\033[0m → building Docker image: \033[0;32m${image_name}\033[0m"
-docker build --pull -t "${image_name}" .
+docker build --pull -t "${image_name}:latest" -t "${image_name}:${version}" .
 
 # TIME END
 end=$(date +%s%N)

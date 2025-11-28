@@ -1,7 +1,7 @@
-import { env } from '$env/dynamic/public'
 import type { Entry } from '$lib/types/log'
 import type { Paginated } from '$lib/types/paginated'
 import type { Session } from '$lib/types/user'
+import { API_URL } from './env'
 
 export type FetchEntriesOptions = {
   from_date?: string
@@ -46,7 +46,7 @@ export const getEntries = async (
   if (options?.offset !== undefined) {
     params.append('offset', `${options.offset}`)
   }
-  const url = new URL(`${env.PUBLIC_VITE_API_URL}/v1/entries`)
+  const url = new URL(API_URL('/v1/entries'))
   url.search = params.toString()
 
   return fetch(url, {
@@ -67,7 +67,7 @@ export const getEntries = async (
 }
 
 export const getSessions = (sessionId: string) => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/sessions`, {
+  return fetch(API_URL('/v1/sessions'), {
     headers: { Authorization: `Bearer ${sessionId}` },
   })
     .then(res => {
@@ -85,7 +85,7 @@ export const getSessions = (sessionId: string) => {
 }
 
 export const updatePassword = (sessionId: string, newPassword: string) => {
-  return fetch(`${env.PUBLIC_VITE_API_URL}/v1/user/password`, {
+  return fetch(API_URL('/v1/user/password'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
