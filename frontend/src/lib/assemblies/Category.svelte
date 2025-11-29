@@ -466,11 +466,9 @@ const onClickEditCategory = () => {
     flex-wrap: wrap;
     gap: calc(5 * var(--focus-shadow-offset));
     max-width: 100%;
-    overflow: hidden;
 
     .tag-wrapper-button {
-      overflow: hidden;
-      text-overflow: ellipsis;
+      max-width: 100%;
     }
   }
 }

@@ -2,7 +2,12 @@
 import type { ChipProps } from '$lib/types/components/chip'
 import { onMount } from 'svelte'
 
-let { children, color = 'base', solid = false, outline }: ChipProps = $props()
+let {
+  children,
+  color = 'base',
+  solid = false,
+  outline = false,
+}: ChipProps = $props()
 
 let chip: HTMLDivElement | null = null
 let isSingleCharacter = $state(false)
@@ -34,7 +39,7 @@ onMount(() => {
 </script>
 
 <div
-  class="chip {color} "
+  class="chip {color}"
   class:solid
   class:outline
   class:single-character={isSingleCharacter}
