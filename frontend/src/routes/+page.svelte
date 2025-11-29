@@ -5,7 +5,15 @@ import Logo from '$lib/components/Logo.svelte'
 import Modal from '$lib/components/Modal.svelte'
 import ThemeToggle from '$lib/components/ThemeToggle.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
-import { ArrowRight, Book, Github, LogIn, UserPlus } from 'lucide-svelte'
+import {
+  ArrowRight,
+  Book,
+  Github,
+  LogIn,
+  PanelRightClose,
+  PanelRightOpen,
+  UserPlus,
+} from 'lucide-svelte'
 
 let userStore = useUserStore()
 
@@ -14,6 +22,11 @@ let authMode = $state<'login' | 'register'>('register')
 const openAuthModal = (mode: 'login' | 'register' = 'login') => {
   authModal = true
   authMode = mode
+}
+
+let rightMenuOpen = $state(false)
+const toggleRightMenu = () => {
+  rightMenuOpen = !rightMenuOpen
 }
 </script>
 
@@ -28,36 +41,50 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
 
   <div class="navigation">
     <div class="container">
-      <div class="left muted">
+      <div class="action-elements muted">
         <a href="/"><Logo /></a>
+
+        <div class="mobile-only toggle-right-menu">
+          <Button type="ghost" onclick={toggleRightMenu}>
+            {#if rightMenuOpen}
+              <PanelRightClose />
+            {:else}
+              <PanelRightOpen />
+            {/if}
+          </Button>
+        </div>
       </div>
-      <div class="right">
-        <Button
-          type="ghost"
-          href="https://github.com/alexampersandria/diary.computer"
-          target="_blank">
-          <Github />
-          GitHub
-        </Button>
+      <div class="nav-elements-wrapper">
+        <div class="nav-elements" class:open={rightMenuOpen}>
+          <div class="mobile-only nav-title">diary.computer</div>
 
-        <Button type="ghost" href="/docs">
-          <Book />
-          Docs
-        </Button>
-
-        {#if userStore.sessionId === null}
-          <Button type="ghost" onclick={() => openAuthModal('login')}>
-            <LogIn />
-            Log in
+          <Button
+            type="ghost"
+            href="https://github.com/alexampersandria/diary.computer"
+            target="_blank">
+            <Github />
+            GitHub
           </Button>
-        {:else}
-          <Button type="ghost" href="/app">
-            <ArrowRight />
-            Go to app
-          </Button>
-        {/if}
 
-        <ThemeToggle />
+          <Button type="ghost" href="/docs">
+            <Book />
+            Docs
+          </Button>
+
+          {#if userStore.sessionId === null}
+            <Button type="ghost" onclick={() => openAuthModal('login')}>
+              <LogIn />
+              Log in
+            </Button>
+          {:else}
+            <Button type="ghost" href="/app">
+              <ArrowRight />
+              Go to app
+            </Button>
+          {/if}
+
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   </div>
@@ -118,6 +145,7 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
   .navigation {
     position: fixed;
     width: 100%;
+    height: 4rem;
 
     .container {
       display: flex;
@@ -126,11 +154,69 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
       min-height: 4rem;
     }
 
-    .left,
-    .right {
+    .action-elements,
+    .nav-elements {
       display: flex;
       align-items: center;
       gap: var(--padding-s);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .navigation {
+      position: relative;
+
+      .action-elements {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+
+        .toggle-right-menu {
+          z-index: 11;
+        }
+      }
+
+      .nav-elements-wrapper {
+        overflow: hidden;
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        width: 100vw;
+        height: 100vh;
+
+        &:not(:has(.open)) {
+          pointer-events: none;
+        }
+
+        .nav-elements {
+          .nav-title {
+            padding: var(--button-padding);
+            font-weight: 600;
+          }
+
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          width: 100%;
+          height: 100%;
+          background-color: var(--background-overlay);
+          padding: var(--padding-m);
+
+          backdrop-filter: blur(0px);
+          opacity: 0;
+          transition:
+            right var(--animation-length-s) var(--better-ease-out),
+            backdrop-filter var(--animation-length-s) var(--better-ease-out),
+            opacity var(--animation-length-s) var(--better-ease-out);
+
+          &.open {
+            right: 0;
+            backdrop-filter: blur(4px);
+            opacity: 1;
+          }
+        }
+      }
     }
   }
 
@@ -139,7 +225,7 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
     flex-direction: column;
     justify-content: center;
     min-height: var(--block-size-s);
-    height: 95dvh;
+    height: calc(100vh - 4rem);
     gap: var(--padding-l);
 
     .text {

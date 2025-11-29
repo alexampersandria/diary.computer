@@ -1,0 +1,23 @@
+<svg
+    width="250"
+    height="250"
+    viewBox="0 0 250 250"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+
+    <circle class="slow" cx="160" cy="90" r="90" fill="oklch(0.74 0.15 253.31)" />
+    <circle class="slow" cx="90" cy="160" r="90" fill="oklch(0.69 0.17 349.52)" />
+    <mask
+      id="mask0_1_12"
+      style="mask-type:alpha"
+      maskUnits="userSpaceOnUse"
+      x="0"
+      y="70"
+      width="180"
+      height="180">
+      <circle cx="90" cy="160" r="90" fill="oklch(0.69 0.17 349.52)" />
+    </mask>
+    <g mask="url(#mask0_1_12)">
+      <circle cx="160" cy="90" r="90" fill="oklch(1 0 0)" />
+    </g>
+  </svg>

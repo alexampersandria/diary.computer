@@ -25,14 +25,12 @@ import ThemeToggle from '$lib/components/ThemeToggle.svelte'
 import Label from '$lib/components/Label.svelte'
 import Logo from '$lib/components/Logo.svelte'
 import Calendar from '$lib/components/Calendar.svelte'
-import { useDataStore } from '$lib/store/dataStore.svelte'
 import { page } from '$app/state'
 import { watch } from 'runed'
 
 let { children } = $props()
 
 let userStore = useUserStore()
-let dataStore = useDataStore()
 let uiStore = useUiStore()
 
 let isDragging = $state(false)
@@ -261,16 +259,6 @@ watch(
         target="_blank"
         fullwidth>
         <Github /> GitHub
-      </Button>
-
-      <Button
-        type="destructive"
-        fullwidth
-        onclick={() => {
-          dataStore.deleteData()
-          window.location.reload()
-        }}>
-        Delete dataStore data and reload (debug)
       </Button>
     </div>
   </div>

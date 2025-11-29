@@ -105,8 +105,6 @@ const deleteAccount = async (): Promise<boolean> => {
 
 let fetchingUserDetails = false
 const getUserDetails = async () => {
-  console.log('Fetching user details...')
-  console.log('fetchingUserDetails:', fetchingUserDetails)
   if (sessionId && !fetchingUserDetails) {
     fetchingUserDetails = true
     await fetch(API_URL('/v1/user'), {
