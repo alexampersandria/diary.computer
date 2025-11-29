@@ -190,14 +190,16 @@ onMount(async () => {
             <Input
               required
               bind:inputstate={editInputState.name}
-              bind:value={editModel.name} />
+              bind:value={editModel.name}
+              onenter={saveChanges} />
           </div>
           <div class="detail-item email">
             <Label>Email</Label>
             <EmailInput
               required
               bind:inputstate={editInputState.email}
-              bind:value={editModel.email} />
+              bind:value={editModel.email}
+              onenter={saveChanges} />
           </div>
 
           {#if editError}
@@ -229,7 +231,8 @@ onMount(async () => {
         <div class="password-input">
           <PasswordInput
             bind:value={changePassword.value}
-            bind:inputstate={changePassword.inputstate} />
+            bind:inputstate={changePassword.inputstate}
+            onenter={submitChangePassword} />
         </div>
         <div class="change-button">
           <Button

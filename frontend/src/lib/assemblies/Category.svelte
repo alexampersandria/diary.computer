@@ -331,6 +331,9 @@ const onClickEditCategory = () => {
                     required
                     bind:value={tagDetails.name.value}
                     bind:inputstate={tagDetails.name.inputstate}
+                    onenter={tagDetails.mode === 'add'
+                      ? submitAddTag
+                      : submitEditTag}
                     onchange={() => {
                       validateTagDetails()
                     }} />

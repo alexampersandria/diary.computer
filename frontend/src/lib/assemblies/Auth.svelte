@@ -191,21 +191,25 @@ onMount(async () => {
       <Input
         bind:value={model.name.value}
         bind:inputstate={model.name.inputstate}
+        onenter={submit}
         required
         placeholder="Display Name" />
     </div>
   {/if}
   <EmailInput
     bind:value={model.email.value}
-    bind:inputstate={model.email.inputstate} />
+    bind:inputstate={model.email.inputstate}
+    onenter={submit} />
   <PasswordInput
     bind:value={model.password.value}
-    bind:inputstate={model.password.inputstate} />
+    bind:inputstate={model.password.inputstate}
+    onenter={submit} />
   {#if mode === 'register' && inviteRequired}
     <div class="form-field">
       <Input
         bind:value={model.inviteCode.value}
         bind:inputstate={model.inviteCode.inputstate}
+        onenter={submit}
         required
         placeholder="Invite Code" />
     </div>

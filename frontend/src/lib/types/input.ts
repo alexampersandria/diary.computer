@@ -17,6 +17,7 @@ export type InputFieldAttributes = {
   'aria-label'?: string
   onchange?: (event: Event) => void
   oninput?: (event: Event) => void
+  onenter?: (event: KeyboardEvent) => void
 }
 
 export type ValidationFunction = (

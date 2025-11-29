@@ -13,6 +13,7 @@ let {
   name,
   id,
   required,
+  onenter,
 }: PasswordInputProps = $props()
 
 let errors: string[] = $state([])
@@ -34,6 +35,7 @@ let errors: string[] = $state([])
     {required}
     {fullwidth}
     {live}
+    {onenter}
     placeholder="Password" />
 
   {#if errors.length > 0}

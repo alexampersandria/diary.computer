@@ -192,6 +192,9 @@ const deleteCategory = async () => {
             required
             bind:value={categoryDetails.name.value}
             bind:inputstate={categoryDetails.name.inputstate}
+            onenter={categoryDetails.mode === 'create'
+              ? submitAddCategory
+              : submitEditCategory}
             placeholder="Category name"
             fullwidth />
 

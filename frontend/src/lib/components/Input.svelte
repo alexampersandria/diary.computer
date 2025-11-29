@@ -16,6 +16,7 @@ let {
   required,
   onchange: emitOnChange,
   oninput: emitOnInput,
+  onenter: emitOnEnter,
   'aria-label': ariaLabel,
 }: InputProps = $props()
 
@@ -44,6 +45,12 @@ const oninput = (event: Event) => {
     emitOnInput(event)
   }
 }
+
+const onkeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter' && emitOnEnter) {
+    emitOnEnter(event)
+  }
+}
 </script>
 
 <input
@@ -59,6 +66,7 @@ const oninput = (event: Event) => {
   class:fullwidth
   class:invalid={inputstate === 'invalid'}
   aria-invalid={inputstate === 'invalid'}
+  {onkeydown}
   {onchange}
   {oninput} />
 
