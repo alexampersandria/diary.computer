@@ -103,6 +103,10 @@ watch(
   overscroll-behavior: contain;
   padding: var(--padding-m);
 
+  @media (max-width: 768px) {
+    align-items: flex-start;
+  }
+
   @keyframes openModal {
     from {
       opacity: 0;
