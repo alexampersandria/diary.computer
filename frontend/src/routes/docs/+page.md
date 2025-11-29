@@ -1,7 +1,7 @@
 <!-- should be kept up to date and the exact same as the project README.md -->
 
 <h1 align="center">
-  📆 diary.computer
+  📔 diary.computer
 </h1>
 
 <p align="center">

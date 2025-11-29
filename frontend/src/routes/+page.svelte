@@ -8,10 +8,13 @@ import { useUserStore } from '$lib/store/userStore.svelte'
 import {
   ArrowRight,
   Book,
+  ChartArea,
+  FileScan,
   Github,
   LogIn,
   PanelRightClose,
   PanelRightOpen,
+  TrainFront,
   UserPlus,
 } from 'lucide-svelte'
 
@@ -89,14 +92,14 @@ const toggleRightMenu = () => {
     </div>
   </div>
 
-  <div class="container">
+  <div class="container landing-page-section">
     <div class="header">
       <div class="text">
         <div class="fade-in fade-in-0 header-title instrument">
-          Your life, documented
+          Your diary(.computer)
         </div>
         <div class="fade-in fade-in-1 muted small">
-          Capture your life, day by day, and gain insights into how you live
+          Journaling with insights, simple, and open source
         </div>
       </div>
 
@@ -127,10 +130,65 @@ const toggleRightMenu = () => {
       </div>
     </div>
   </div>
+
+  <div class="container landing-page-section">
+    <div class="more-info fade-in fade-in-4">
+      <div class="info-section">
+        <div class="info-section-title">
+          <div class="icon">
+            <FileScan />
+          </div>
+          Open Source
+        </div>
+        <div class="info-section-text">
+          diary.computer is open source, you can self host your own instance or
+          contribute to the project yourself on <a
+            href="https://github.com/alexampersandria/diary.computer"
+            target="_blank">
+            GitHub
+          </a>
+        </div>
+      </div>
+
+      <div class="info-section fade-in fade-in-5">
+        <div class="info-section-title">
+          <div class="icon">
+            <TrainFront />
+          </div>
+          Focus on performance
+        </div>
+        <div class="info-section-text">
+          Entirely written in SvelteKit using bun and Rust for the backend,
+          diary.computer is optimized for speed and efficiency to give you the
+          best experience possible
+        </div>
+      </div>
+
+      <div class="info-section fade-in fade-in-6">
+        <div class="info-section-title">
+          <div class="icon">
+            <ChartArea />
+          </div>
+          Stats and insights
+        </div>
+        <div class="info-section-text">
+          Designed to be simple and easy to use, and opinionated as to how you
+          use your diary
+        </div>
+        <div class="info-section-text">
+          All entries have a mood value with optional tags and text entries,
+          making it easy to capture your day in just a few seconds and provides
+          meaningful insights
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- svelte-ignore css_unused_selector -->
 <style lang="scss">
+@use '../lib/assets/scss/generics';
+
 .landing-page {
   background: linear-gradient(
     135deg,
@@ -220,13 +278,20 @@ const toggleRightMenu = () => {
     }
   }
 
+  .landing-page-section {
+    padding: var(--padding-l) 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
   .header {
     display: flex;
     flex-direction: column;
     justify-content: center;
     min-height: var(--block-size-s);
-    height: calc(100vh - 4rem);
     gap: var(--padding-l);
+    padding-top: var(--padding-xl);
 
     .text {
       .header-title {
@@ -277,6 +342,35 @@ const toggleRightMenu = () => {
             background-position: 66% 50%;
           }
         }
+      }
+    }
+  }
+
+  .more-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-l);
+
+    .info-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--padding-s);
+
+      padding-left: var(--padding-m);
+      border-left: 4px solid var(--background-accent);
+      transition: border-color var(--animation-length-s) var(--better-ease-out);
+
+      .info-section-title {
+        font-size: var(--font-size-l);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: var(--padding-s);
+      }
+
+      .info-section-text {
+        @extend .muted;
+        @extend .small;
       }
     }
   }

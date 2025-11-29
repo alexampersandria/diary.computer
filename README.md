@@ -1,5 +1,5 @@
 <h1 align="center">
-  📆 diary.computer
+  📔 diary.computer
 </h1>
 
 <p align="center">

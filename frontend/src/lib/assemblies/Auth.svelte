@@ -12,6 +12,7 @@ import Checkbox from '$lib/components/Checkbox.svelte'
 import Label from '$lib/components/Label.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
 import { API_URL } from '$lib/utils/env'
+import NewIssue from './NewIssue.svelte'
 
 let userStore = useUserStore()
 
@@ -180,9 +181,8 @@ onMount(async () => {
 
   {#if serverError === 'POST'}
     <Alert type="error" size="small" solid>
-      Failed to contact the server, please try again later or <a
-        href="https://github.com/alexampersandria/diary.computer/issues/new"
-        target="_blank">create an issue</a> if the problem persists.
+      Failed to contact the server, please try again later or <NewIssue /> if the
+      problem persists.
     </Alert>
   {/if}
 
