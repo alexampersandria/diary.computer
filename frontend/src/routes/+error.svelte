@@ -1,5 +1,6 @@
 <script lang="ts">
 import { page } from '$app/state'
+import NewIssue from '$lib/assemblies/NewIssue.svelte'
 import Message from '$lib/components/Message.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
 import { ArrowLeft } from 'lucide-svelte'
@@ -14,10 +15,7 @@ let userStore = useUserStore()
     </Message>
     <br />
     <div class="muted small">
-      If you believe this to be an error <a
-        href="https://github.com/alexampersandria/diary.computer/issues/new"
-        target="_blank"
-        rel="noopener noreferrer">create an issue</a>
+      If you believe this to be an error <NewIssue />
       <br />
       {#if userStore.userDetails}
         <a href="/app">

@@ -13,6 +13,7 @@ import {
 import { getEntries } from '$lib/utils/api'
 import EntriesList from '$lib/assemblies/EntriesList.svelte'
 import { onMount } from 'svelte'
+import NewIssue from '$lib/assemblies/NewIssue.svelte'
 
 let { data: pageData }: PageProps = $props()
 
@@ -82,10 +83,7 @@ onMount(() => {
       <div class="no-tag">
         <Message type="error">Error: Tag not found</Message>
         <div class="muted small">
-          If you believe this to be an error <a
-            href="https://github.com/alexampersandria/diary.computer/issues/new"
-            target="_blank"
-            rel="noopener noreferrer">create an issue</a>
+          If you believe this to be an error <NewIssue />
           <br />
           <a href="/app/tags"><Tags /> See list of all tags</a>
         </div>

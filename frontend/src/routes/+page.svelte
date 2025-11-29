@@ -5,7 +5,18 @@ import Logo from '$lib/components/Logo.svelte'
 import Modal from '$lib/components/Modal.svelte'
 import ThemeToggle from '$lib/components/ThemeToggle.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
-import { ArrowRight, Book, Github, LogIn, UserPlus } from 'lucide-svelte'
+import {
+  ArrowRight,
+  Book,
+  ChartArea,
+  FileScan,
+  Github,
+  LogIn,
+  PanelRightClose,
+  PanelRightOpen,
+  TrainFront,
+  UserPlus,
+} from 'lucide-svelte'
 
 let userStore = useUserStore()
 
@@ -14,6 +25,11 @@ let authMode = $state<'login' | 'register'>('register')
 const openAuthModal = (mode: 'login' | 'register' = 'login') => {
   authModal = true
   authMode = mode
+}
+
+let rightMenuOpen = $state(false)
+const toggleRightMenu = () => {
+  rightMenuOpen = !rightMenuOpen
 }
 </script>
 
@@ -28,48 +44,62 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
 
   <div class="navigation">
     <div class="container">
-      <div class="left muted">
+      <div class="action-elements muted">
         <a href="/"><Logo /></a>
+
+        <div class="mobile-only toggle-right-menu">
+          <Button type="ghost" onclick={toggleRightMenu}>
+            {#if rightMenuOpen}
+              <PanelRightClose />
+            {:else}
+              <PanelRightOpen />
+            {/if}
+          </Button>
+        </div>
       </div>
-      <div class="right">
-        <Button
-          type="ghost"
-          href="https://github.com/alexampersandria/diary.computer"
-          target="_blank">
-          <Github />
-          GitHub
-        </Button>
+      <div class="nav-elements-wrapper">
+        <div class="nav-elements" class:open={rightMenuOpen}>
+          <div class="mobile-only nav-title">diary.computer</div>
 
-        <Button type="ghost" href="/docs">
-          <Book />
-          Docs
-        </Button>
-
-        {#if userStore.sessionId === null}
-          <Button type="ghost" onclick={() => openAuthModal('login')}>
-            <LogIn />
-            Log in
+          <Button
+            type="ghost"
+            href="https://github.com/alexampersandria/diary.computer"
+            target="_blank">
+            <Github />
+            GitHub
           </Button>
-        {:else}
-          <Button type="ghost" href="/app">
-            <ArrowRight />
-            Go to app
-          </Button>
-        {/if}
 
-        <ThemeToggle />
+          <Button type="ghost" href="/docs">
+            <Book />
+            Docs
+          </Button>
+
+          {#if userStore.sessionId === null}
+            <Button type="ghost" onclick={() => openAuthModal('login')}>
+              <LogIn />
+              Log in
+            </Button>
+          {:else}
+            <Button type="ghost" href="/app">
+              <ArrowRight />
+              Go to app
+            </Button>
+          {/if}
+
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="container">
+  <div class="container landing-page-section">
     <div class="header">
       <div class="text">
         <div class="fade-in fade-in-0 header-title instrument">
-          Your life, documented
+          Your diary(.computer)
         </div>
         <div class="fade-in fade-in-1 muted small">
-          Capture your life, day by day, and gain insights into how you live
+          Journaling with insights, simple, and open source
         </div>
       </div>
 
@@ -100,10 +130,65 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
       </div>
     </div>
   </div>
+
+  <div class="container landing-page-section">
+    <div class="more-info fade-in fade-in-4">
+      <div class="info-section">
+        <div class="info-section-title">
+          <div class="icon">
+            <FileScan />
+          </div>
+          Open Source
+        </div>
+        <div class="info-section-text">
+          diary.computer is open source, you can self host your own instance or
+          contribute to the project yourself on <a
+            href="https://github.com/alexampersandria/diary.computer"
+            target="_blank">
+            GitHub
+          </a>
+        </div>
+      </div>
+
+      <div class="info-section fade-in fade-in-5">
+        <div class="info-section-title">
+          <div class="icon">
+            <TrainFront />
+          </div>
+          Focus on performance
+        </div>
+        <div class="info-section-text">
+          Entirely written in SvelteKit using bun and Rust for the backend,
+          diary.computer is optimized for speed and efficiency to give you the
+          best experience possible
+        </div>
+      </div>
+
+      <div class="info-section fade-in fade-in-6">
+        <div class="info-section-title">
+          <div class="icon">
+            <ChartArea />
+          </div>
+          Stats and insights
+        </div>
+        <div class="info-section-text">
+          Designed to be simple and easy to use, and opinionated as to how you
+          use your diary
+        </div>
+        <div class="info-section-text">
+          All entries have a mood value with optional tags and text entries,
+          making it easy to capture your day in just a few seconds and provides
+          meaningful insights
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- svelte-ignore css_unused_selector -->
 <style lang="scss">
+@use '../lib/assets/scss/generics';
+
 .landing-page {
   background: linear-gradient(
     135deg,
@@ -118,6 +203,7 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
   .navigation {
     position: fixed;
     width: 100%;
+    height: 4rem;
 
     .container {
       display: flex;
@@ -126,12 +212,77 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
       min-height: 4rem;
     }
 
-    .left,
-    .right {
+    .action-elements,
+    .nav-elements {
       display: flex;
       align-items: center;
       gap: var(--padding-s);
     }
+  }
+
+  @media (max-width: 768px) {
+    .navigation {
+      position: relative;
+
+      .action-elements {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+
+        .toggle-right-menu {
+          z-index: 11;
+        }
+      }
+
+      .nav-elements-wrapper {
+        overflow: hidden;
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        width: 100vw;
+        height: 100vh;
+
+        &:not(:has(.open)) {
+          pointer-events: none;
+        }
+
+        .nav-elements {
+          .nav-title {
+            padding: var(--button-padding);
+            font-weight: 600;
+          }
+
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          width: 100%;
+          height: 100%;
+          background-color: var(--background-overlay);
+          padding: var(--padding-m);
+
+          backdrop-filter: blur(0px);
+          opacity: 0;
+          transition:
+            right var(--animation-length-s) var(--better-ease-out),
+            backdrop-filter var(--animation-length-s) var(--better-ease-out),
+            opacity var(--animation-length-s) var(--better-ease-out);
+
+          &.open {
+            right: 0;
+            backdrop-filter: blur(4px);
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
+
+  .landing-page-section {
+    padding: var(--padding-l) 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .header {
@@ -139,8 +290,8 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
     flex-direction: column;
     justify-content: center;
     min-height: var(--block-size-s);
-    height: 95dvh;
     gap: var(--padding-l);
+    padding-top: var(--padding-xl);
 
     .text {
       .header-title {
@@ -191,6 +342,35 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
             background-position: 66% 50%;
           }
         }
+      }
+    }
+  }
+
+  .more-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-l);
+
+    .info-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--padding-s);
+
+      padding-left: var(--padding-m);
+      border-left: 4px solid var(--background-accent);
+      transition: border-color var(--animation-length-s) var(--better-ease-out);
+
+      .info-section-title {
+        font-size: var(--font-size-l);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: var(--padding-s);
+      }
+
+      .info-section-text {
+        @extend .muted;
+        @extend .small;
       }
     }
   }
