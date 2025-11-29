@@ -36,7 +36,11 @@ const onchange = (event: Event, fromLive = false) => {
   }
 }
 
+let liveValue = $state(value)
 const oninput = (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  liveValue = target.value
+
   if (live) {
     onchange(event, true)
   }
@@ -48,6 +52,8 @@ const oninput = (event: Event) => {
 
 const onkeydown = (event: KeyboardEvent) => {
   if (event.key === 'Enter' && emitOnEnter) {
+    // force update value before emitting
+    value = liveValue
     emitOnEnter(event)
   }
 }
