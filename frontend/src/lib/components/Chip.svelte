@@ -48,10 +48,6 @@ onMount(() => {
 
 .chip {
   vertical-align: middle;
-  display: inline-flex;
-  gap: var(--padding-xxs);
-  align-items: center;
-  justify-content: center;
   border-radius: 9999px;
   font-size: var(--font-size-xs);
   padding: 0 var(--padding-s);
@@ -64,6 +60,7 @@ onMount(() => {
     0 0 0 0 var(--background-primary),
     0 0 0 0 var(--background-primary);
   height: var(--chip-height);
+  line-height: var(--chip-height);
   min-width: var(--chip-min-width);
 
   :global(.lucide) {
@@ -72,6 +69,11 @@ onMount(() => {
   }
 
   &.single-character {
+    display: inline-flex;
+    gap: var(--padding-xxs);
+    align-items: center;
+    justify-content: center;
+
     min-width: var(--chip-height);
     width: var(--chip-height);
   }
