@@ -8,6 +8,7 @@ import { isValidDate } from '$lib/utils/log'
 import { takeAtLeast } from '$lib/utils/takeAtLeast'
 import { watch } from 'runed'
 import type { PageProps } from './$types'
+import Backlink from '$lib/components/Backlink.svelte'
 
 let { data }: PageProps = $props()
 
@@ -82,6 +83,7 @@ let valid = $derived.by(() => {
 
 <div class="app-page entry-page">
   <div class="container">
+    <Backlink href="/app/entries">All entries</Backlink>
     {#if valid}
       {#if entry !== undefined}
         {#key entry ? entry.id : data.date}

@@ -279,7 +279,7 @@ const toggleRightMenu = () => {
   }
 
   .landing-page-section {
-    padding: var(--padding-l) 0;
+    padding-block: var(--padding-l);
     display: flex;
     flex-direction: column;
     justify-content: center;

@@ -16,6 +16,7 @@ let {
   required,
   onchange: emitOnChange,
   oninput: emitOnInput,
+  onenter: emitOnEnter,
   'aria-label': ariaLabel,
 }: InputProps = $props()
 
@@ -35,13 +36,25 @@ const onchange = (event: Event, fromLive = false) => {
   }
 }
 
+let liveValue = $state(value)
 const oninput = (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  liveValue = target.value
+
   if (live) {
     onchange(event, true)
   }
 
   if (emitOnInput) {
     emitOnInput(event)
+  }
+}
+
+const onkeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter' && emitOnEnter) {
+    // force update value before emitting
+    value = liveValue
+    emitOnEnter(event)
   }
 }
 </script>
@@ -59,6 +72,7 @@ const oninput = (event: Event) => {
   class:fullwidth
   class:invalid={inputstate === 'invalid'}
   aria-invalid={inputstate === 'invalid'}
+  {onkeydown}
   {onchange}
   {oninput} />
 
