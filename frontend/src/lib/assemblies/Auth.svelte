@@ -12,7 +12,7 @@ import Checkbox from '$lib/components/Checkbox.svelte'
 import Label from '$lib/components/Label.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
 import { API_URL } from '$lib/utils/env'
-import NewIssue from './NewIssue.svelte'
+import NewIssue from '../components/NewIssue.svelte'
 
 let userStore = useUserStore()
 

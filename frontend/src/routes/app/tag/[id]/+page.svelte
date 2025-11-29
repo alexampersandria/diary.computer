@@ -13,7 +13,8 @@ import {
 import { getEntries } from '$lib/utils/api'
 import EntriesList from '$lib/assemblies/EntriesList.svelte'
 import { onMount } from 'svelte'
-import NewIssue from '$lib/assemblies/NewIssue.svelte'
+import NewIssue from '$lib/components/NewIssue.svelte'
+import Backlink from '$lib/components/Backlink.svelte'
 
 let { data: pageData }: PageProps = $props()
 
@@ -68,6 +69,8 @@ onMount(() => {
 
 <div class="app-page tag-page">
   <div class="container">
+    <Backlink href="/app/tags">All tags</Backlink>
+
     {#if tag}
       <div class="app-page-title">
         <Tag />

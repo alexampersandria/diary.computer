@@ -1,6 +1,6 @@
 <script lang="ts">
 import { page } from '$app/state'
-import NewIssue from '$lib/assemblies/NewIssue.svelte'
+import NewIssue from '$lib/components/NewIssue.svelte'
 import Message from '$lib/components/Message.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
 import { ArrowLeft } from 'lucide-svelte'
