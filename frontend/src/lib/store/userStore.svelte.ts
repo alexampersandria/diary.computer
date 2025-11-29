@@ -2,6 +2,7 @@ import type { EditUserDetails, UserDetails } from '$lib/types/user'
 import { goto } from '$app/navigation'
 import { useDataStore, type DataState } from './dataStore.svelte'
 import { API_URL } from '$lib/utils/env'
+import { watch } from 'runed'
 
 let dataStore: DataState | null = null
 
@@ -102,6 +103,31 @@ const deleteAccount = async (): Promise<boolean> => {
   return false
 }
 
+let fetchingUserDetails = false
+const getUserDetails = async () => {
+  console.log('Fetching user details...')
+  console.log('fetchingUserDetails:', fetchingUserDetails)
+  if (sessionId && !fetchingUserDetails) {
+    fetchingUserDetails = true
+    await fetch(API_URL('/v1/user'), {
+      headers: { Authorization: `Bearer ${sessionId}` },
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Failed to fetch user details')
+        }
+        return res.json()
+      })
+      .then((data: UserDetails) => {
+        userDetails = data
+      })
+      .catch(err => {
+        console.error('Error fetching user details:', err)
+      })
+    fetchingUserDetails = false
+  }
+}
+
 export const useUserStore: () => UserState = () => {
   $effect(() => {
     if (!dataStore) {
@@ -109,25 +135,14 @@ export const useUserStore: () => UserState = () => {
     }
   })
 
-  $effect(() => {
-    if (sessionId) {
-      fetch(API_URL('/v1/user'), {
-        headers: { Authorization: `Bearer ${sessionId}` },
-      })
-        .then(res => {
-          if (!res.ok) {
-            throw new Error('Failed to fetch user details')
-          }
-          return res.json()
-        })
-        .then((data: UserDetails) => {
-          userDetails = data
-        })
-        .catch(err => {
-          console.error('Error fetching user details:', err)
-        })
-    }
-  })
+  watch(
+    () => sessionId,
+    (to, from) => {
+      if (to !== from) {
+        getUserDetails()
+      }
+    },
+  )
 
   return {
     get sessionId() {
