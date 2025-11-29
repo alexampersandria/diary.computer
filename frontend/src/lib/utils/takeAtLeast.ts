@@ -1,4 +1,4 @@
-export const DEFAULT_TAKEATLEAST_DURATION = 500
+export const DEFAULT_TAKEATLEAST_DURATION = 250
 
 /**
  * delay a promise to take at least `minDuration` milliseconds

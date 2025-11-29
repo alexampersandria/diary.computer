@@ -29,6 +29,7 @@ import { currentDate, fullDate } from '$lib/utils/log'
 import { diff } from 'deep-object-diff'
 import { formatNumber } from '$lib/utils/numbers'
 import Categories from './Categories.svelte'
+import { takeAtLeast } from '$lib/utils/takeAtLeast'
 
 let {
   id = undefined,
@@ -51,6 +52,7 @@ let {
 }: EntryProps = $props()
 
 let inputState: InputState = $state('untouched')
+let loading = $state(false)
 
 let errors = $derived.by(() => {
   if (serverError !== undefined) {
@@ -127,26 +129,31 @@ const saveChanges = async () => {
   await applyEditModel()
 
   if (mood !== undefined) {
+    loading = true
     if (mode === 'create' && onCreate) {
-      const res = await onCreate({
-        date,
-        entry,
-        mood,
-        selected_tags: selectedTagIds,
-      })
+      const res = await takeAtLeast(
+        onCreate({
+          date,
+          entry,
+          mood,
+          selected_tags: selectedTagIds,
+        }),
+      )
       if (res) {
         mode = 'view'
       } else {
         serverError = 'Failed to create entry'
       }
     } else if (mode === 'edit' && id && onUpdate) {
-      const res = await onUpdate({
-        id,
-        date,
-        entry,
-        mood,
-        selected_tags: selectedTagIds,
-      })
+      const res = await takeAtLeast(
+        onUpdate({
+          id,
+          date,
+          entry,
+          mood,
+          selected_tags: selectedTagIds,
+        }),
+      )
       if (res) {
         mode = 'view'
       } else {
@@ -155,6 +162,7 @@ const saveChanges = async () => {
     } else {
       mode = 'view'
     }
+    loading = false
   }
 }
 
@@ -335,7 +343,10 @@ const categoryRemoveTag = async (tagId: string) => {
   <div class="entry-actions">
     {#if mode === 'view'}
       {#if id}
-        <Button type="destructive" onclick={() => deleteEntry()}>
+        <Button
+          type="destructive"
+          onclick={() => deleteEntry()}
+          disabled={loading}>
           <Trash /> Delete entry
         </Button>
       {/if}
@@ -344,12 +355,13 @@ const categoryRemoveTag = async (tagId: string) => {
         <Pencil /> Edit
       </Button>
     {:else if mode === 'edit'}
-      <Button onclick={() => cancelChanges()}>
+      <Button onclick={() => cancelChanges()} disabled={loading}>
         <PencilOff />
         Cancel
       </Button>
       <Button
         type="primary"
+        {loading}
         onclick={() => saveChanges()}
         disabled={disableButton}>
         <Save />
@@ -358,6 +370,7 @@ const categoryRemoveTag = async (tagId: string) => {
     {:else if mode === 'create'}
       <Button
         type="primary"
+        {loading}
         onclick={() => saveChanges()}
         disabled={disableButton}>
         <Plus />

@@ -6,10 +6,7 @@ import Message from '$lib/components/Message.svelte'
 import type { Paginated } from '$lib/types/paginated'
 import type { Entry } from '$lib/types/log'
 import { useUserStore } from '$lib/store/userStore.svelte'
-import {
-  DEFAULT_TAKEATLEAST_DURATION,
-  takeAtLeast,
-} from '$lib/utils/takeAtLeast'
+import { takeAtLeast } from '$lib/utils/takeAtLeast'
 import { getEntries } from '$lib/utils/api'
 import EntriesList from '$lib/assemblies/EntriesList.svelte'
 import { onMount } from 'svelte'
@@ -50,7 +47,6 @@ const onloadmore = async () => {
       const offset = data.pagination.offset + data.pagination.limit
       const res = await takeAtLeast(
         getEntries(userStore.sessionId, { limit, tags: [tag.id], offset }),
-        DEFAULT_TAKEATLEAST_DURATION / 2,
       )
       if (res) {
         data.pagination = res.pagination

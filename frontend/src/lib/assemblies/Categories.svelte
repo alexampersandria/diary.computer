@@ -8,6 +8,7 @@ import type { Category as CategoryType } from '$lib/types/log'
 import type { InputState } from '$lib/types/input'
 import Message from '$lib/components/Message.svelte'
 import type { CategoriesProps } from '$lib/types/assemblies/category'
+import { takeAtLeast } from '$lib/utils/takeAtLeast'
 
 let {
   categories,
@@ -31,6 +32,7 @@ let categoryDetails: {
   }
   errors: string[]
   loading: boolean
+  deleteLoading: boolean
 } = $state({
   mode: 'create',
   open: false,
@@ -41,6 +43,7 @@ let categoryDetails: {
   },
   errors: [],
   loading: false,
+  deleteLoading: false,
 })
 
 const validateCategoryDetails = () => {
@@ -61,27 +64,31 @@ const validateCategoryDetails = () => {
 }
 
 const startAddCategory = () => {
-  resetCategoryDetails()
-  categoryDetails.mode = 'create'
   categoryDetails.open = true
+  categoryDetails.name.value = ''
+  categoryDetails.name.inputstate = 'untouched'
+  categoryDetails.errors = []
+  categoryDetails.loading = false
+  categoryDetails.deleteLoading = false
+  categoryDetails.id = undefined
+  categoryDetails.mode = 'create'
   categoryDetails.id = Date.now().toString()
 }
 
 const startEditCategory = (category: CategoryType) => {
-  resetCategoryDetails()
-  categoryDetails.mode = 'edit'
-  categoryDetails.name.value = category.name
   categoryDetails.open = true
+  categoryDetails.errors = []
+  categoryDetails.loading = false
+  categoryDetails.deleteLoading = false
+  categoryDetails.id = undefined
+  categoryDetails.mode = 'edit'
+  categoryDetails.name.inputstate = 'touched'
+  categoryDetails.name.value = category.name
   categoryDetails.id = category.id
 }
 
-const resetCategoryDetails = () => {
-  categoryDetails.name.value = ''
-  categoryDetails.name.inputstate = 'untouched'
+const closeCategoryDetails = () => {
   categoryDetails.open = false
-  categoryDetails.errors = []
-  categoryDetails.loading = false
-  categoryDetails.id = undefined
 }
 
 const submitAddCategory = async () => {
@@ -92,17 +99,19 @@ const submitAddCategory = async () => {
 
   if (onAddCategory) {
     categoryDetails.loading = true
-    const res = await onAddCategory({
-      name: categoryDetails.name.value,
-    })
+    const res = await takeAtLeast(
+      onAddCategory({
+        name: categoryDetails.name.value,
+      }),
+    )
     if (res) {
-      resetCategoryDetails()
+      closeCategoryDetails()
     } else {
       categoryDetails.loading = false
       categoryDetails.errors.push('Failed to add category')
     }
   } else {
-    resetCategoryDetails()
+    closeCategoryDetails()
   }
 }
 
@@ -114,18 +123,20 @@ const submitEditCategory = async () => {
 
   if (onEditCategory) {
     categoryDetails.loading = true
-    const res = await onEditCategory({
-      id: categoryDetails.id,
-      name: categoryDetails.name.value,
-    })
+    const res = await takeAtLeast(
+      onEditCategory({
+        id: categoryDetails.id,
+        name: categoryDetails.name.value,
+      }),
+    )
     if (res) {
-      resetCategoryDetails()
+      closeCategoryDetails()
     } else {
       categoryDetails.loading = false
       categoryDetails.errors.push('Failed to edit category')
     }
   } else {
-    resetCategoryDetails()
+    closeCategoryDetails()
   }
 }
 
@@ -136,16 +147,16 @@ const deleteCategory = async () => {
     return categories.some(c => c.tags.some(t => t.id === tagId))
   })
   if (onDeleteCategory) {
-    categoryDetails.loading = true
-    const res = await onDeleteCategory(categoryDetails.id)
+    categoryDetails.deleteLoading = true
+    const res = await takeAtLeast(onDeleteCategory(categoryDetails.id))
     if (res) {
-      resetCategoryDetails()
+      closeCategoryDetails()
     } else {
-      categoryDetails.loading = false
+      categoryDetails.deleteLoading = false
       categoryDetails.errors.push('Failed to delete category')
     }
   } else {
-    resetCategoryDetails()
+    closeCategoryDetails()
   }
 }
 </script>
@@ -177,7 +188,7 @@ const deleteCategory = async () => {
       <Plus /> Add category
     </Button>
 
-    <Modal open={categoryDetails.open}>
+    <Modal bind:open={categoryDetails.open}>
       <div class="category-details">
         <div class="category-details-title">
           {#if categoryDetails.mode === 'create'}
@@ -195,6 +206,7 @@ const deleteCategory = async () => {
             onenter={categoryDetails.mode === 'create'
               ? submitAddCategory
               : submitEditCategory}
+            onchange={validateCategoryDetails}
             placeholder="Category name"
             fullwidth />
 
@@ -209,17 +221,28 @@ const deleteCategory = async () => {
 
         <div class="category-details-actions">
           {#if categoryDetails.mode === 'create'}
-            <Button onclick={submitAddCategory}>
+            <Button
+              onclick={submitAddCategory}
+              loading={categoryDetails.loading}
+              disabled={categoryDetails.errors.length > 0}>
               <Plus />
               Add
             </Button>
           {:else if categoryDetails.mode === 'edit'}
-            <Button type="destructive" onclick={deleteCategory}>
+            <Button
+              type="destructive"
+              onclick={deleteCategory}
+              loading={categoryDetails.deleteLoading}
+              disabled={categoryDetails.loading}>
               <Trash />
               Delete category
             </Button>
 
-            <Button onclick={submitEditCategory}>
+            <Button
+              onclick={submitEditCategory}
+              loading={categoryDetails.loading}
+              disabled={categoryDetails.deleteLoading ||
+                categoryDetails.errors.length > 0}>
               <Save />
               Save changes
             </Button>

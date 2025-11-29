@@ -20,6 +20,7 @@ import {
 import type { NewTag, Tag } from '$lib/types/log'
 import ColorPicker from '$lib/components/ColorPicker.svelte'
 import Label from '$lib/components/Label.svelte'
+import { takeAtLeast } from '$lib/utils/takeAtLeast'
 
 let {
   id,
@@ -77,6 +78,7 @@ let tagDetails: {
   }
   errors: string[]
   loading: boolean
+  deleteLoading: boolean
 } = $state({
   mode: 'add',
   open: false,
@@ -91,29 +93,40 @@ let tagDetails: {
   },
   errors: [] as string[],
   loading: false,
+  deleteLoading: false,
 })
 
 const openAddTag = () => {
   tagDetails.open = true
   tagDetails.mode = 'add'
+  tagDetails.id = undefined
+  tagDetails.name.value = undefined
+  tagDetails.name.inputstate = 'untouched'
+  tagDetails.color.value = undefined
+  tagDetails.color.inputstate = 'untouched'
+  tagDetails.errors = []
+  tagDetails.loading = false
+  tagDetails.deleteLoading = false
 }
 
 const openEditTag = (tagId: string) => {
   const tag = tags.find(tag => tag.id === tagId)
   if (tag) {
+    tagDetails.open = true
+    tagDetails.errors = []
+    tagDetails.loading = false
+    tagDetails.deleteLoading = false
     tagDetails.mode = 'edit'
     tagDetails.id = tag.id
     tagDetails.name.value = tag.name
     tagDetails.name.inputstate = 'touched'
     tagDetails.color.value = tag.color
     tagDetails.color.inputstate = 'touched'
-    tagDetails.open = true
   }
 }
 
 const closeTagDetails = () => {
   tagDetails.open = false
-  resetTagDetails()
 }
 
 const validateTagDetails = (requireUntouched = true) => {
@@ -170,7 +183,7 @@ const submitAddTag = async () => {
 
   if (onAddTag) {
     tagDetails.loading = true
-    const res = await onAddTag(newTag)
+    const res = await takeAtLeast(onAddTag(newTag))
     if (res) {
       closeTagDetails()
     } else {
@@ -178,7 +191,7 @@ const submitAddTag = async () => {
       tagDetails.errors = ['Failed to add tag']
     }
   } else {
-    resetTagDetails()
+    closeTagDetails()
   }
 }
 
@@ -205,50 +218,33 @@ const submitEditTag = async () => {
 
     if (onEditTag) {
       tagDetails.loading = true
-      const res = await onEditTag(editedTag)
+      const res = await takeAtLeast(onEditTag(editedTag))
       if (res) {
         closeTagDetails()
       } else {
-        tagDetails.loading = false
         tagDetails.errors = ['Failed to edit tag']
       }
+      tagDetails.loading = false
     } else {
       closeTagDetails()
     }
   } else {
-    resetTagDetails()
+    closeTagDetails()
   }
-}
-
-$effect(() => {
-  if (!tagDetails.open) {
-    resetTagDetails()
-  }
-})
-
-const resetTagDetails = () => {
-  tagDetails.id = undefined
-  tagDetails.name.value = undefined
-  tagDetails.name.inputstate = 'untouched'
-  tagDetails.color.value = undefined
-  tagDetails.color.inputstate = 'untouched'
-  tagDetails.errors = []
-  tagDetails.loading = false
-  tagDetails.open = false
 }
 
 const deleteEditTag = async () => {
   if (tagDetails.id) {
     selectedTagIds = selectedTagIds.filter(id => id !== tagDetails.id)
     if (onRemoveTag) {
-      tagDetails.loading = true
-      const res = await onRemoveTag(tagDetails.id)
+      tagDetails.deleteLoading = true
+      const res = await takeAtLeast(onRemoveTag(tagDetails.id))
       if (res) {
         closeTagDetails()
       } else {
-        tagDetails.loading = false
         tagDetails.errors = ['Failed to delete tag']
       }
+      tagDetails.deleteLoading = false
     } else {
       closeTagDetails()
     }
@@ -356,11 +352,16 @@ const onClickEditCategory = () => {
                   <Button
                     type="primary"
                     onclick={submitAddTag}
+                    loading={tagDetails.loading}
                     disabled={!validAddTag}>
                     <Plus /> Add
                   </Button>
                 {:else if tagDetails.mode === 'edit'}
-                  <Button type="destructive" onclick={deleteEditTag}>
+                  <Button
+                    type="destructive"
+                    onclick={deleteEditTag}
+                    disabled={tagDetails.loading}
+                    loading={tagDetails.deleteLoading}>
                     <Trash />
                     Delete tag
                   </Button>
@@ -368,7 +369,8 @@ const onClickEditCategory = () => {
                   <Button
                     type="primary"
                     onclick={submitEditTag}
-                    disabled={!validAddTag}>
+                    loading={tagDetails.loading}
+                    disabled={!validAddTag || tagDetails.deleteLoading}>
                     <Save />
                     Save changes
                   </Button>
@@ -404,7 +406,7 @@ const onClickEditCategory = () => {
         <svelte:element
           this={mode === 'view' ? 'a' : 'button'}
           href={mode === 'view' ? `/app/tag/${tag.id}` : undefined}
-          class="plain"
+          class="tag-wrapper-button plain"
           onclick={() => clickTag(tag)}
           role={mode === 'select' ? undefined : 'option'}
           aria-selected={selectedTagIds.includes(tag.id)}
@@ -464,6 +466,12 @@ const onClickEditCategory = () => {
     flex-wrap: wrap;
     gap: calc(5 * var(--focus-shadow-offset));
     max-width: 100%;
+    overflow: hidden;
+
+    .tag-wrapper-button {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 }
 

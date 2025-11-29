@@ -199,6 +199,7 @@ const toggleRightMenu = () => {
     rgba(176, 184, 230, 0.05) 100%
   );
   min-height: 100vh;
+  padding-bottom: var(--padding-xl);
 
   .navigation {
     position: fixed;
