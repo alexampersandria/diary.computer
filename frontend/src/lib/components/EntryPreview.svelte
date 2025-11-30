@@ -11,7 +11,7 @@ let { date, entry, small = false }: EntryPreviewProps = $props()
 let tagList = $derived.by(() => {
   let tags =
     entry?.selected_tags.map(tagId => dataStore.getTag(tagId)?.name) || []
-  tags.sort((a, b) => a!.localeCompare(b!))
+  tags.filter(Boolean).sort((a, b) => a!.localeCompare(b!))
 
   return tags.join(', ')
 })
