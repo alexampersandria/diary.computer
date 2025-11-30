@@ -161,7 +161,7 @@ watch(
       </div>
 
       <div class="calendar">
-        <Calendar />
+        <Calendar usedata />
       </div>
 
       <div class="footer">

@@ -24,5 +24,6 @@ export type CalendarProps = {
   to?: DatepickerValue
   month?: number
   year?: number
+  usedata?: boolean
   onchange?: () => void
 }

@@ -186,6 +186,7 @@ const filtersApplied = $derived.by(() => {
       <Label>Date range</Label>
       <Calendar
         mode="rangepicker"
+        usedata
         bind:from={options.from_date}
         bind:to={options.to_date} />
     </div>

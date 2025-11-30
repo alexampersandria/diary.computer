@@ -31,6 +31,7 @@ let {
   to = $bindable(undefined),
   month = cdo.month,
   year = cdo.year,
+  usedata = false,
   onchange,
 }: CalendarProps = $props()
 
@@ -39,15 +40,17 @@ let daysInMonth = $derived.by(() => {
 })
 
 const getData = () => {
-  const { firstDate, lastDate } = monthDateRange(year, month)
-  dataStore.fetchEntries({
-    from_date: firstDate,
-    to_date: lastDate,
-  })
+  if (usedata) {
+    const { firstDate, lastDate } = monthDateRange(year, month)
+    dataStore.fetchEntries({
+      from_date: firstDate,
+      to_date: lastDate,
+    })
+  }
 }
 
 onMount(() => {
-  if (mode === 'navigation') {
+  if (usedata && mode === 'navigation') {
     month = dataStore.calendarPosition.month
     year = dataStore.calendarPosition.year
   }
@@ -65,7 +68,9 @@ const navigate = (increment: number) => {
     year += 1
   }
 
-  dataStore.calendarPosition = { year, month }
+  if (usedata && mode === 'navigation') {
+    dataStore.calendarPosition = { year, month }
+  }
   getData()
 }
 
@@ -80,7 +85,9 @@ const entryLink = (day: number): string => {
 }
 
 const dayMood = (day: number | null) => {
-  return dataStore.getEntry(formatDay(day || 0))?.mood || null
+  if (usedata) {
+    return dataStore.getEntry(formatDay(day || 0))?.mood || null
+  }
 }
 
 const isToday = (day: number | null) => {
