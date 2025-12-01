@@ -10,6 +10,10 @@ import Logo from '$lib/components/Logo.svelte'
 import { Menu, X } from 'lucide-svelte'
 import ThemeToggle from '$lib/components/ThemeToggle.svelte'
 import { beforeNavigate } from '$app/navigation'
+import { generateTableOfContents } from '$lib/utils/toc'
+import type { TableOfContents as TableOfContentsType } from '$lib/utils/toc'
+import { afterNavigate } from '$app/navigation'
+import TableOfContents from '$lib/components/TableOfContents.svelte'
 
 const design = getRoutes(/\/docs\/design\/[^/]+\//)
 const components = getRoutes(/\/docs\/components\/[^/]+\//)
@@ -20,12 +24,14 @@ const api = getRoutes(/\/docs\/api\/[^/]+\//)
 let { children } = $props()
 
 let sidebarOpen = $state(false)
-let content: HTMLElement
+let content: HTMLElement | undefined = $state()
 
 beforeNavigate(nav => {
   // close sidebar and scroll to top when navigating to a new page
   sidebarOpen = false
-  content.scrollTop = 0
+  if (content) {
+    content.scrollTop = 0
+  }
 
   if (nav.to?.route.id?.startsWith('/app')) {
     // prevent navigation to /app routes from docs
@@ -57,6 +63,11 @@ const title = $derived.by(() => {
     pre = 'Frontend'
   }
   return pre + ' — diary.computer Documentation'
+})
+
+let toc: TableOfContentsType | undefined = $state()
+afterNavigate(() => {
+  toc = generateTableOfContents(content)
 })
 </script>
 
@@ -151,6 +162,12 @@ const title = $derived.by(() => {
   </div>
 
   <div class="docs-content" bind:this={content}>
+    {#if toc}
+      <div class="toc">
+        <TableOfContents items={toc.items} />
+      </div>
+    {/if}
+
     <div class="container">
       {@render children()}
     </div>
@@ -229,6 +246,40 @@ const title = $derived.by(() => {
 
   .docs-content {
     padding: var(--padding-l) 0;
+
+    .toc {
+      display: none;
+      max-width: var(--container-width);
+      padding-inline: var(--padding-m);
+      margin: 0 auto;
+    }
+
+    @media (min-width: 1500px) {
+      &:has(.toc) {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--padding-l);
+        padding: 0;
+
+        .container {
+          flex: 1;
+          padding-block: var(--padding-l);
+        }
+
+        .toc {
+          display: block;
+          position: sticky;
+          top: 0;
+          max-height: calc(100vh - (4rem));
+          overflow-y: auto;
+          width: calc(100vw - var(--container-width) - 16rem);
+          max-width: var(--block-size-xs);
+          padding-block: var(--padding-l);
+        }
+      }
+    }
   }
 
   .docs-navigation,
@@ -279,6 +330,7 @@ const title = $derived.by(() => {
 @media screen and (max-width: 768px) {
   .docs {
     grid-template-columns: 0 1fr;
+    grid-column-gap: 0;
 
     .docs-navigation-backdrop {
       position: fixed;
