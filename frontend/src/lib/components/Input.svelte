@@ -51,10 +51,15 @@ const oninput = (event: Event) => {
 }
 
 const onkeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Enter' && emitOnEnter) {
+  if (event.key === 'Enter') {
     // force update value before emitting
     value = liveValue
-    emitOnEnter(event)
+    if (emitOnEnter) {
+      // set timeout to let value update propagate before emitting
+      setTimeout(() => {
+        emitOnEnter(event)
+      })
+    }
   }
 }
 </script>
