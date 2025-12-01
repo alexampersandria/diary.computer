@@ -21,7 +21,7 @@ let Icon = direction === 'left' ? ChevronLeft : ChevronRight
   display: inline-flex;
   align-items: center;
   gap: var(--padding-xs);
-  padding-bottom: var(--padding-s);
+  margin-bottom: var(--padding-s);
 
   &:hover {
     color: var(--text-primary);
