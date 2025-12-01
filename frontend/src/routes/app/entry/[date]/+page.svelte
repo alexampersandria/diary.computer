@@ -24,9 +24,12 @@ const getData = () => {
     return
   }
   setTimeout(async () => {
+    // if entry is already loaded, we can skip the minimum duration wait
+    // else undefined to use the default duration
+    const minDuration = entry ? 0 : undefined
     // first fetch the entry from the backend to ensure we have the latest data
     // this is not done automatically in the dataStore to avoid excessive requests
-    await takeAtLeast(dataStore.fetchEntry(data.date))
+    await takeAtLeast(dataStore.fetchEntry(data.date), minDuration)
     entry = dataStore.getEntry(data.date) || null
   }, 0)
 }
@@ -91,6 +94,8 @@ let tomorrow = $derived.by(() => {
 
 <div class="app-page entry-page">
   <div class="container">
+    <code><pre>{JSON.stringify(entry, null, 2)}</pre></code>
+
     <div class="nav-links">
       <Backlink href={`/app/entry/${yesterday}`}>Previous day</Backlink>
       <Backlink href={`/app/entry/${tomorrow}`} direction="right">
