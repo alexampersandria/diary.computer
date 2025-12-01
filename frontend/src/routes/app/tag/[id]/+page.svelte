@@ -69,8 +69,13 @@ onMount(() => {
 
     {#if tag}
       <div class="app-page-title">
-        <Tag />
-        {tag.name}
+        <div class="icon color-{tag.color}-text">
+          <Tag />
+        </div>
+        <div class="ellipsis">
+          {tag.category.name} /
+          {tag.name}
+        </div>
       </div>
 
       <EntriesList
@@ -98,6 +103,10 @@ onMount(() => {
     flex-direction: column;
     justify-content: center;
     gap: var(--padding-s);
+  }
+
+  .icon {
+    display: flex;
   }
 }
 </style>
