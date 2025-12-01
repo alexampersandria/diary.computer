@@ -11,6 +11,10 @@ import type { PageProps } from './$types'
 import Backlink from '$lib/components/ArrowLink.svelte'
 
 let { data }: PageProps = $props()
+// initialize date state to the date from the route params
+// we use a separate state variable so that on data.date change we wait for the entry to load
+// before updating the date shown in the Entry component
+let date = $state(data.date)
 
 let dataStore = useDataStore()
 
@@ -31,6 +35,11 @@ const getData = () => {
     // this is not done automatically in the dataStore to avoid excessive requests
     await takeAtLeast(dataStore.fetchEntry(data.date), minDuration)
     entry = dataStore.getEntry(data.date) || null
+    if (entry) {
+      date = entry.date
+    } else {
+      date = data.date
+    }
   }, 0)
 }
 
@@ -43,7 +52,7 @@ watch(
 
 const onCreate = async (newEntry: NewEntry) => {
   const created = await dataStore.createEntry({
-    date: data.date,
+    date: newEntry.date,
     entry: newEntry.entry,
     mood: newEntry.mood,
     selected_tags: newEntry.selected_tags,
@@ -57,7 +66,7 @@ const onCreate = async (newEntry: NewEntry) => {
 const onUpdate = async (updatedEntry: EditEntry) => {
   const updated = await dataStore.updateEntry({
     id: updatedEntry.id,
-    date: data.date,
+    date: updatedEntry.date,
     entry: updatedEntry.entry,
     mood: updatedEntry.mood,
     selected_tags: updatedEntry.selected_tags,
@@ -84,11 +93,11 @@ let valid = $derived.by(() => {
 })
 
 let yesterday = $derived.by(() => {
-  return previousDate(entry ? entry.date : data.date)
+  return previousDate(entry ? entry.date : date)
 })
 
 let tomorrow = $derived.by(() => {
-  return nextDate(entry ? entry.date : data.date)
+  return nextDate(entry ? entry.date : date)
 })
 </script>
 
@@ -102,11 +111,11 @@ let tomorrow = $derived.by(() => {
     </div>
     {#if valid}
       {#if entry !== undefined}
-        {#key entry ? entry.id : data.date}
+        {#key entry ? entry.id : date}
           <Entry
             mode={entry ? 'view' : 'create'}
             id={entry ? entry.id : undefined}
-            date={entry ? entry.date : data.date}
+            date={entry ? entry.date : date}
             entry={entry ? entry.entry : undefined}
             mood={entry ? entry.mood : undefined}
             selectedTagIds={entry ? entry.selected_tags : undefined}
