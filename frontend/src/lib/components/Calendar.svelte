@@ -36,6 +36,8 @@ let {
   onchange,
 }: CalendarProps = $props()
 
+let calendarYearValues = $state(yearValues)
+
 let daysInMonth = $derived.by(() => {
   return calendarDaysInMonth(year, month)
 })
@@ -273,6 +275,19 @@ watch(
 watch(
   () => [month, year],
   (_to, from) => {
+    // if year not in calendarYearValues, add it as well as any missing years in between
+    // otherwise the year would overflow to the first option in the select
+    // which is like 1925 (current year - 100) which is just odd
+    if (!calendarYearValues.find(y => y.value === year)) {
+      let lastYearInCalendarValues = Math.max(
+        ...calendarYearValues.map(y => y.value as number),
+      )
+      let missingYears = []
+      for (let y = lastYearInCalendarValues + 1; y <= year; y++) {
+        missingYears.push({ label: `${y}`, value: y })
+      }
+      calendarYearValues = [...calendarYearValues, ...missingYears]
+    }
     // only get data if month or year changed
     // if from is undefined it is likely the initial run so we skip it
     // as getData is already called onMount
@@ -297,7 +312,7 @@ watch(
         <Select bind:value={month} options={monthValuesShort} />
       </div>
       <div class="year">
-        <Select bind:value={year} options={yearValues} />
+        <Select bind:value={year} options={calendarYearValues} />
       </div>
     </div>
 
