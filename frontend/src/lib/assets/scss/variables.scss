@@ -100,7 +100,7 @@ $mood-bar-width: 2px;
   --message-gap-m: var(--padding-s);
   --message-gap-l: var(--padding-m);
 
-  --select-padding: var(--padding-s) calc(var(--padding-m) + 1ch) var(--padding-s) var(--padding-m);
+  --select-padding: var(--padding-s) calc(var(--padding-m) + var(--select-arrow-right)) var(--padding-s) var(--padding-m);
   --select-radius: var(--input-radius);
   --select-arrow-right: var(--padding-s);
 
@@ -160,7 +160,7 @@ $mood-bar-width: 2px;
 
   --app-top-bar-height: 3.75rem;
   --app-left-menu-minimized-width: 3.75rem;
-  --app-left-menu-min-width: 12rem;
+  --app-left-menu-min-width: 16rem;
   --app-left-menu-max-width: 50vw;
 
   --calendar-button-spacing: var(--border-width);

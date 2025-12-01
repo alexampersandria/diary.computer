@@ -8,10 +8,11 @@ import {
   currentDate,
   currentDateObject,
   dateClosestToRangeEdge,
-  formatMonth,
   isDateInRange,
   monthDateRange,
+  monthValuesShort,
   sortDateRange,
+  yearValues,
 } from '$lib/utils/log'
 import { ChevronLeft, ChevronRight } from 'lucide-svelte'
 import { useDataStore } from '$lib/store/dataStore.svelte'
@@ -19,18 +20,18 @@ import { page } from '$app/state'
 import { onMount } from 'svelte'
 import type { Range } from '$lib/types/range'
 import { watch } from 'runed'
+import Select from './Select.svelte'
 
 let dataStore = useDataStore()
 
-const cdo = currentDateObject()
-
+let { month: defaultMonth, year: defaultYear } = currentDateObject()
 let {
   mode = 'navigation',
   value = $bindable(undefined),
   from = $bindable(undefined),
   to = $bindable(undefined),
-  month = cdo.month,
-  year = cdo.year,
+  month = defaultMonth,
+  year = defaultYear,
   usedata = false,
   onchange,
 }: CalendarProps = $props()
@@ -40,6 +41,7 @@ let daysInMonth = $derived.by(() => {
 })
 
 const getData = () => {
+  console.log('getData called')
   if (usedata) {
     const { firstDate, lastDate } = monthDateRange(year, month)
     dataStore.fetchEntries({
@@ -59,19 +61,21 @@ onMount(() => {
 })
 
 const navigate = (increment: number) => {
-  month += increment
-  if (month < 1) {
-    month = 12
-    year -= 1
-  } else if (month > 12) {
-    month = 1
-    year += 1
+  if (increment !== 0) {
+    month += increment
+    if (month < 1) {
+      month = 12
+      year -= 1
+    } else if (month > 12) {
+      month = 1
+      year += 1
+    }
+  } else {
+    const { month: newMonth, year: newYear } = currentDateObject()
+    month = newMonth
+    year = newYear
   }
-
-  if (usedata && mode === 'navigation') {
-    dataStore.calendarPosition = { year, month }
-  }
-  getData()
+  // getData will be called by the watcher
 }
 
 const formatDay = (day: number): string => {
@@ -265,6 +269,21 @@ watch(
     }
   },
 )
+
+watch(
+  () => [month, year],
+  (_to, from) => {
+    // only get data if month or year changed
+    // if from is undefined it is likely the initial run so we skip it
+    // as getData is already called onMount
+    if (from) {
+      if (usedata && mode === 'navigation') {
+        dataStore.calendarPosition = { year, month }
+      }
+      getData()
+    }
+  },
+)
 </script>
 
 <div class="calendar">
@@ -273,12 +292,12 @@ watch(
       <ChevronLeft />
     </button>
 
-    <div class="title">
+    <div class="month-year">
       <div class="month">
-        {formatMonth(month)}
+        <Select bind:value={month} options={monthValuesShort} />
       </div>
       <div class="year">
-        {year}
+        <Select bind:value={year} options={yearValues} />
       </div>
     </div>
 
@@ -336,7 +355,6 @@ watch(
     justify-content: space-between;
     align-items: center;
     padding: var(--padding-s) 0;
-    gap: var(--padding-xs);
 
     .month-navigation {
       background-color: transparent;
@@ -358,20 +376,14 @@ watch(
       }
     }
 
-    .title {
+    .month-year {
       display: flex;
       flex-shrink: 1;
-      overflow: hidden;
       gap: var(--padding-xs);
-
-      .year {
-        font-weight: 600;
-      }
+      align-items: center;
 
       .month {
-        color: var(--text-muted);
-        overflow: hidden;
-        text-overflow: ellipsis;
+        flex-shrink: 1;
       }
     }
   }

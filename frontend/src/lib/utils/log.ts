@@ -150,36 +150,80 @@ export const calendarDefaults = (): { year: number; month: number } => {
   return { year, month }
 }
 
-export const formatMonth = (month: number) => {
+export type MonthFormatOptions = { short?: boolean }
+export const formatMonth = (month: number, options?: MonthFormatOptions) => {
+  let value = ''
   switch (month) {
     case 1:
-      return 'January'
+      value = 'January'
+      break
     case 2:
-      return 'February'
+      value = 'February'
+      break
     case 3:
-      return 'March'
+      value = 'March'
+      break
     case 4:
-      return 'April'
+      value = 'April'
+      break
     case 5:
-      return 'May'
+      value = 'May'
+      break
     case 6:
-      return 'June'
+      value = 'June'
+      break
     case 7:
-      return 'July'
+      value = 'July'
+      break
     case 8:
-      return 'August'
+      value = 'August'
+      break
     case 9:
-      return 'September'
+      value = 'September'
+      break
     case 10:
-      return 'October'
+      value = 'October'
+      break
     case 11:
-      return 'November'
+      value = 'November'
+      break
     case 12:
-      return 'December'
+      value = 'December'
+      break
     default:
-      return ''
+      value = ''
   }
+
+  if (options?.short) {
+    value = value.slice(0, 3)
+  }
+
+  return value
 }
+
+/**
+ * Array of month values for select inputs
+ */
+export const monthValues = Array.from({ length: 12 }, (_, i) => {
+  return { label: formatMonth(i + 1), value: i + 1 }
+})
+
+/**
+ * Array of month values for select inputs, short format
+ */
+export const monthValuesShort = Array.from({ length: 12 }, (_, i) => {
+  return { label: formatMonth(i + 1, { short: true }), value: i + 1 }
+})
+
+/**
+ * Array of year values for select inputs
+ * Goes back 100 years from current year
+ * and 1 year into the future
+ */
+export const yearValues = Array.from({ length: 102 }, (_, i) => {
+  const currentYear = currentDateObject().year
+  return { label: String(currentYear - 100 + i), value: currentYear - 100 + i }
+})
 
 /**
  * Returns an array, with the weeks of the month
