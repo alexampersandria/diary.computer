@@ -4,11 +4,11 @@ import Message from '$lib/components/Message.svelte'
 import Spinner from '$lib/components/Spinner.svelte'
 import { useDataStore } from '$lib/store/dataStore.svelte'
 import type { EditEntry, Entry as EntryType, NewEntry } from '$lib/types/log'
-import { isValidDate } from '$lib/utils/log'
+import { isValidDate, nextDate, previousDate } from '$lib/utils/log'
 import { takeAtLeast } from '$lib/utils/takeAtLeast'
 import { watch } from 'runed'
 import type { PageProps } from './$types'
-import Backlink from '$lib/components/Backlink.svelte'
+import Backlink from '$lib/components/ArrowLink.svelte'
 
 let { data }: PageProps = $props()
 
@@ -79,11 +79,24 @@ const onDelete = async (entryId: string) => {
 let valid = $derived.by(() => {
   return isValidDate(data.date)
 })
+
+let yesterday = $derived.by(() => {
+  return previousDate(entry ? entry.date : data.date)
+})
+
+let tomorrow = $derived.by(() => {
+  return nextDate(entry ? entry.date : data.date)
+})
 </script>
 
 <div class="app-page entry-page">
   <div class="container">
-    <Backlink href="/app/entries">All entries</Backlink>
+    <div class="nav-links">
+      <Backlink href={`/app/entry/${yesterday}`}>Previous day</Backlink>
+      <Backlink href={`/app/entry/${tomorrow}`} direction="right">
+        Next day
+      </Backlink>
+    </div>
     {#if valid}
       {#if entry !== undefined}
         {#key entry ? entry.id : data.date}
@@ -167,6 +180,11 @@ let valid = $derived.by(() => {
     justify-content: center;
     align-items: center;
     padding: var(--padding-l);
+  }
+
+  .nav-links {
+    display: flex;
+    justify-content: space-between;
   }
 }
 </style>

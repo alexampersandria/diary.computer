@@ -378,3 +378,21 @@ export const timestampToDate = (timestamp: number | string) => {
   const date = new Date(timestamp)
   return date.toISOString().split('T')[0]
 }
+
+/**
+ * returns the following date string (YYYY-MM-DD) for a given date
+ */
+export const nextDate = (dateString: string) => {
+  const date = new Date(dateString)
+  date.setDate(date.getDate() + 1)
+  return date.toISOString().split('T')[0]
+}
+
+/**
+ * returns the previous date string (YYYY-MM-DD) for a given date
+ */
+export const previousDate = (dateString: string) => {
+  const date = new Date(dateString)
+  date.setDate(date.getDate() - 1)
+  return date.toISOString().split('T')[0]
+}

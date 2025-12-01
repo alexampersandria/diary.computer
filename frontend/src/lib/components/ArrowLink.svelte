@@ -1,13 +1,16 @@
 <script lang="ts">
-import { ChevronLeft } from 'lucide-svelte'
+import type { ArrowLinkProps } from '$lib/types/components/arrowlink'
+import { ChevronLeft, ChevronRight } from 'lucide-svelte'
 
-let { children, href = '/' } = $props()
+let { children, href = '/', direction = 'left' }: ArrowLinkProps = $props()
+
+let Icon = direction === 'left' ? ChevronLeft : ChevronRight
 </script>
 
-<a {href} class="backlink">
-  <div class="icon">
-    <ChevronLeft />
-  </div>
+<a {href} class="backlink {direction}">
+  <span class="icon">
+    <Icon />
+  </span>
   {@render children()}
 </a>
 
@@ -25,6 +28,16 @@ let { children, href = '/' } = $props()
 
     .icon {
       transform: translateX(-2px);
+    }
+  }
+
+  &.right {
+    flex-direction: row-reverse;
+
+    &:hover {
+      .icon {
+        transform: translateX(2px);
+      }
     }
   }
 
