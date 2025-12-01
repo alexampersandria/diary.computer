@@ -90,7 +90,7 @@ let valid = $derived.by(() => {
           <Entry
             mode={entry ? 'view' : 'create'}
             id={entry ? entry.id : undefined}
-            date={data.date}
+            date={entry ? entry.date : data.date}
             entry={entry ? entry.entry : undefined}
             mood={entry ? entry.mood : undefined}
             selectedTagIds={entry ? entry.selected_tags : undefined}
