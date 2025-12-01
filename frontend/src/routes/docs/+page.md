@@ -9,8 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/alexampersandria/diary.computer/actions/workflows/backend.yml/badge.svg" alt="Backend GitHub Actions Build Badge" />
-  <img src="https://github.com/alexampersandria/diary.computer/actions/workflows/frontend.yml/badge.svg" alt="Frontend GitHub Actions Build Badge" />
+  <img src="https://github.com/alexampersandria/diary.computer/actions/workflows/main.yml/badge.svg" alt="miain branch GitHub Actions Build Badge" />
 </p>
 
 ## 👩‍💻 Getting Started
