@@ -94,8 +94,6 @@ let tomorrow = $derived.by(() => {
 
 <div class="app-page entry-page">
   <div class="container">
-    <code><pre>{JSON.stringify(entry, null, 2)}</pre></code>
-
     <div class="nav-links">
       <Backlink href={`/app/entry/${yesterday}`}>Previous day</Backlink>
       <Backlink href={`/app/entry/${tomorrow}`} direction="right">
