@@ -63,10 +63,6 @@ beforeNavigate(nav => {
 })
 </script>
 
-enabled {handleOutsideClick.enabled}
-
-open: {rightMenuOpen}
-
 <Modal bind:open={authModal}>
   <Auth mode={authMode} />
 </Modal>
