@@ -259,6 +259,7 @@ $moodColors: ('red', 'orange', 'yellow', 'lime', 'green');
   --background-accent: var(--color-base-90);
 
   --background-overlay: #{color.adjust($color-base-50, $alpha: -0.5)};
+  --background-overlay-light: #{color.adjust($color-base-95, $alpha: -0.3)};
 
   --border-color: var(--color-base-80);
 
@@ -478,6 +479,7 @@ $moodColors: ('red', 'orange', 'yellow', 'lime', 'green');
   --background-accent: var(--color-base-20);
 
   --background-overlay: #{color.adjust($color-base-00, $alpha: -0.3)};
+  --background-overlay-light: #{color.adjust($color-base-10, $alpha: -0.5)};
 
   --border-color: var(--color-base-20);
 

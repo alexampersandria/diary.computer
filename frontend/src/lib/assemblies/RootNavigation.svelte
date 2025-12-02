@@ -44,7 +44,7 @@ beforeNavigate(nav => {
 
 <div class="navigation">
   <div class="action-elements">
-    <a href="/"><Logo /></a>
+    <a class="logo-link" href="/"><Logo /></a>
 
     <div class="mobile-only toggle-right-menu">
       <ThemeToggle />
@@ -108,27 +108,27 @@ beforeNavigate(nav => {
 
   @media (max-width: 768px) {
     & {
-      position: relative;
       padding-inline: var(--padding-m);
 
       .action-elements {
         width: 100%;
         display: flex;
         justify-content: space-between;
-
-        .toggle-right-menu {
-          z-index: 11;
-        }
+        position: relative;
+        z-index: 11;
       }
 
       .nav-elements-wrapper {
         overflow: hidden;
         position: absolute;
+        display: flex;
+        justify-content: flex-end;
         z-index: 10;
         top: 0;
         right: 0;
         width: 100vw;
-        height: 100vh;
+        padding-top: 4rem;
+        padding-right: var(--padding-m);
 
         &:not(:has(.open)) {
           pointer-events: none;
@@ -138,23 +138,29 @@ beforeNavigate(nav => {
           display: flex;
           flex-direction: column;
           align-items: flex-end;
-          width: 100%;
-          height: 100%;
-          background-color: var(--background-overlay);
+          flex: 0 0 auto;
           padding: var(--padding-m);
-          padding-top: 4rem;
-
-          backdrop-filter: blur(0px);
           opacity: 0;
+          transition: opacity var(--animation-length-s) var(--better-ease-out);
+          background-color: var(--background-overlay-light);
+          border-radius: var(--radius-s);
+          border: var(--border-width) solid var(--border-color);
+          backdrop-filter: blur(4px);
+          --button-background-hover: transparent;
+          --button-background-active: transparent;
+          transform: translateY(calc(-0.5 * var(--padding-m)));
           transition:
-            right var(--animation-length-s) var(--better-ease-out),
-            backdrop-filter var(--animation-length-s) var(--better-ease-out),
-            opacity var(--animation-length-s) var(--better-ease-out);
+            opacity var(--animation-length-s) var(--better-ease-out),
+            transform var(--animation-length-s) var(--better-ease-out);
+
+          :global(.button) {
+            width: 100%;
+            justify-content: flex-end;
+          }
 
           &.open {
-            right: 0;
-            backdrop-filter: blur(4px);
             opacity: 1;
+            transform: translateY(0);
           }
         }
       }
