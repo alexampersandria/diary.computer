@@ -105,5 +105,60 @@ beforeNavigate(nav => {
     align-items: center;
     gap: var(--padding-s);
   }
+
+  @media (max-width: 768px) {
+    & {
+      position: relative;
+      padding-inline: var(--padding-m);
+
+      .action-elements {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+
+        .toggle-right-menu {
+          z-index: 11;
+        }
+      }
+
+      .nav-elements-wrapper {
+        overflow: hidden;
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        width: 100vw;
+        height: 100vh;
+
+        &:not(:has(.open)) {
+          pointer-events: none;
+        }
+
+        .nav-elements {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          width: 100%;
+          height: 100%;
+          background-color: var(--background-overlay);
+          padding: var(--padding-m);
+          padding-top: 4rem;
+
+          backdrop-filter: blur(0px);
+          opacity: 0;
+          transition:
+            right var(--animation-length-s) var(--better-ease-out),
+            backdrop-filter var(--animation-length-s) var(--better-ease-out),
+            opacity var(--animation-length-s) var(--better-ease-out);
+
+          &.open {
+            right: 0;
+            backdrop-filter: blur(4px);
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
 }
 </style>
