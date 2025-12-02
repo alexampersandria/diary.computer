@@ -17,7 +17,7 @@ Without an account, we do not collect any personal information.
 When you create an account, we collect the following personal information (given at sign up):
 
 - Email address
-- Display Name (may be your personal name or any other name you choose
+- Display Name (may be your personal name or any other name you choose)
 
 When you sign up you agree that you are legally allowed to provide this information and that it is accurate. And that you are legally allowed to enter into binding contracts and use this application. As such we do not collect information about your age or birthdate, but instead require users to be of legal age in their respective country to use this application.
 

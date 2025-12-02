@@ -17,11 +17,14 @@ const title = $derived.by(() => {
   }
 })
 
-let root: HTMLElement | undefined = $state()
+let root = $state<HTMLElement>()
 
 let toc: TableOfContentsType | undefined = $state()
 afterNavigate(() => {
   toc = generateTableOfContents(root)
+  if (root) {
+    root.scrollTop = 0
+  }
 })
 </script>
 
@@ -53,7 +56,8 @@ afterNavigate(() => {
 
 <style lang="scss">
 .root-page {
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
   background-color: var(--background-primary);
   background: linear-gradient(
     to bottom,
