@@ -189,7 +189,7 @@ let scrolled = $derived.by(() => {
     overflow: hidden;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 
     img {
       min-width: 42rem;
