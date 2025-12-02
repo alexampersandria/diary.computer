@@ -82,8 +82,13 @@ afterNavigate(() => {
     }
   }
 
+  .toc {
+    display: none;
+  }
+
   @media (min-width: 1500px) {
     .toc {
+      display: block;
       position: fixed;
       top: 0;
       right: 0;
