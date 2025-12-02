@@ -21,6 +21,7 @@
 .footer {
   padding-top: max(var(--padding-xl), 4vh);
   padding-bottom: max(var(--padding-xl), 10vh);
+  padding-inline: var(--padding-m);
 
   .footer-sections {
     display: flex;
