@@ -229,7 +229,7 @@ onMount(async () => {
         </Label>
         <div class="explainer extra-small muted">
           By ticking this box you agree to our
-          <a href="/page/terms-of-use" target="_blank">terms of use</a>
+          <a href="/page/terms" target="_blank">terms of use</a>
         </div>
       </div>
     </div>

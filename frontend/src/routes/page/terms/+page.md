@@ -1,10 +1,16 @@
 # Terms of Use
 
-> Last updated: Monday, December 1, 2025
+> Last updated: Tuesday, December 2, 2025
+>
+> [See edit history on GitHub](https://github.com/alexampersandria/diary.computer/commits/main/frontend/src/routes/page/terms/+page.md)
 
 ## User Agreement
 
 By accessing or using our application, you agree to be bound by these Terms of Use. If you do not agree, immediately discontinue use of the application.
+
+## Privacy Policy
+
+Please refer to our [Privacy Policy](/page/privacy) for information on how we collect, use, and disclose personal information. By using the application, you consent to the practices described herein.
 
 ### Application
 

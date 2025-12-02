@@ -263,6 +263,11 @@ form,
   font-size: var(--font-size-xl);
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 blockquote {
   border-left: var(--blockquote-border-width) solid var(--blockquote-border-color);
   margin: 0;

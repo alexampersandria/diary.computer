@@ -14,6 +14,7 @@ import { generateTableOfContents } from '$lib/utils/toc'
 import type { TableOfContents as TableOfContentsType } from '$lib/utils/toc'
 import { afterNavigate } from '$app/navigation'
 import TableOfContents from '$lib/components/TableOfContents.svelte'
+import Footer from '$lib/components/Footer.svelte'
 
 const design = getRoutes(/\/docs\/design\/[^/]+\//)
 const components = getRoutes(/\/docs\/components\/[^/]+\//)
@@ -162,14 +163,20 @@ afterNavigate(() => {
   </div>
 
   <div class="docs-content" bind:this={content}>
-    {#if toc}
-      <div class="toc">
-        <TableOfContents items={toc.items} />
-      </div>
-    {/if}
+    <div class="docs-content-flex">
+      {#if toc}
+        <div class="toc">
+          <TableOfContents items={toc.items} />
+        </div>
+      {/if}
 
-    <div class="container">
-      {@render children()}
+      <div class="container">
+        {@render children()}
+      </div>
+    </div>
+
+    <div class="footer">
+      <Footer />
     </div>
   </div>
 </div>
@@ -183,6 +190,16 @@ afterNavigate(() => {
   grid-row-gap: var(--border-width);
   height: 100vh;
   overflow: hidden;
+
+  .footer {
+    display: flex;
+    border-top: var(--border-width) solid var(--border-color);
+    padding: var(--padding-l);
+
+    :global(.footer) {
+      padding: 0;
+    }
+  }
 
   background-color: var(--border-color);
   min-height: 100vh;
@@ -245,7 +262,7 @@ afterNavigate(() => {
   }
 
   .docs-content {
-    padding: var(--padding-l) 0;
+    padding-bottom: var(--padding-xl);
 
     .toc {
       display: none;
@@ -255,7 +272,7 @@ afterNavigate(() => {
     }
 
     @media (min-width: 1500px) {
-      &:has(.toc) {
+      .docs-content-flex:has(.toc) {
         display: flex;
         flex-direction: row-reverse;
         align-items: flex-start;
@@ -331,6 +348,11 @@ afterNavigate(() => {
   .docs {
     grid-template-columns: 0 1fr;
     grid-column-gap: 0;
+
+    .footer {
+      padding-inline: var(--padding-s);
+      margin-top: var(--padding-l);
+    }
 
     .docs-navigation-backdrop {
       position: fixed;

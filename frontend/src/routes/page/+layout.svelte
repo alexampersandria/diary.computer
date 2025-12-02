@@ -1,9 +1,8 @@
 <script lang="ts">
 import { afterNavigate } from '$app/navigation'
-import ArrowLink from '$lib/components/ArrowLink.svelte'
-import Logo from '$lib/components/Logo.svelte'
+import RootNavigation from '$lib/assemblies/RootNavigation.svelte'
+import Footer from '$lib/components/Footer.svelte'
 import TableOfContents from '$lib/components/TableOfContents.svelte'
-import ThemeToggle from '$lib/components/ThemeToggle.svelte'
 import { generateTableOfContents } from '$lib/utils/toc'
 import type { TableOfContents as TableOfContentsType } from '$lib/utils/toc'
 
@@ -31,32 +30,29 @@ afterNavigate(() => {
 </svelte:head>
 
 <div class="root-page" bind:this={root}>
+  <RootNavigation />
+
   <div class="container">
-    <div class="nav">
-      <ArrowLink href="/">Home</ArrowLink>
-
-      <ThemeToggle />
-    </div>
-
     <div class="content">
       {#if toc}
         <div class="toc">
-          <TableOfContents items={toc.items} />
+          <div class="toc-inner">
+            <TableOfContents items={toc.items} />
+          </div>
         </div>
       {/if}
 
-      {@render children()}
+      <div class="page-content">
+        {@render children()}
+      </div>
     </div>
   </div>
 
-  <div class="logo">
-    <Logo />
-  </div>
+  <Footer />
 </div>
 
 <style lang="scss">
 .root-page {
-  padding-block: var(--padding-l);
   min-height: 100vh;
   background-color: var(--background-primary);
   background: linear-gradient(
@@ -66,17 +62,20 @@ afterNavigate(() => {
   );
   background-attachment: fixed;
 
-  .nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .content {
+    padding-top: var(--padding-l);
   }
 
-  .logo {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: min(20vh, 16rem);
+  .page-content :global(a) {
+    color: var(--text-primary);
+    text-decoration: underline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--text-primary);
+    }
   }
 
   @media (min-width: 1500px) {
@@ -88,6 +87,10 @@ afterNavigate(() => {
       overflow-y: auto;
       width: calc(50vw - var(--container-width) / 2);
       max-height: 100vh;
+
+      .toc-inner {
+        padding-top: var(--padding-xl);
+      }
     }
   }
 }

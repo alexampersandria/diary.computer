@@ -24,9 +24,13 @@ let { item }: TableOfContentsItemProps = $props()
     color: var(--text-primary);
   }
 
+  &.level-1 {
+    display: none;
+  }
+
   @for $i from 1 through 6 {
     &.level-#{$i} {
-      padding-left: #{$i - 1}ch;
+      padding-left: #{$i - 2}ch;
     }
   }
 }
