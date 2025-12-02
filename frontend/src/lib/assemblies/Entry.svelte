@@ -30,6 +30,8 @@ import { diff } from 'deep-object-diff'
 import { formatNumber } from '$lib/utils/numbers'
 import Categories from './Categories.svelte'
 import { takeAtLeast } from '$lib/utils/takeAtLeast'
+import { beforeNavigate, goto } from '$app/navigation'
+import { page } from '$app/state'
 
 let {
   id = undefined,
@@ -182,24 +184,68 @@ onMount(() => {
 })
 
 const isEdited = $derived.by(() => {
-  if (mode !== 'edit') {
+  if (mode === 'view') {
     return false
   }
 
-  const difference = diff(
-    {
-      mood: mood,
-      selectedTagIds: selectedTagIds,
-      entry: entry,
-    },
-    {
-      mood: editModel.mood,
-      selectedTagIds: editModel.selectedTagIds,
-      entry: editModel.entry,
-    },
-  )
+  if (mode === 'edit') {
+    const difference = diff(
+      {
+        mood: mood,
+        selectedTagIds: selectedTagIds,
+        entry: entry,
+      },
+      {
+        mood: editModel.mood,
+        selectedTagIds: editModel.selectedTagIds,
+        entry: editModel.entry,
+      },
+    )
 
-  return Object.keys(difference).length > 0
+    return Object.keys(difference).length > 0
+  } else if (mode === 'create') {
+    return (
+      editModel.entry.length > 0 ||
+      editModel.mood !== undefined ||
+      (editModel.selectedTagIds && editModel.selectedTagIds.length > 0)
+    )
+  }
+
+  return false
+})
+
+let navigateModal = $state<{
+  open: boolean
+  target: string
+}>({
+  open: false,
+  target: '',
+})
+
+const cancelNavigation = () => {
+  navigateModal.open = false
+  navigateModal.target = ''
+}
+
+const confirmNavigation = () => {
+  if (navigateModal.target) {
+    goto(navigateModal.target)
+  }
+}
+
+beforeNavigate(nav => {
+  if (
+    !navigateModal.open &&
+    isEdited &&
+    page.url.pathname.startsWith('/app') &&
+    nav.to &&
+    nav.to.url &&
+    nav.to.url.origin === page.url.origin
+  ) {
+    nav.cancel()
+    navigateModal.open = true
+    navigateModal.target = nav.to.url.pathname
+  }
 })
 
 const categoryAddTag = async (tag: NewTag) => {
@@ -223,6 +269,22 @@ const categoryRemoveTag = async (tagId: string) => {
   return null
 }
 </script>
+
+<Modal bind:open={navigateModal.open}>
+  <div class="navigate-modal">
+    <div class="navigate-modal-title">Unsaved changes</div>
+    <div class="navigate-modal-text">
+      You have unsaved changes. Are you sure you want to leave this page and
+      discard your changes?
+    </div>
+    <div class="modal-actions">
+      <Button onclick={cancelNavigation}>Continue editing</Button>
+      <Button type="destructive" onclick={confirmNavigation}>
+        Discard changes
+      </Button>
+    </div>
+  </div>
+</Modal>
 
 <div class="entry">
   <div class="entry-title">
@@ -448,6 +510,28 @@ const categoryRemoveTag = async (tagId: string) => {
     :global(:only-child) {
       margin-left: auto;
     }
+  }
+}
+
+.navigate-modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-m);
+
+  .navigate-modal-title {
+    font-weight: 600;
+    font-size: var(--font-size-l);
+  }
+
+  .navigate-modal-text {
+    font-size: var(--font-size-s);
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--padding-s);
+    flex-wrap: wrap;
   }
 }
 </style>
