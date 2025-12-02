@@ -13,6 +13,7 @@ import {
 import Auth from './Auth.svelte'
 import { beforeNavigate } from '$app/navigation'
 import { useUserStore } from '$lib/store/userStore.svelte'
+import { onClickOutside } from 'runed'
 
 let userStore = useUserStore()
 
@@ -24,12 +25,21 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
   authMode = mode
 }
 
+let navElements = $state<HTMLElement>()
 let rightMenuOpen = $state(false)
 const toggleRightMenu = () => {
   rightMenuOpen = !rightMenuOpen
 }
 
+onClickOutside(
+  () => navElements,
+  () => {
+    rightMenuOpen = false
+  },
+)
+
 beforeNavigate(nav => {
+  rightMenuOpen = false
   if (nav.to?.route.id === '/login') {
     authMode = 'register'
     authModal = true
@@ -54,7 +64,10 @@ beforeNavigate(nav => {
     </div>
   </div>
   <div class="nav-elements-wrapper">
-    <div class="nav-elements" class:open={rightMenuOpen}>
+    <div
+      class="nav-elements"
+      class:open={rightMenuOpen}
+      bind:this={navElements}>
       <Button
         type="ghost"
         href="https://github.com/alexampersandria/diary.computer"
@@ -126,9 +139,12 @@ beforeNavigate(nav => {
         z-index: 10;
         top: 0;
         right: 0;
-        width: 100vw;
+        padding: var(--padding-m);
         padding-top: 4rem;
-        padding-right: var(--padding-m);
+
+        &:has(.open) {
+          z-index: 12;
+        }
 
         &:not(:has(.open)) {
           pointer-events: none;
@@ -144,7 +160,7 @@ beforeNavigate(nav => {
           transition: opacity var(--animation-length-s) var(--better-ease-out);
           background-color: var(--background-overlay-light);
           border-radius: var(--radius-s);
-          border: var(--border-width) solid var(--border-color);
+          box-shadow: var(--overlay-inset-shadow);
           backdrop-filter: blur(4px);
           --button-background-hover: transparent;
           --button-background-active: transparent;
