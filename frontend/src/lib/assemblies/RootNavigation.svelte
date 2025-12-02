@@ -34,7 +34,9 @@ const toggleRightMenu = () => {
 onClickOutside(
   () => navElements,
   () => {
-    rightMenuOpen = false
+    if (rightMenuOpen) {
+      rightMenuOpen = false
+    }
   },
 )
 
