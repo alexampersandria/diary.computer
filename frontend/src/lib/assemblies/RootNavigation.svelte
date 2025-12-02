@@ -13,7 +13,7 @@ import {
 import Auth from './Auth.svelte'
 import { beforeNavigate } from '$app/navigation'
 import { useUserStore } from '$lib/store/userStore.svelte'
-import { onClickOutside } from 'runed'
+import { onClickOutside, watch } from 'runed'
 
 let userStore = useUserStore()
 
@@ -27,15 +27,28 @@ const openAuthModal = (mode: 'login' | 'register' = 'login') => {
 
 let navElements = $state<HTMLElement>()
 let rightMenuOpen = $state(false)
+
 const toggleRightMenu = () => {
   rightMenuOpen = !rightMenuOpen
 }
 
-onClickOutside(
+const handleOutsideClick = onClickOutside(
   () => navElements,
   () => {
     if (rightMenuOpen) {
       rightMenuOpen = false
+    }
+  },
+  { immediate: false },
+)
+
+watch(
+  () => rightMenuOpen,
+  () => {
+    if (rightMenuOpen) {
+      handleOutsideClick.start()
+    } else {
+      handleOutsideClick.stop()
     }
   },
 )
@@ -49,6 +62,10 @@ beforeNavigate(nav => {
   }
 })
 </script>
+
+enabled {handleOutsideClick.enabled}
+
+open: {rightMenuOpen}
 
 <Modal bind:open={authModal}>
   <Auth mode={authMode} />
