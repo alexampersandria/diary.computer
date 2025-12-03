@@ -13,18 +13,20 @@ use dotenvy::dotenv;
 use std::env;
 
 #[handler]
-pub fn authenticate_user(Json(user): Json<user::AuthUser>, request: &Request) -> Response {
+pub async fn authenticate_user(Json(user): Json<user::AuthUser>, request: &Request) -> Response {
   match user.validate() {
     Ok(_) => (),
     Err(_) => return error_response(APIError::BadRequest),
   }
+
+  let metadata = auth::session_metadata(request).await;
 
   let session = auth::create_user_session(
     UserCredentials {
       email: String::from(&user.email),
       password: String::from(&user.password),
     },
-    auth::session_metadata(request),
+    metadata,
   );
 
   match session {

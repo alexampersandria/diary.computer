@@ -1,5 +1,5 @@
 use diesel::{deserialize::Queryable, ExpressionMethods, Insertable, QueryDsl, RunQueryDsl};
-use poem::Request;
+use poem::{web::RealIp, FromRequest, Request};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -37,9 +37,16 @@ pub struct AuthConfig {
   pub invite_required: bool,
 }
 
-pub fn session_metadata(request: &Request) -> SessionMetadata {
+pub async fn session_metadata(request: &Request) -> SessionMetadata {
+  let remote_addr = RealIp::from_request_without_body(&request)
+    .await
+    .ok()
+    .and_then(|real_ip| real_ip.0)
+    .map(|addr| addr.to_string())
+    .unwrap_or_else(|| request.remote_addr().to_string());
+
   SessionMetadata {
-    ip_address: request.remote_addr().to_string(),
+    ip_address: remote_addr,
     user_agent: request
       .header("user-agent")
       .unwrap_or("unknown")

@@ -11,7 +11,7 @@ use dotenvy::dotenv;
 use std::env;
 
 #[handler]
-pub fn create_user(Json(user): Json<user::CreateUser>, request: &Request) -> Response {
+pub async fn create_user(Json(user): Json<user::CreateUser>, request: &Request) -> Response {
   dotenv().ok();
 
   if env::var("INVITE_REQUIRED").unwrap_or("false".to_string()) == "true" {
@@ -35,7 +35,7 @@ pub fn create_user(Json(user): Json<user::CreateUser>, request: &Request) -> Res
       email: created_user.email,
       password,
     },
-    auth::session_metadata(request),
+    auth::session_metadata(request).await,
   );
 
   match session {
