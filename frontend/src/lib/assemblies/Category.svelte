@@ -136,6 +136,7 @@ const closeTagDetails = () => {
 }
 
 const validateTagDetails = (requireUntouched = true) => {
+  console.log('validateTagDetails called')
   tagDetails.errors = []
   if (tagDetails.name.value) {
     tagDetails.name.value = tagDetails.name.value.trim()
@@ -169,6 +170,8 @@ const validateTagDetails = (requireUntouched = true) => {
   ) {
     tagDetails.name.inputstate = 'invalid'
     tagDetails.errors.push('Tag name must be unique')
+  } else {
+    tagDetails.name.inputstate = 'touched'
   }
 }
 
@@ -179,7 +182,8 @@ const submitAddTag = async () => {
     tagDetails.name.inputstate !== 'touched' ||
     tagDetails.color.inputstate !== 'touched' ||
     !tagDetails.color.value ||
-    !tagDetails.name.value
+    !tagDetails.name.value ||
+    !tagDetails.category_id
   ) {
     return
   }
@@ -187,7 +191,7 @@ const submitAddTag = async () => {
   const newTag: NewTag = {
     name: tagDetails.name.value,
     color: tagDetails.color.value as Color,
-    category_id: id,
+    category_id: tagDetails.category_id,
   }
 
   if (onAddTag) {
