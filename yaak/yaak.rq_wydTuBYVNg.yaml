@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_wydTuBYVNg
 createdAt: 2025-10-30T15:14:14.385076
-updatedAt: 2025-12-03T14:03:57.417837
+updatedAt: 2025-12-03T14:15:12.658046
 workspaceId: wk_BESCzWuhSE
 folderId: fl_s7uAHUrDvi
 authentication: {}
@@ -10,8 +10,8 @@ authenticationType: none
 body:
   text: |-
     {
-      "name": "test413${[ name ]}",
-      "email": "test413${[ email ]}",
+      "name": "${[ name ]}",
+      "email": "${[ email ]}",
       "password": "${[ password ]}"
     }
 bodyType: application/json
