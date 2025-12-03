@@ -172,6 +172,7 @@ const deleteCategory = async () => {
         id={category.id}
         name={category.name}
         tags={category.tags}
+        {categories}
         bind:selectedTagIds
         onEditCategory={() => startEditCategory(category)}
         onAddTag={categoryAddTag}

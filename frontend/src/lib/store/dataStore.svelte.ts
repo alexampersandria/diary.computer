@@ -399,6 +399,7 @@ const updateTag = async (tag: EditTag): Promise<Tag | null> => {
     body: JSON.stringify({
       name: tag.name,
       color: tag.color,
+      category_id: tag.category_id,
     }),
   })
     .then(res => {
@@ -411,9 +412,27 @@ const updateTag = async (tag: EditTag): Promise<Tag | null> => {
       if (categories) {
         const tagCategory = categories.find(c => c.id === data.category_id)
         if (tagCategory) {
-          tagCategory.tags = tagCategory.tags.map(t =>
-            t.id === data.id ? data : t,
+          // old code
+          // tagCategory.tags = tagCategory.tags.map(t =>
+          //   t.id === data.id ? data : t,
+          // )
+          // if edited in same category, just update
+          const existingTagCategory = categories.find(c =>
+            c.tags.some(t => t.id === data.id),
           )
+          if (existingTagCategory) {
+            if (existingTagCategory.id === tagCategory.id) {
+              tagCategory.tags = tagCategory.tags.map(t =>
+                t.id === data.id ? data : t,
+              )
+            } else {
+              // moved to different category
+              existingTagCategory.tags = existingTagCategory.tags.filter(
+                t => t.id !== data.id,
+              )
+              tagCategory.tags.push(data)
+            }
+          }
         }
       }
 
