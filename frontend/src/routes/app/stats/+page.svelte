@@ -25,7 +25,7 @@ const getData = async (
         to_date: yearDateRange(year).lastDate,
         limit: 366,
       }),
-      minDuration ? minDuration : 750, // longer because the animation is pretty :)
+      minDuration !== undefined ? minDuration : 750, // longer because the animation is pretty :)
     )
 
     if (paginatedEntries) {
