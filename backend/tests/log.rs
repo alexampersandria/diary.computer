@@ -250,6 +250,7 @@ fn edit_tag() {
     name: "Updated".to_string(),
     color: "red".to_string(),
     user_id: user.id.clone(),
+    category_id: None,
   });
 
   assert!(edited.is_ok());
@@ -733,6 +734,7 @@ fn edit_tag_empty_name() {
     name: "".to_string(),
     color: "red".to_string(),
     user_id: user.id.clone(),
+    category_id: None,
   });
 
   assert!(edited.is_err());
@@ -760,6 +762,7 @@ fn edit_tag_name_too_long() {
     name: long_name,
     color: "red".to_string(),
     user_id: user.id.clone(),
+    category_id: None,
   });
 
   assert!(edited.is_err());
@@ -786,6 +789,7 @@ fn edit_tag_empty_color() {
     name: "Updated".to_string(),
     color: "".to_string(),
     user_id: user.id.clone(),
+    category_id: None,
   });
 
   assert!(edited.is_err());
@@ -813,6 +817,7 @@ fn edit_tag_color_too_long() {
     name: "Updated".to_string(),
     color: long_color,
     user_id: user.id.clone(),
+    category_id: None,
   });
 
   assert!(edited.is_err());
@@ -1520,4 +1525,60 @@ fn delete_entry_with_tags() {
   assert!(deleted.unwrap());
   assert!(found_entry.is_err());
   assert!(found_tag.is_ok());
+}
+
+#[test]
+fn edit_tag_category_id() {
+  let user = create_user();
+  let category1 = log::create_category(log::CreateCategory {
+    name: "Category 1".to_string(),
+    user_id: user.id.clone(),
+  })
+  .unwrap();
+  let category2 = log::create_category(log::CreateCategory {
+    name: "Category 2".to_string(),
+    user_id: user.id.clone(),
+  })
+  .unwrap();
+  let tag = log::create_tag(log::CreateTag {
+    name: "Test Tag".to_string(),
+    color: "blue".to_string(),
+    category_id: category1.id.clone(),
+    user_id: user.id.clone(),
+  })
+  .unwrap();
+  let tag_no_category_edit = log::create_tag(log::CreateTag {
+    name: "Test Tag 2".to_string(),
+    color: "red".to_string(),
+    category_id: category1.id.clone(),
+    user_id: user.id.clone(),
+  })
+  .unwrap();
+
+  let moved_tag = log::edit_tag(log::EditTag {
+    id: tag.id.clone(),
+    name: "Updated Tag".to_string(),
+    color: "red".to_string(),
+    user_id: user.id.clone(),
+    category_id: Some(category2.id.clone()),
+  });
+
+  let category_not_edited = log::edit_tag(log::EditTag {
+    id: tag_no_category_edit.id.clone(),
+    name: "Updated Tag 2".to_string(),
+    color: "green".to_string(),
+    user_id: user.id.clone(),
+    category_id: None,
+  });
+
+  assert!(moved_tag.is_ok());
+  let moved_tag = moved_tag.unwrap();
+  assert_eq!(moved_tag.name, "Updated Tag");
+  assert_eq!(moved_tag.color, "red");
+  assert_eq!(moved_tag.category_id, category2.id);
+  assert!(category_not_edited.is_ok());
+  let category_not_edited = category_not_edited.unwrap();
+  assert_eq!(category_not_edited.name, "Updated Tag 2");
+  assert_eq!(category_not_edited.color, "green");
+  assert_eq!(category_not_edited.category_id, category1.id);
 }

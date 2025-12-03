@@ -42,9 +42,12 @@ Updates an existing tag
 ```json
 {
   "name": "string",
-  "color": "string"
+  "color": "string",
+  "category_id": "string" // optional
 }
 ```
+
+> The `category_id` field is optional for backwards compatibility. If not set the tag's category will remain unchanged.
 
 ### Response
 

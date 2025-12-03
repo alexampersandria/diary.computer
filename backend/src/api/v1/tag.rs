@@ -21,6 +21,7 @@ struct CreateTagRequest {
 struct EditTagRequest {
   name: String,
   color: String,
+  category_id: Option<String>,
 }
 
 #[handler]
@@ -58,6 +59,7 @@ pub fn edit_tag(
     id,
     name: tag.name,
     color: tag.color,
+    category_id: tag.category_id,
     user_id: session.user_id,
   });
 
