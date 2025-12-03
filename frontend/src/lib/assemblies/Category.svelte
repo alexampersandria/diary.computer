@@ -21,6 +21,7 @@ import type { NewTag, Tag } from '$lib/types/log'
 import ColorPicker from '$lib/components/ColorPicker.svelte'
 import Label from '$lib/components/Label.svelte'
 import { takeAtLeast } from '$lib/utils/takeAtLeast'
+import Select from '$lib/components/Select.svelte'
 
 let {
   id,
@@ -28,6 +29,7 @@ let {
   tags = [],
   selectedTagIds = $bindable([]),
   mode = 'view',
+  categories,
   onAddTag,
   onRemoveTag,
   onSelectTag,
@@ -79,6 +81,7 @@ let tagDetails: {
   errors: string[]
   loading: boolean
   deleteLoading: boolean
+  category_id?: string
 } = $state({
   mode: 'add',
   open: false,
@@ -94,6 +97,7 @@ let tagDetails: {
   errors: [] as string[],
   loading: false,
   deleteLoading: false,
+  category_id: undefined,
 })
 
 const openAddTag = () => {
@@ -107,6 +111,7 @@ const openAddTag = () => {
   tagDetails.errors = []
   tagDetails.loading = false
   tagDetails.deleteLoading = false
+  tagDetails.category_id = id
 }
 
 const openEditTag = (tagId: string) => {
@@ -122,6 +127,7 @@ const openEditTag = (tagId: string) => {
     tagDetails.name.inputstate = 'touched'
     tagDetails.color.value = tag.color
     tagDetails.color.inputstate = 'touched'
+    tagDetails.category_id = tag.category_id
   }
 }
 
@@ -130,6 +136,7 @@ const closeTagDetails = () => {
 }
 
 const validateTagDetails = (requireUntouched = true) => {
+  console.log('validateTagDetails called')
   tagDetails.errors = []
   if (tagDetails.name.value) {
     tagDetails.name.value = tagDetails.name.value.trim()
@@ -151,8 +158,11 @@ const validateTagDetails = (requireUntouched = true) => {
     tagDetails.errors.push('Color is required')
   }
 
+  const tag_category = categories?.find(c => c.id === tagDetails.category_id)
+  const tags_in_category = tag_category?.tags || tags
+
   if (
-    tags.find(
+    tags_in_category.find(
       tag =>
         tag.name.toLowerCase() === tagDetails.name.value?.toLowerCase() &&
         tag.id !== tagDetails.id,
@@ -160,6 +170,8 @@ const validateTagDetails = (requireUntouched = true) => {
   ) {
     tagDetails.name.inputstate = 'invalid'
     tagDetails.errors.push('Tag name must be unique')
+  } else {
+    tagDetails.name.inputstate = 'touched'
   }
 }
 
@@ -170,7 +182,8 @@ const submitAddTag = async () => {
     tagDetails.name.inputstate !== 'touched' ||
     tagDetails.color.inputstate !== 'touched' ||
     !tagDetails.color.value ||
-    !tagDetails.name.value
+    !tagDetails.name.value ||
+    !tagDetails.category_id
   ) {
     return
   }
@@ -178,7 +191,7 @@ const submitAddTag = async () => {
   const newTag: NewTag = {
     name: tagDetails.name.value,
     color: tagDetails.color.value as Color,
-    category_id: id,
+    category_id: tagDetails.category_id,
   }
 
   if (onAddTag) {
@@ -203,7 +216,8 @@ const submitEditTag = async () => {
     tagDetails.color.inputstate !== 'touched' ||
     !tagDetails.color.value ||
     !tagDetails.name.value ||
-    !tagDetails.id
+    !tagDetails.id ||
+    !tagDetails.category_id
   ) {
     return
   }
@@ -214,6 +228,7 @@ const submitEditTag = async () => {
       ...tags[tagIndex],
       name: tagDetails.name.value,
       color: tagDetails.color.value as Color,
+      category_id: tagDetails.category_id,
     }
 
     if (onEditTag) {
@@ -263,6 +278,16 @@ const onClickEditCategory = () => {
     onEditCategory()
   }
 }
+
+let categorySelectOptions = $derived.by(() => {
+  if (!categories) {
+    return []
+  }
+  return categories.map(category => ({
+    label: category.name,
+    value: category.id,
+  }))
+})
 </script>
 
 <div class="category">
@@ -307,6 +332,26 @@ const onClickEditCategory = () => {
               </div>
 
               <div class="tag-details-inputs">
+                {#if categories && categories.length > 1}
+                  <div class="form-field inline tag-category">
+                    <Label>Category</Label>
+                    <Select
+                      name="category-tag-details-category"
+                      aria-label="Tag category"
+                      placeholder="Tag category"
+                      fullwidth
+                      required
+                      bind:value={tagDetails.category_id}
+                      options={categorySelectOptions}
+                      onenter={tagDetails.mode === 'add'
+                        ? submitAddTag
+                        : submitEditTag}
+                      onchange={() => {
+                        validateTagDetails()
+                      }} />
+                  </div>
+                {/if}
+
                 <div class="form-field inline color-picker">
                   <Label>Color</Label>
                   <ColorPicker

@@ -1,8 +1,8 @@
 type: http_request
 model: http_request
-id: rq_bMut2fuqxX
-createdAt: 2025-10-30T19:00:42.782711
-updatedAt: 2025-12-03T08:29:17.858272
+id: rq_FzLN8a6wGs
+createdAt: 2025-12-03T08:27:28.702730
+updatedAt: 2025-12-03T08:51:15.541568
 workspaceId: wk_BESCzWuhSE
 folderId: fl_SzpuvioiT3
 authentication: {}
@@ -10,9 +10,7 @@ authenticationType: null
 body:
   text: |-
     {
-      "name": "a tag :)",
-      "color": "red",
-      "category_id": "890012cc-f1f7-4c9c-8c0f-935e9b3fac91"
+      "category_id": "2f5b4c99-666a-42fa-a98e-f234c74de9b4"
     }
 bodyType: application/json
 description: ''
@@ -21,8 +19,8 @@ headers:
   name: Content-Type
   value: application/json
   id: ME3p6vfH7U
-method: POST
-name: new tag
-sortPriority: 0.0
-url: ${[ base_url ]}/v1/tag
+method: PATCH
+name: move tag
+sortPriority: 1000.001
+url: ${[ base_url ]}/v1/tag/836007de-e491-4f27-8d22-baf2ad96da67
 urlParameters: []

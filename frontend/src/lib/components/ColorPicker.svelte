@@ -54,6 +54,8 @@ const sortedColors = $derived.by(() => {
 .color-picker {
   display: flex;
   flex-wrap: nowrap;
+  padding: var(--input-padding);
+  padding-inline: 0;
   gap: var(--padding-xs);
 
   &.fullwidth {
@@ -64,6 +66,9 @@ const sortedColors = $derived.by(() => {
   .option {
     // #TODO: add colors to color variables
     --color-picker-option-color: var(--color-base-40);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     .option-inner {
       position: relative;

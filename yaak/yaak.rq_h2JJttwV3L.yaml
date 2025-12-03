@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_h2JJttwV3L
 createdAt: 2025-10-30T19:01:35.922941
-updatedAt: 2025-10-31T10:50:41.218099
+updatedAt: 2025-12-03T08:30:09.315134
 workspaceId: wk_BESCzWuhSE
 folderId: fl_SzpuvioiT3
 authentication: {}
@@ -23,5 +23,5 @@ headers:
 method: PATCH
 name: update tag
 sortPriority: 1000.0
-url: ${[ base_url ]}/api/v1/tag
+url: ${[ base_url ]}/v1/tag/836007de-e491-4f27-8d22-baf2ad96da67
 urlParameters: []

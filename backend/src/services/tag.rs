@@ -44,6 +44,8 @@ pub struct EditTag {
   #[validate(length(min = 1, max = 16))]
   pub color: String,
   #[validate(length(min = 1, max = 255))]
+  pub category_id: Option<String>,
+  #[validate(length(min = 1, max = 255))]
   pub user_id: String,
 }
 
@@ -103,6 +105,23 @@ pub fn edit_tag(tag: EditTag) -> Result<Tag, APIError> {
     return Err(APIError::UserNotFound);
   }
 
+  let existing_tag = match get_tag(&tag.id, &tag.user_id) {
+    Ok(tag) => tag,
+    Err(_) => return Err(APIError::TagNotFound),
+  };
+
+  let mut tag_category_id = existing_tag.category_id.clone();
+
+  if let Some(category_id) = &tag.category_id {
+    let category = get_category(category_id, &tag.user_id);
+
+    if category.is_err() {
+      return Err(APIError::CategoryNotFound);
+    }
+
+    tag_category_id = category_id.clone();
+  }
+
   let color_value = Color::from(tag.color.as_str());
 
   let mut conn = match establish_connection() {
@@ -118,6 +137,7 @@ pub fn edit_tag(tag: EditTag) -> Result<Tag, APIError> {
   .set((
     tags::name.eq(&tag.name),
     tags::color.eq(color_value.to_string()),
+    tags::category_id.eq(tag_category_id),
   ))
   .execute(&mut conn);
 

@@ -43,7 +43,6 @@ let daysInMonth = $derived.by(() => {
 })
 
 const getData = () => {
-  console.log('getData called')
   if (usedata) {
     const { firstDate, lastDate } = monthDateRange(year, month)
     dataStore.fetchEntries({

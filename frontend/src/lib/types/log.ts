@@ -45,6 +45,7 @@ export type EditTag = {
   id: string
   name: string
   color: Color
+  category_id: string
 }
 
 export type Entry = {

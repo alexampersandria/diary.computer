@@ -135,6 +135,7 @@ let tomorrow = $derived.by(() => {
                 id: tag.id,
                 name: tag.name,
                 color: tag.color,
+                category_id: tag.category_id,
               })
             }}
             onRemoveTag={async tagId => {
