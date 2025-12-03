@@ -30,7 +30,7 @@ const getData = () => {
   setTimeout(async () => {
     // if entry is already loaded, we can skip the minimum duration wait
     // else undefined to use the default duration
-    const minDuration = entry ? 0 : undefined
+    const minDuration = entry !== undefined ? 0 : undefined
     // first fetch the entry from the backend to ensure we have the latest data
     // this is not done automatically in the dataStore to avoid excessive requests
     await takeAtLeast(dataStore.fetchEntry(data.date), minDuration)
