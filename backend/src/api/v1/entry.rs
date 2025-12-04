@@ -27,8 +27,8 @@ struct EditEntryRequest {
 }
 
 #[handler]
-pub fn create_entry(Json(entry): Json<CreateEntryRequest>, request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn create_entry(Json(entry): Json<CreateEntryRequest>, request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
@@ -48,12 +48,12 @@ pub fn create_entry(Json(entry): Json<CreateEntryRequest>, request: &Request) ->
 }
 
 #[handler]
-pub fn edit_entry(
+pub async fn edit_entry(
   Path(id): Path<String>,
   Json(entry): Json<EditEntryRequest>,
   request: &Request,
 ) -> Response {
-  let session = match authorize_request(request) {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
@@ -74,8 +74,8 @@ pub fn edit_entry(
 }
 
 #[handler]
-pub fn delete_entry(Path(id): Path<String>, request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn delete_entry(Path(id): Path<String>, request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };

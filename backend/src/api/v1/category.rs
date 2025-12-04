@@ -21,8 +21,11 @@ struct EditCategoryRequest {
 }
 
 #[handler]
-pub fn create_category(Json(category): Json<CreateCategoryRequest>, request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn create_category(
+  Json(category): Json<CreateCategoryRequest>,
+  request: &Request,
+) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
@@ -39,12 +42,12 @@ pub fn create_category(Json(category): Json<CreateCategoryRequest>, request: &Re
 }
 
 #[handler]
-pub fn edit_category(
+pub async fn edit_category(
   Path(id): Path<String>,
   Json(category): Json<EditCategoryRequest>,
   request: &Request,
 ) -> Response {
-  let session = match authorize_request(request) {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
@@ -62,8 +65,8 @@ pub fn edit_category(
 }
 
 #[handler]
-pub fn delete_category(Path(id): Path<String>, request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn delete_category(Path(id): Path<String>, request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };

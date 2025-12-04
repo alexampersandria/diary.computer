@@ -1,5 +1,5 @@
 use diesel::{deserialize::Queryable, ExpressionMethods, Insertable, QueryDsl, RunQueryDsl};
-use poem::Request;
+use poem::{web::RealIp, FromRequest, Request};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -37,9 +37,16 @@ pub struct AuthConfig {
   pub invite_required: bool,
 }
 
-pub fn session_metadata(request: &Request) -> SessionMetadata {
+pub async fn session_metadata(request: &Request) -> SessionMetadata {
+  let remote_addr = RealIp::from_request_without_body(&request)
+    .await
+    .ok()
+    .and_then(|real_ip| real_ip.0)
+    .map(|addr| addr.to_string())
+    .unwrap_or_else(|| request.remote_addr().to_string());
+
   SessionMetadata {
-    ip_address: request.remote_addr().to_string(),
+    ip_address: remote_addr,
     user_agent: request
       .header("user-agent")
       .unwrap_or("unknown")
@@ -47,15 +54,30 @@ pub fn session_metadata(request: &Request) -> SessionMetadata {
   }
 }
 
-fn token_from_header(request: &Request) -> Option<String> {
+/// Extracts the Bearer token from the Authorization header
+pub fn token_from_header(request: &Request) -> Option<String> {
   let token = request.header("Authorization");
   token.map(|token| token.replace("Bearer ", ""))
 }
 
-pub fn authorize_request(request: &Request) -> Result<Session, APIError> {
-  match token_from_header(request) {
-    Some(token) => get_user_session_by_id(&token),
-    None => Err(APIError::Unauthorized),
+/// Authorizes a request by validating the session token from the Authorization header
+/// and updates the session metadata
+pub async fn authorize_request(request: &Request) -> Result<Session, APIError> {
+  let token = match token_from_header(request) {
+    Some(token) => token,
+    None => return Err(APIError::Unauthorized),
+  };
+
+  match get_user_session_by_id(&token) {
+    Ok(_) => (),
+    Err(_) => return Err(APIError::Unauthorized),
+  }
+
+  let updated = update_session(&token, &request).await;
+
+  match updated {
+    Ok(session) => Ok(session),
+    Err(error) => Err(error),
   }
 }
 
@@ -105,22 +127,30 @@ pub fn create_user_session(
   }
 }
 
-pub fn update_accessed_at(session_id: &str) -> Result<bool, APIError> {
+/// Updates the session metadata (accessed_at, ip_address, user_agent)
+async fn update_session(session_id: &str, request: &Request) -> Result<Session, APIError> {
   let mut conn = match establish_connection() {
     Ok(connection) => connection,
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
-    .set(schema::sessions::accessed_at.eq(util::unix_time::unix_ms()))
+  let session_metadata = session_metadata(request).await;
+
+  let updated = diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
+    .set((
+      schema::sessions::accessed_at.eq(util::unix_time::unix_ms()),
+      schema::sessions::ip_address.eq(session_metadata.ip_address),
+      schema::sessions::user_agent.eq(session_metadata.user_agent),
+    ))
     .execute(&mut conn);
 
-  match result {
-    Ok(_) => Ok(true),
+  match updated {
+    Ok(_) => get_user_session_by_id(session_id),
     Err(_) => Err(APIError::DatabaseError),
   }
 }
 
+/// Retrieves a user session by its ID
 pub fn get_user_session_by_id(session_id: &str) -> Result<Session, APIError> {
   let mut conn = match establish_connection() {
     Ok(connection) => connection,
@@ -130,11 +160,6 @@ pub fn get_user_session_by_id(session_id: &str) -> Result<Session, APIError> {
   let result = schema::sessions::table
     .filter(schema::sessions::id.eq(session_id))
     .first::<Session>(&mut conn);
-
-  match update_accessed_at(session_id) {
-    Ok(_) => (),
-    Err(_) => return Err(APIError::DatabaseError),
-  }
 
   match result {
     Ok(session) => Ok(session),

@@ -11,7 +11,7 @@ use dotenvy::dotenv;
 use std::env;
 
 #[handler]
-pub fn create_user(Json(user): Json<user::CreateUser>, request: &Request) -> Response {
+pub async fn create_user(Json(user): Json<user::CreateUser>, request: &Request) -> Response {
   dotenv().ok();
 
   if env::var("INVITE_REQUIRED").unwrap_or("false".to_string()) == "true" {
@@ -35,7 +35,7 @@ pub fn create_user(Json(user): Json<user::CreateUser>, request: &Request) -> Res
       email: created_user.email,
       password,
     },
-    auth::session_metadata(request),
+    auth::session_metadata(request).await,
   );
 
   match session {
@@ -45,8 +45,8 @@ pub fn create_user(Json(user): Json<user::CreateUser>, request: &Request) -> Res
 }
 
 #[handler]
-pub fn get_current_user(request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn get_current_user(request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
@@ -60,8 +60,8 @@ pub fn get_current_user(request: &Request) -> Response {
 }
 
 #[handler]
-pub fn delete_user(request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn delete_user(request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
@@ -78,8 +78,8 @@ pub fn delete_user(request: &Request) -> Response {
 }
 
 #[handler]
-pub fn update_user(Json(user): Json<user::UpdateUser>, request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn update_user(Json(user): Json<user::UpdateUser>, request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
@@ -96,8 +96,11 @@ pub fn update_user(Json(user): Json<user::UpdateUser>, request: &Request) -> Res
 }
 
 #[handler]
-pub fn update_password(Json(password): Json<user::UpdatePassword>, request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn update_password(
+  Json(password): Json<user::UpdatePassword>,
+  request: &Request,
+) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
@@ -114,8 +117,8 @@ pub fn update_password(Json(password): Json<user::UpdatePassword>, request: &Req
 }
 
 #[handler]
-pub fn get_user_categories_with_tags(request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn get_user_categories_with_tags(request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
