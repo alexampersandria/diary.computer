@@ -1,5 +1,5 @@
 use crate::api::v1;
-use poem::{get, patch, post, Route};
+use poem::{delete, get, patch, post, Route};
 
 #[rustfmt::skip]
 pub fn endpoint() -> poem::Route {
@@ -27,7 +27,7 @@ pub fn endpoint() -> poem::Route {
     .delete(v1::entry::delete_entry))
     .at("/entries", get(v1::entries::get_entries))
 
-    // #TODO: add delete all sessions endpoint and delete session by id endpoint
+    .at("/session/:id", delete(v1::session::delete_session))
     .at("/sessions", get(v1::sessions::get_sessions))
 
     .at("/auth", post(v1::auth::authenticate_user))

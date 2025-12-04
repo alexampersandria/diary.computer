@@ -129,7 +129,7 @@ const getUserDetails = async () => {
 
 const revokeSession = async (revokeSessionId: string): Promise<boolean> => {
   if (sessionId) {
-    const res = await fetch(API_URL(`/v1/sessions/${revokeSessionId}`), {
+    const res = await fetch(API_URL(`/v1/session/${revokeSessionId}`), {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${sessionId}`,
