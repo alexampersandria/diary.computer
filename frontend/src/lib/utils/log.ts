@@ -2,6 +2,10 @@ import { colorPriority } from '$lib/types/color'
 import type { Range } from '$lib/types/range'
 import type { CategoryWithTags, Entry } from '$lib/types/log'
 
+// #TODO: this file has gotten too large split it up
+// alot of these functions should be moved to their own files
+// or to the time utils file
+
 /**
  * Sort categories alphabetically by name, ignoring case.
  * And sorts tags within each category, first by color, then by name.
