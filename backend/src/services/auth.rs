@@ -68,14 +68,14 @@ pub async fn authorize_request(request: &Request) -> Result<Session, APIError> {
     None => return Err(APIError::Unauthorized),
   };
 
-  match update_session(&token, &request).await {
+  match get_user_session_by_id(&token) {
     Ok(_) => (),
-    Err(error) => return Err(error),
-  };
+    Err(_) => return Err(APIError::Unauthorized),
+  }
 
-  let found_session = get_user_session_by_id(&token);
+  let updated = update_session(&token, &request).await;
 
-  match found_session {
+  match updated {
     Ok(session) => Ok(session),
     Err(error) => Err(error),
   }
@@ -128,7 +128,7 @@ pub fn create_user_session(
 }
 
 /// Updates the session metadata (accessed_at, ip_address, user_agent)
-async fn update_session(session_id: &str, request: &Request) -> Result<bool, APIError> {
+async fn update_session(session_id: &str, request: &Request) -> Result<Session, APIError> {
   let mut conn = match establish_connection() {
     Ok(connection) => connection,
     Err(_) => return Err(APIError::DatabaseError),
@@ -136,7 +136,7 @@ async fn update_session(session_id: &str, request: &Request) -> Result<bool, API
 
   let session_metadata = session_metadata(request).await;
 
-  let result = diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
+  let updated = diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
     .set((
       schema::sessions::accessed_at.eq(util::unix_time::unix_ms()),
       schema::sessions::ip_address.eq(session_metadata.ip_address),
@@ -144,8 +144,8 @@ async fn update_session(session_id: &str, request: &Request) -> Result<bool, API
     ))
     .execute(&mut conn);
 
-  match result {
-    Ok(_) => Ok(true),
+  match updated {
+    Ok(_) => get_user_session_by_id(session_id),
     Err(_) => Err(APIError::DatabaseError),
   }
 }
