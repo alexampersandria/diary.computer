@@ -15,12 +15,24 @@ export type UserState = {
     details: Partial<UserDetails>,
   ) => Promise<UserDetails | null>
   deleteAccount: () => Promise<boolean>
+  revokeSession: (sessionId: string) => Promise<boolean>
 }
 
 let sessionId: string | null = $state(null)
 let userDetails: UserDetails | null = $state(null)
 
-const logOut = () => {
+const logOut = async () => {
+  if (sessionId) {
+    const revoked = await revokeSession(sessionId)
+    if (revoked) {
+      deleleteData()
+    } else {
+      throw new Error('Failed to log out: could not revoke session')
+    }
+  }
+}
+
+const deleleteData = () => {
   sessionId = null
   userDetails = null
   if (dataStore) {
@@ -112,7 +124,13 @@ const getUserDetails = async () => {
     })
       .then(res => {
         if (!res.ok) {
-          throw new Error('Failed to fetch user details')
+          if (res.status === 401) {
+            console.warn('Session is invalid')
+            // Session is invalid, delete data
+            deleleteData()
+          } else {
+            throw new Error('Failed to fetch user details')
+          }
         }
         return res.json()
       })
@@ -124,6 +142,32 @@ const getUserDetails = async () => {
       })
     fetchingUserDetails = false
   }
+}
+
+const revokeSession = async (revokeSessionId: string): Promise<boolean> => {
+  if (sessionId) {
+    const res = await fetch(API_URL(`/v1/session/${revokeSessionId}`), {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${sessionId}`,
+      },
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Failed to revoke session')
+        }
+        if (res.status === 204) {
+          return true
+        }
+        throw new Error('Unexpected response status')
+      })
+      .catch(err => {
+        console.error('Error revoking session:', err)
+        return false
+      })
+    return res
+  }
+  return false
 }
 
 export const useUserStore: () => UserState = () => {
@@ -167,6 +211,9 @@ export const useUserStore: () => UserState = () => {
     },
     get deleteAccount() {
       return deleteAccount
+    },
+    get revokeSession() {
+      return revokeSession
     },
   }
 }

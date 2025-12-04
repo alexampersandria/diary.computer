@@ -34,7 +34,7 @@
     "globals": "^15.14.0",
     "jiti": "^2.4.2",
     "jsdom": "^25.0.1",
-    "lucide-svelte": "^0.475.0",
+    "lucide-svelte": "^0.555.0",
     "mdsvex": "^0.12.3",
     "modern-normalize": "^3.0.1",
     "prettier": "^3.5.1",
