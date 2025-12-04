@@ -36,7 +36,7 @@ pub async fn authenticate_user(Json(user): Json<user::AuthUser>, request: &Reque
 }
 
 #[handler]
-pub fn auth_config() -> Response {
+pub async fn auth_config() -> Response {
   dotenv().ok();
 
   let auth_config: AuthConfig = AuthConfig {

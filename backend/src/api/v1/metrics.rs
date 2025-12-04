@@ -14,7 +14,7 @@ pub struct MetricsResponse {
 }
 
 #[handler]
-pub fn metrics() -> Response {
+pub async fn metrics() -> Response {
   let total_users = match user::user_count() {
     Ok(count) => count,
     Err(_) => return error_response(APIError::InternalServerError),

@@ -18,8 +18,8 @@ pub struct EntryParams {
 }
 
 #[handler]
-pub fn get_entries(Query(_options): Query<EntryParams>, request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn get_entries(Query(_options): Query<EntryParams>, request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
