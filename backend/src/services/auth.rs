@@ -54,37 +54,24 @@ pub async fn session_metadata(request: &Request) -> SessionMetadata {
   }
 }
 
-fn token_from_header(request: &Request) -> Option<String> {
+/// Extracts the Bearer token from the Authorization header
+pub fn token_from_header(request: &Request) -> Option<String> {
   let token = request.header("Authorization");
   token.map(|token| token.replace("Bearer ", ""))
 }
 
+/// Authorizes a request by validating the session token from the Authorization header
+/// and updates the session metadata
 pub async fn authorize_request(request: &Request) -> Result<Session, APIError> {
   let token = match token_from_header(request) {
     Some(token) => token,
     None => return Err(APIError::Unauthorized),
   };
 
-  let mut conn = match establish_connection() {
-    Ok(connection) => connection,
-    Err(_) => return Err(APIError::DatabaseError),
-  };
-
-  let session_metadata = session_metadata(request).await;
-
-  let updated_session =
-    diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(&token)))
-      .set((
-        schema::sessions::accessed_at.eq(util::unix_time::unix_ms()),
-        schema::sessions::ip_address.eq(session_metadata.ip_address),
-        schema::sessions::user_agent.eq(session_metadata.user_agent),
-      ))
-      .execute(&mut conn);
-
-  match updated_session {
+  match update_session(&token, &request).await {
     Ok(_) => (),
-    Err(_) => return Err(APIError::DatabaseError),
-  }
+    Err(error) => return Err(error),
+  };
 
   let found_session = get_user_session_by_id(&token);
 
@@ -140,7 +127,8 @@ pub fn create_user_session(
   }
 }
 
-pub async fn update_session(session_id: &str, request: &Request) -> Result<bool, APIError> {
+/// Updates the session metadata (accessed_at, ip_address, user_agent)
+async fn update_session(session_id: &str, request: &Request) -> Result<bool, APIError> {
   let mut conn = match establish_connection() {
     Ok(connection) => connection,
     Err(_) => return Err(APIError::DatabaseError),
@@ -162,6 +150,7 @@ pub async fn update_session(session_id: &str, request: &Request) -> Result<bool,
   }
 }
 
+/// Retrieves a user session by its ID
 pub fn get_user_session_by_id(session_id: &str) -> Result<Session, APIError> {
   let mut conn = match establish_connection() {
     Ok(connection) => connection,
