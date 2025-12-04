@@ -21,13 +21,20 @@ export type UserState = {
 let sessionId: string | null = $state(null)
 let userDetails: UserDetails | null = $state(null)
 
-const logOut = () => {
-  sessionId = null
-  userDetails = null
-  if (dataStore) {
-    dataStore.deleteData()
+const logOut = async () => {
+  if (sessionId) {
+    const revoked = await revokeSession(sessionId)
+    if (revoked) {
+      sessionId = null
+      userDetails = null
+      if (dataStore) {
+        dataStore.deleteData()
+      }
+      goto('/')
+    } else {
+      throw new Error('Failed to log out: could not revoke session')
+    }
   }
-  goto('/')
 }
 
 const logIn = (newSessionId: string) => {
