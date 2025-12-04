@@ -27,7 +27,7 @@
         "globals": "^15.14.0",
         "jiti": "^2.4.2",
         "jsdom": "^25.0.1",
-        "lucide-svelte": "^0.475.0",
+        "lucide-svelte": "^0.555.0",
         "mdsvex": "^0.12.3",
         "modern-normalize": "^3.0.1",
         "prettier": "^3.5.1",
@@ -531,7 +531,7 @@
 
     "lru-cache": ["lru-cache@10.4.3", "", {}, "sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ=="],
 
-    "lucide-svelte": ["lucide-svelte@0.475.0", "", { "peerDependencies": { "svelte": "5.19.9" } }, "sha512-N5+hFTPHaZe9HhqJDxxxODfYuOmI6v+JIowzERcea/uxytN/JZlehVTcINBNp8wMo7l6ov1Jf5srrDbkI/WsJg=="],
+    "lucide-svelte": ["lucide-svelte@0.555.0", "", { "peerDependencies": { "svelte": "^3 || ^4 || ^5.0.0-next.42" } }, "sha512-2kWIcstKGgQObLGpYXmcYwm/Y83Am+AQcP7MnybrmaRU1+QUJ/WSEpv/wAbwaSkrWUiN1TX/9FuWQKLeEeWCrQ=="],
 
     "lz-string": ["lz-string@1.5.0", "", { "bin": { "lz-string": "bin/bin.js" } }, "sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ=="],
 

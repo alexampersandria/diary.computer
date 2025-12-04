@@ -192,6 +192,11 @@ let clickHandler = () => {
         border-color: transparent;
       }
     }
+
+    &:disabled {
+      background-color: transparent !important;
+      border-color: transparent !important;
+    }
   }
 
   &.navigation {

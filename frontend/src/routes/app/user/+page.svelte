@@ -3,7 +3,7 @@ import Input from '$lib/components/Input.svelte'
 import Label from '$lib/components/Label.svelte'
 import Spinner from '$lib/components/Spinner.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
-import { type UserDetails, type Session } from '$lib/types/user'
+import { type UserDetails, type Session as SessionType } from '$lib/types/user'
 import { getSessions, updatePassword } from '$lib/utils/api'
 import { takeAtLeast } from '$lib/utils/takeAtLeast'
 import {
@@ -25,14 +25,11 @@ import type { InputState } from '$lib/types/input'
 import Modal from '$lib/components/Modal.svelte'
 import PasswordInput from '$lib/assemblies/PasswordInput.svelte'
 import Alert from '$lib/components/Alert.svelte'
-
-// temporary feature flag
-// #TODO: remove when sessions management is implemented
-let sessionsEnabled = false
+import Session from '$lib/components/Session.svelte'
 
 let userStore = useUserStore()
 
-let sessions: Session[] | null = $state(null)
+let sessions: SessionType[] | null = $state(null)
 
 let editUser = $state(false)
 let editModel = $state<UserDetails | undefined>(undefined)
@@ -58,16 +55,14 @@ const startEdit = () => {
   }
 }
 
-const getData = async () => {
+const getData = async (skipTakeAtLeast = false) => {
   if (userStore.sessionId) {
-    if (sessionsEnabled) {
-      sessions = (await takeAtLeast(getSessions(userStore.sessionId))) || null
-    }
+    sessions =
+      (await takeAtLeast(
+        getSessions(userStore.sessionId),
+        skipTakeAtLeast ? 0 : undefined,
+      )) || null
   }
-}
-
-let isActive = (session: Session): boolean => {
-  return session.id === userStore.sessionId
 }
 
 let isValid = $derived.by(() => {
@@ -148,6 +143,17 @@ const submitChangePassword = async () => {
     }
     changePassword.loading = false
   }
+}
+
+const revokeSession = async (sessionId: string) => {
+  if (userStore.sessionId) {
+    const res = await takeAtLeast(userStore.revokeSession(sessionId), 500)
+    if (res) {
+      await getData(true)
+    }
+    return res
+  }
+  return false
 }
 
 onMount(async () => {
@@ -263,39 +269,28 @@ onMount(async () => {
       {/if}
     </div>
 
-    {#if sessionsEnabled}
-      <div class="section sessions">
-        <div class="section-title">Active Sessions</div>
-        {#if sessions}
-          <table>
-            <thead>
-              <tr>
-                <th>Session ID</th>
-                <th>Created At</th>
-                <th>Accessed At</th>
-                <th>IP Address</th>
-                <th>User Agent</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each sessions as session}
-                <tr class:active={isActive(session)}>
-                  <td>{session.id}</td>
-                  <td>{new Date(session.created_at).toLocaleString()}</td>
-                  <td>{new Date(session.accessed_at).toLocaleString()}</td>
-                  <td>{session.ip_address}</td>
-                  <td>{session.user_agent}</td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        {:else}
-          <div class="loading">
-            <Spinner />
-          </div>
+    <div class="section sessions">
+      <div class="section-title">
+        Active Sessions
+        {#if sessions && sessions.length > 0}
+          ({sessions.length})
         {/if}
       </div>
-    {/if}
+      {#if sessions}
+        <div class="sessions-list">
+          {#each sessions as session}
+            <Session
+              {session}
+              active={session.id === userStore.sessionId}
+              onrevoke={revokeSession} />
+          {/each}
+        </div>
+      {:else}
+        <div class="loading">
+          <Spinner />
+        </div>
+      {/if}
+    </div>
 
     <div class="section delete">
       <div class="section-title">Delete account</div>
@@ -438,28 +433,18 @@ onMount(async () => {
         justify-content: center;
         padding: var(--padding-l);
       }
+
+      .sessions-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--padding-xs);
+      }
     }
 
     &.delete {
       display: flex;
       flex-direction: column;
       gap: var(--padding-xs);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-
-      th,
-      td {
-        text-align: left;
-        padding: var(--padding-xs);
-        border: 1px solid var(--border-color);
-      }
-
-      tr.active {
-        background-color: var(--color-success-background);
-      }
     }
   }
 }

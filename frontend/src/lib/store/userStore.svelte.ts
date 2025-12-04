@@ -15,6 +15,7 @@ export type UserState = {
     details: Partial<UserDetails>,
   ) => Promise<UserDetails | null>
   deleteAccount: () => Promise<boolean>
+  revokeSession: (sessionId: string) => Promise<boolean>
 }
 
 let sessionId: string | null = $state(null)
@@ -126,6 +127,32 @@ const getUserDetails = async () => {
   }
 }
 
+const revokeSession = async (revokeSessionId: string): Promise<boolean> => {
+  if (sessionId) {
+    const res = await fetch(API_URL(`/v1/sessions/${revokeSessionId}`), {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${sessionId}`,
+      },
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Failed to revoke session')
+        }
+        if (res.status === 204) {
+          return true
+        }
+        throw new Error('Unexpected response status')
+      })
+      .catch(err => {
+        console.error('Error revoking session:', err)
+        return false
+      })
+    return res
+  }
+  return false
+}
+
 export const useUserStore: () => UserState = () => {
   $effect(() => {
     if (!dataStore) {
@@ -167,6 +194,9 @@ export const useUserStore: () => UserState = () => {
     },
     get deleteAccount() {
       return deleteAccount
+    },
+    get revokeSession() {
+      return revokeSession
     },
   }
 }
