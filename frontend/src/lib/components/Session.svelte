@@ -86,14 +86,14 @@ let timestamp = $derived.by(() => formatTimestamp(session.accessed_at))
           <Clock />
         </div>
         <div class="value" aria-label={`Last Active: ${timestamp}`}>
-          Last active {timeAgo(session.accessed_at)}
+          {timeAgo(session.accessed_at)}
         </div>
       {/if}
     </div>
     {#if onrevoke}
       <div class="revoke">
         <Button
-          type="ghost"
+          fullwidth
           onclick={handleRevoke}
           loading={revokeLoading}
           disabled={active}
@@ -133,9 +133,17 @@ let timestamp = $derived.by(() => formatTimestamp(session.accessed_at))
   .session {
     display: grid;
 
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr;
     &:has(.revoke) {
-      grid-template-columns: 1fr 1fr 1fr 4rem;
+      grid-template-columns: 2fr 1fr 1fr 4rem;
+    }
+
+    @media (max-width: 768px) {
+      &:has(.revoke),
+      & {
+        grid-template-columns: 1fr;
+      }
+      gap: var(--padding-s);
     }
 
     align-items: center;

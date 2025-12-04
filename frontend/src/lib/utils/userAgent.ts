@@ -6,7 +6,7 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
       /(Firefox|MSIE|Trident|Edge|Chrome|Safari|Opera|OPR)\/([\d.]+)/,
     ) || []
   const osMatch = userAgent.match(/\(([^)]+)\)/)?.[1].replaceAll('_', '.') || ''
-  const os = osMatch.split(';')[0]?.trim() || 'Unknown'
+  const osName = osMatch.split(';')[0]?.trim() || 'Unknown'
   const osVersion =
     osMatch
       .split(';')[1]
@@ -27,6 +27,21 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
       userAgent.toLowerCase(),
     )
 
+  const browser: UserAgent['browser'] = {
+    name: browserMatch[1] || 'Unknown',
+    version: browserMatch[2].split('.')[0] || 'Unknown',
+  }
+  const os: UserAgent['os'] = {
+    name: osName,
+    version: osVersion,
+  }
+
+  const device: UserAgent['device'] = {
+    type: deviceType,
+    brand: isIOS ? 'Apple' : isAndroid ? 'Android' : 'Unknown',
+    model: isIOS ? 'iPhone/iPad' : isAndroid ? 'Android Device' : 'Unknown',
+  }
+
   const display = () => {
     if (isIOS) {
       if (osMatch.includes('iPhone')) {
@@ -39,11 +54,11 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
     } else if (isAndroid) {
       return `Android ${osVersion}`
     } else if (isMacOS) {
-      return `MacOS ${osVersion}`
+      return `${browser.name} ${browser.version} on MacOS ${osVersion}`
     } else if (isWindows) {
-      return `Windows ${osVersion}`
+      return `${browser.name} ${browser.version} on Windows ${osVersion}`
     } else if (isLinux) {
-      return `Linux Device`
+      return `${browser.name} ${browser.version} on Linux`
     } else {
       return 'Unknown Device'
     }
@@ -51,19 +66,9 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
 
   return {
     raw: userAgent,
-    browser: {
-      name: browserMatch[1] || 'Unknown',
-      version: browserMatch[2] || 'Unknown',
-    },
-    os: {
-      name: os,
-      version: osVersion,
-    },
-    device: {
-      type: deviceType,
-      brand: isIOS ? 'Apple' : isAndroid ? 'Android' : 'Unknown',
-      model: isIOS ? 'iPhone/iPad' : isAndroid ? 'Android Device' : 'Unknown',
-    },
+    browser,
+    os,
+    device,
     isMobile,
     isTablet,
     isDesktop,
