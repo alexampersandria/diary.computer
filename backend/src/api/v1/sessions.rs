@@ -5,8 +5,8 @@ use crate::{
 use poem::{handler, http::StatusCode, Request, Response};
 
 #[handler]
-pub fn get_sessions(request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn get_sessions(request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };

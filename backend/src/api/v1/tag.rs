@@ -25,8 +25,8 @@ struct EditTagRequest {
 }
 
 #[handler]
-pub fn create_tag(Json(tag): Json<CreateTagRequest>, request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn create_tag(Json(tag): Json<CreateTagRequest>, request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
@@ -45,12 +45,12 @@ pub fn create_tag(Json(tag): Json<CreateTagRequest>, request: &Request) -> Respo
 }
 
 #[handler]
-pub fn edit_tag(
+pub async fn edit_tag(
   Path(id): Path<String>,
   Json(tag): Json<EditTagRequest>,
   request: &Request,
 ) -> Response {
-  let session = match authorize_request(request) {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };
@@ -70,8 +70,8 @@ pub fn edit_tag(
 }
 
 #[handler]
-pub fn delete_tag(Path(id): Path<String>, request: &Request) -> Response {
-  let session = match authorize_request(request) {
+pub async fn delete_tag(Path(id): Path<String>, request: &Request) -> Response {
+  let session = match authorize_request(request).await {
     Ok(session) => session,
     Err(error) => return error_response(error),
   };

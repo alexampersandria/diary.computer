@@ -59,10 +59,38 @@ fn token_from_header(request: &Request) -> Option<String> {
   token.map(|token| token.replace("Bearer ", ""))
 }
 
-pub fn authorize_request(request: &Request) -> Result<Session, APIError> {
-  match token_from_header(request) {
-    Some(token) => get_user_session_by_id(&token),
-    None => Err(APIError::Unauthorized),
+pub async fn authorize_request(request: &Request) -> Result<Session, APIError> {
+  let token = match token_from_header(request) {
+    Some(token) => token,
+    None => return Err(APIError::Unauthorized),
+  };
+
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
+
+  let session_metadata = session_metadata(request).await;
+
+  let updated_session =
+    diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(&token)))
+      .set((
+        schema::sessions::accessed_at.eq(util::unix_time::unix_ms()),
+        schema::sessions::ip_address.eq(session_metadata.ip_address),
+        schema::sessions::user_agent.eq(session_metadata.user_agent),
+      ))
+      .execute(&mut conn);
+
+  match updated_session {
+    Ok(_) => (),
+    Err(_) => return Err(APIError::DatabaseError),
+  }
+
+  let found_session = get_user_session_by_id(&token);
+
+  match found_session {
+    Ok(session) => Ok(session),
+    Err(error) => Err(error),
   }
 }
 
@@ -112,14 +140,20 @@ pub fn create_user_session(
   }
 }
 
-pub fn update_accessed_at(session_id: &str) -> Result<bool, APIError> {
+pub async fn update_session(session_id: &str, request: &Request) -> Result<bool, APIError> {
   let mut conn = match establish_connection() {
     Ok(connection) => connection,
     Err(_) => return Err(APIError::DatabaseError),
   };
 
+  let session_metadata = session_metadata(request).await;
+
   let result = diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
-    .set(schema::sessions::accessed_at.eq(util::unix_time::unix_ms()))
+    .set((
+      schema::sessions::accessed_at.eq(util::unix_time::unix_ms()),
+      schema::sessions::ip_address.eq(session_metadata.ip_address),
+      schema::sessions::user_agent.eq(session_metadata.user_agent),
+    ))
     .execute(&mut conn);
 
   match result {
@@ -137,11 +171,6 @@ pub fn get_user_session_by_id(session_id: &str) -> Result<Session, APIError> {
   let result = schema::sessions::table
     .filter(schema::sessions::id.eq(session_id))
     .first::<Session>(&mut conn);
-
-  match update_accessed_at(session_id) {
-    Ok(_) => (),
-    Err(_) => return Err(APIError::DatabaseError),
-  }
 
   match result {
     Ok(session) => Ok(session),
