@@ -48,7 +48,11 @@ const handleRevoke = () => {
 </script>
 
 <div class="session-wrapper">
-  <div class="session" class:active class:error={revokeError}>
+  <div
+    class="session"
+    class:active
+    class:error={revokeError}
+    class:loading={revokeLoading}>
     <div class="session-item device">
       <div class="icon">
         <DeviceIcon />
@@ -134,6 +138,7 @@ const handleRevoke = () => {
     padding: var(--padding-s);
     border: var(--border-width) solid var(--border-color);
     border-radius: var(--radius-s);
+    transition: var(--interactive-transition);
 
     .icon {
       color: var(--text-muted);
@@ -154,6 +159,15 @@ const handleRevoke = () => {
 
       .icon {
         color: var(--color-error);
+      }
+    }
+
+    &.loading {
+      background-color: var(--background-secondary);
+      color: var(--text-muted);
+
+      .icon {
+        color: var(--text-dimmed);
       }
     }
 
