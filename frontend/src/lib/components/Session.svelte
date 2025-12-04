@@ -45,6 +45,8 @@ const handleRevoke = () => {
     })
   }
 }
+
+let timestamp = $derived.by(() => formatTimestamp(session.accessed_at))
 </script>
 
 <div class="session-wrapper">
@@ -53,35 +55,37 @@ const handleRevoke = () => {
     class:active
     class:error={revokeError}
     class:loading={revokeLoading}>
-    <div class="session-item device">
+    <div class="session-item device" title={`User Agent: ${userAgent.raw}`}>
       <div class="icon">
         <DeviceIcon />
       </div>
-      <div class="value" title={userAgent.raw}>
+      <div class="value">
         {userAgent.display}
       </div>
     </div>
-    <div class="session-item ip-address">
+    <div
+      class="session-item ip-address"
+      title={`IP Address: ${session.ip_address}`}>
       <div class="icon">
         <Globe />
       </div>
-      <div class="value">
+      <div class="value" aria-label={`IP Address: ${session.ip_address}`}>
         {session.ip_address}
       </div>
     </div>
-    <div class="session-item last-active">
+    <div class="session-item last-active" title={`Last Active: ${timestamp}`}>
       {#if active}
         <div class="icon">
           <ClockCheck />
         </div>
-        <div class="value" title={formatTimestamp(session.accessed_at)}>
+        <div class="value" aria-label="This device, last active">
           This device
         </div>
       {:else}
         <div class="icon">
           <Clock />
         </div>
-        <div class="value" title={formatTimestamp(session.accessed_at)}>
+        <div class="value" aria-label={`Last Active: ${timestamp}`}>
           Last active {timeAgo(session.accessed_at)}
         </div>
       {/if}
