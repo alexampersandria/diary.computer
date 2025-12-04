@@ -25,16 +25,20 @@ const logOut = async () => {
   if (sessionId) {
     const revoked = await revokeSession(sessionId)
     if (revoked) {
-      sessionId = null
-      userDetails = null
-      if (dataStore) {
-        dataStore.deleteData()
-      }
-      goto('/')
+      deleleteData()
     } else {
       throw new Error('Failed to log out: could not revoke session')
     }
   }
+}
+
+const deleleteData = () => {
+  sessionId = null
+  userDetails = null
+  if (dataStore) {
+    dataStore.deleteData()
+  }
+  goto('/')
 }
 
 const logIn = (newSessionId: string) => {
@@ -120,7 +124,13 @@ const getUserDetails = async () => {
     })
       .then(res => {
         if (!res.ok) {
-          throw new Error('Failed to fetch user details')
+          if (res.status === 401) {
+            console.warn('Session is invalid')
+            // Session is invalid, delete data
+            deleleteData()
+          } else {
+            throw new Error('Failed to fetch user details')
+          }
         }
         return res.json()
       })
