@@ -4,6 +4,7 @@ import { deviceInfo } from './device'
 import { operatingSystem } from './os'
 
 const BOT_REGEX = /bot|crawl|spider|openai|http|lighthouse|scan|search|spider/i
+const DEV_REGEX = /developer|devtools|lighthouse|postman|yaak|curl/i
 
 /**
  * user agents parser
@@ -211,12 +212,19 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
   display = display.replace('Microsoft Phone', 'Windows Phone')
   display = display.trim()
 
-  if (display === '') {
-    display = 'Unknown Device'
-  }
-
   if (isBot) {
     display = 'Bot/Crawler'
+  }
+
+  if (
+    DEV_REGEX.test(userAgent) &&
+    (display === '' || display === 'Unknown Device')
+  ) {
+    display = 'Developer Tool'
+  }
+
+  if (display === '') {
+    display = 'Unknown Device'
   }
 
   return {
