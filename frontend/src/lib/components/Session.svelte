@@ -156,7 +156,7 @@ let timestamp = $derived.by(() => formatTimestamp(session.accessed_at))
     .session-info {
       flex-grow: 1;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1.5fr 1fr 1fr;
       gap: var(--padding-s);
     }
 
