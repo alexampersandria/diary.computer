@@ -11,10 +11,10 @@ const DEV_REGEX = /developer|devtools|lighthouse|postman|yaak|curl/i
  * user agents follow format
  * `Mozilla/[version] ([system and browser information]) [platform] ([platform details]) [extensions]`ﬁ
  */
-export const parseUserAgent = (userAgent: string): UserAgent => {
-  if (userAgent.trim() === '') {
+export const parseUseragent = (useragent: string): UserAgent => {
+  if (useragent.trim() === '') {
     return {
-      useragent: userAgent,
+      useragent: useragent,
       device: {},
       browser: {},
       os: {},
@@ -39,20 +39,20 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
   }
 
   // content of first parenthesis
-  const systemInformation = userAgent.match(/\(([^)]+)\)/)?.[1] || ''
+  const systemInformation = useragent.match(/\(([^)]+)\)/)?.[1] || ''
 
   let device = deviceInfo(systemInformation)
   let os = operatingSystem(systemInformation)
 
-  const browser = browserInfo(userAgent)
+  const browser = browserInfo(useragent)
   if (!device.model && !device.vendor) {
-    device = deviceInfo(userAgent)
+    device = deviceInfo(useragent)
   }
   if (!os.name && !os.version) {
-    os = operatingSystem(userAgent)
+    os = operatingSystem(useragent)
   }
 
-  const isBot = BOT_REGEX.test(userAgent)
+  const isBot = BOT_REGEX.test(useragent)
   if (isBot && !device.model) {
     device.model = 'BOT'
   }
@@ -82,7 +82,7 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
     device.model?.includes('Tab') ||
     device.model?.includes('Kindle') ||
     device.model?.includes('Pixel C') ||
-    userAgent.includes(' Tablet')
+    useragent.includes(' Tablet')
   ) {
     isTablet = true
   }
@@ -96,7 +96,7 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
     isTV = true
   }
 
-  if (isiOS || (isAndroid && !isTablet) || /Mobile/.test(userAgent)) {
+  if (isiOS || (isAndroid && !isTablet) || /Mobile/.test(useragent)) {
     isMobile = true
   }
 
@@ -120,7 +120,7 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
   const isDesktop = !isMobile && !isTablet && !isTV && !isBot
 
   if (!device.vendor) {
-    if (isiOS || isMacOS || /Apple^W/.test(userAgent)) {
+    if (isiOS || isMacOS || /Apple^W/.test(useragent)) {
       device.vendor = 'Apple'
     }
   }
@@ -217,7 +217,7 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
   }
 
   if (
-    DEV_REGEX.test(userAgent) &&
+    DEV_REGEX.test(useragent) &&
     (display === '' || display === 'Unknown Device')
   ) {
     display = 'Developer Tool'
@@ -228,7 +228,7 @@ export const parseUserAgent = (userAgent: string): UserAgent => {
   }
 
   return {
-    useragent: userAgent,
+    useragent: useragent,
     device,
     browser,
     os,
