@@ -286,8 +286,14 @@ $moodColors: ('red', 'orange', 'yellow', 'lime', 'green');
   --color-info-border: var(--color-blue-70);
   --color-info-background: var(--color-blue-90);
 
-  --color-link: var(--color-pink-60);
-  --color-link-hover: var(--color-pink-40);
+  --color-personalized: var(--color-pink-60);
+  --color-personalized-hover: var(--color-pink-40);
+  --color-personalized-active: var(--color-pink-30);
+  --color-personalized-border: var(--color-pink-70);
+  --color-personalized-background: var(--color-pink-90);
+
+  --color-link: var(--color-personalized);
+  --color-link-hover: var(--color-personalized-hover);
 
   --color-focus: var(--color-blue-60);
 
@@ -466,178 +472,204 @@ $moodColors: ('red', 'orange', 'yellow', 'lime', 'green');
   --calendar-selected-color: var(--color-base-100);
   --calendar-between-selected-background: var(--color-base-30);
   --calendar-between-selected-color: var(--color-base-100);
-}
 
-#root.theme-dark {
-  color-scheme: dark;
+  &.theme-dark {
+    color-scheme: dark;
 
-  --logo-neutral: var(--color-base-100);
-  --logo-upper: var(--color-blue-70);
-  --logo-lower: var(--color-pink-60);
+    --logo-neutral: var(--color-base-100);
+    --logo-upper: var(--color-blue-70);
+    --logo-lower: var(--color-pink-60);
 
-  --background-primary: var(--color-base-05);
-  --background-secondary: var(--color-base-10);
-  --background-accent: var(--color-base-20);
+    --background-primary: var(--color-base-05);
+    --background-secondary: var(--color-base-10);
+    --background-accent: var(--color-base-20);
 
-  --background-overlay: #{color.adjust($color-base-00, $alpha: -0.3)};
-  --background-overlay-light: #{color.adjust($color-base-10, $alpha: -0.5)};
-  --overlay-inset-shadow: inset 0 0 0 var(--border-width) #{color.adjust($color-base-30, $alpha: -0.5)};
+    --background-overlay: #{color.adjust($color-base-00, $alpha: -0.3)};
+    --background-overlay-light: #{color.adjust($color-base-10, $alpha: -0.5)};
+    --overlay-inset-shadow: inset 0 0 0 var(--border-width) #{color.adjust($color-base-30, $alpha: -0.5)};
 
-  --border-color: var(--color-base-20);
+    --border-color: var(--color-base-20);
 
-  --blockquote-border-color: var(--color-base-40);
+    --blockquote-border-color: var(--color-base-40);
 
-  --text-primary: var(--color-base-100);
-  --text-muted: var(--color-base-60);
-  --text-dimmed: var(--color-base-40);
+    --text-primary: var(--color-base-100);
+    --text-muted: var(--color-base-60);
+    --text-dimmed: var(--color-base-40);
 
-  --color-success: var(--color-green-50);
-  --color-success-border: var(--color-green-50);
-  --color-success-background: var(--color-green-10);
+    --color-success: var(--color-green-50);
+    --color-success-border: var(--color-green-50);
+    --color-success-background: var(--color-green-10);
 
-  --color-warning: var(--color-yellow-50);
-  --color-warning-border: var(--color-yellow-50);
-  --color-warning-background: var(--color-yellow-10);
+    --color-warning: var(--color-yellow-50);
+    --color-warning-border: var(--color-yellow-50);
+    --color-warning-background: var(--color-yellow-10);
 
-  --color-error: var(--color-red-50);
-  --color-error-border: var(--color-red-50);
-  --color-error-background: var(--color-red-10);
+    --color-error: var(--color-red-50);
+    --color-error-border: var(--color-red-50);
+    --color-error-background: var(--color-red-10);
 
-  --color-info: var(--color-blue-50);
-  --color-info-border: var(--color-blue-50);
-  --color-info-background: var(--color-blue-10);
+    --color-info: var(--color-blue-50);
+    --color-info-border: var(--color-blue-50);
+    --color-info-background: var(--color-blue-10);
 
-  --color-link: var(--color-pink-60);
-  --color-link-hover: var(--color-pink-50);
+    --color-personalized: var(--color-pink-50);
+    --color-personalized-hover: var(--color-pink-50);
+    --color-personalized-active: var(--color-pink-40);
+    --color-personalized-border: var(--color-pink-50);
+    --color-personalized-background: var(--color-pink-10);
 
-  --color-focus: var(--color-blue-50);
+    --color-link: var(--color-personalized);
+    --color-link-hover: var(--color-personalized-hover);
 
-  --spinner-color: var(--color-base-50);
+    --color-focus: var(--color-blue-50);
 
-  --selection-color: var(--color-blue-30);
-  --selection-text-color: var(--color-base-100);
+    --spinner-color: var(--color-base-50);
 
-  --button-background-active: var(--background-primary);
+    --selection-color: var(--color-blue-30);
+    --selection-text-color: var(--color-base-100);
 
-  --button-primary-background: var(--color-base-100);
-  --button-primary-border: var(--color-base-100);
-  --button-primary-color: var(--background-primary);
+    --button-background-active: var(--background-primary);
 
-  --button-primary-background-hover: var(--color-base-80);
-  --button-primary-border-hover: var(--color-base-80);
-  --button-primary-color-hover: var(--button-primary-color);
-  --button-primary-background-active: var(--color-base-70);
-  --button-primary-border-active: var(--color-base-70);
-  --button-primary-color-active: var(--button-primary-color);
+    --button-primary-background: var(--color-base-100);
+    --button-primary-border: var(--color-base-100);
+    --button-primary-color: var(--background-primary);
 
-  --button-destructive-background: var(--color-red-40);
-  --button-destructive-border: var(--color-red-30);
-  --button-destructive-color: var(--text-primary);
+    --button-primary-background-hover: var(--color-base-80);
+    --button-primary-border-hover: var(--color-base-80);
+    --button-primary-color-hover: var(--button-primary-color);
+    --button-primary-background-active: var(--color-base-70);
+    --button-primary-border-active: var(--color-base-70);
+    --button-primary-color-active: var(--button-primary-color);
 
-  --button-destructive-background-hover: var(--color-red-30);
-  --button-destructive-border-hover: var(--button-destructive-border);
-  --button-destructive-color-hover: var(--button-destructive-color);
-  --button-destructive-background-active: var(--color-red-20);
-  --button-destructive-border-active: var(--button-destructive-border);
-  --button-destructive-color-active: var(--button-destructive-color);
+    --button-destructive-background: var(--color-red-40);
+    --button-destructive-border: var(--color-red-30);
+    --button-destructive-color: var(--text-primary);
 
-  --button-navigation-background: transparent;
-  --button-navigation-border: transparent;
-  --button-navigation-color: var(--text-muted);
-  --button-navigation-background-hover: var(--background-accent);
-  --button-navigation-border-hover: transparent;
-  --button-navigation-color-hover: var(--text-primary);
-  --button-navigation-background-active: var(--background-primary);
-  --button-navigation-border-active: transparent;
-  --button-navigation-color-active: var(--text-primary);
+    --button-destructive-background-hover: var(--color-red-30);
+    --button-destructive-border-hover: var(--button-destructive-border);
+    --button-destructive-color-hover: var(--button-destructive-color);
+    --button-destructive-background-active: var(--color-red-20);
+    --button-destructive-border-active: var(--button-destructive-border);
+    --button-destructive-color-active: var(--button-destructive-color);
 
-  --button-navigation-background-route-active: var(--background-accent);
-  --button-navigation-border-route-active: transparent;
-  --button-navigation-color-route-active: var(--text-primary);
-  --button-navigation-background-route-active-hover: var(--background-accent);
+    --button-navigation-background: transparent;
+    --button-navigation-border: transparent;
+    --button-navigation-color: var(--text-muted);
+    --button-navigation-background-hover: var(--background-accent);
+    --button-navigation-border-hover: transparent;
+    --button-navigation-color-hover: var(--text-primary);
+    --button-navigation-background-active: var(--background-primary);
+    --button-navigation-border-active: transparent;
+    --button-navigation-color-active: var(--text-primary);
 
-  --modal-background: var(--background-primary);
-  --modal-backdrop: var(--background-overlay);
-  --modal-border: var(--border-color);
+    --button-navigation-background-route-active: var(--background-accent);
+    --button-navigation-border-route-active: transparent;
+    --button-navigation-color-route-active: var(--text-primary);
+    --button-navigation-background-route-active-hover: var(--background-accent);
 
-  --chip-base-background: var(--color-base-20);
-  --chip-base-background-hover: var(--color-base-30);
-  --chip-base-background-active: var(--color-base-40);
-  --chip-base-color: var(--color-base-70);
+    --modal-background: var(--background-primary);
+    --modal-backdrop: var(--background-overlay);
+    --modal-border: var(--border-color);
 
-  @each $color in $saturatedColors {
-    --chip-#{$color}-background: var(--color-#{$color}-10);
-    --chip-#{$color}-background-hover: var(--color-#{$color}-20);
-    --chip-#{$color}-background-active: var(--color-#{$color}-10);
-    --chip-#{$color}-color: var(--color-#{$color}-70);
-  }
+    --chip-base-background: var(--color-base-20);
+    --chip-base-background-hover: var(--color-base-30);
+    --chip-base-background-active: var(--color-base-40);
+    --chip-base-color: var(--color-base-70);
 
-  --chip-solid-base-background: var(--color-base-50);
-  --chip-solid-base-background-hover: var(--color-base-60);
-  --chip-solid-base-background-active: var(--color-base-50);
-  --chip-solid-base-color: var(--color-base-100);
-
-  @each $color in $saturatedColors {
-    --chip-solid-#{$color}-background: var(--color-#{$color}-50);
-    --chip-solid-#{$color}-background-hover: var(--color-#{$color}-60);
-    --chip-solid-#{$color}-background-active: var(--color-#{$color}-50);
-    --chip-solid-#{$color}-color: var(--color-base-100);
-  }
-
-  --mood-button-unselected: var(--color-base-40);
-
-  @each $color in $moodColors {
-    $index: list.index($moodColors, $color);
-    --mood-button-selected-primary-#{$index}: var(--color-#{$color}-50);
-    --mood-button-selected-secondary-#{$index}: var(--color-#{$color}-40);
-    --mood-button-selected-tertiary-#{$index}: var(--color-#{$color}-20);
-
-    --mood-value-#{$index}-background: var(--color-#{$color}-50);
-    --mood-value-#{$index}-background-hover: var(--color-#{$color}-50);
-    --mood-value-#{$index}-background-active: var(--color-#{$color}-40);
-    --mood-value-#{$index}-color: var(--color-base-100);
-    --mood-value-#{$index}-background-muted: var(--color-#{$color}-30);
-  }
-
-  --mood-bar-color-primary: var(--color-base-40);
-  --mood-bar-color-secondary: var(--color-base-20);
-  --mood-bar-color-primary-filled: var(--color-base-50);
-  --mood-bar-color-secondary-filled: var(--color-base-60);
-
-  --circle-background-color: var(--color-base-30);
-  --circle-fill-color-base: var(--color-base-60);
-  --circle-fill-color-blue: var(--color-blue-50);
-  --circle-fill-color-green: var(--color-green-50);
-  --circle-fill-color-yellow: var(--color-yellow-50);
-  --circle-fill-color-red: var(--color-red-50);
-  --circle-fill-color-purple: var(--color-purple-50);
-  --circle-fill-color-pink: var(--color-pink-50);
-
-  --inline-code-color: var(--color-purple-60);
-  --inline-code-background: transparent;
-
-  --checkbox-background-color: var(--color-base-20);
-  --checkbox-background-color-hover: var(--color-base-30);
-  --checkbox-background-color-active: var(--color-base-20);
-  --checkbox-border-color: var(--color-base-50);
-  --checkbox-checked-background-color: var(--color-base-100);
-  --checkbox-checked-background-color-hover: var(--color-base-90);
-  --checkbox-checked-background-color-active: var(--color-base-80);
-  --checkbox-checked-border-color: var(--color-base-100);
-  --checkbox-checkmark-color: var(--color-base-00);
-
-  @each $color in $saturatedColors {
-    .color-#{$color}-text {
-      color: var(--color-#{$color}-60);
+    @each $color in $saturatedColors {
+      --chip-#{$color}-background: var(--color-#{$color}-10);
+      --chip-#{$color}-background-hover: var(--color-#{$color}-20);
+      --chip-#{$color}-background-active: var(--color-#{$color}-10);
+      --chip-#{$color}-color: var(--color-#{$color}-70);
     }
 
-    .color-#{$color}-background {
-      background-color: var(--color-#{$color}-90);
+    --chip-solid-base-background: var(--color-base-50);
+    --chip-solid-base-background-hover: var(--color-base-60);
+    --chip-solid-base-background-active: var(--color-base-50);
+    --chip-solid-base-color: var(--color-base-100);
+
+    @each $color in $saturatedColors {
+      --chip-solid-#{$color}-background: var(--color-#{$color}-50);
+      --chip-solid-#{$color}-background-hover: var(--color-#{$color}-60);
+      --chip-solid-#{$color}-background-active: var(--color-#{$color}-50);
+      --chip-solid-#{$color}-color: var(--color-base-100);
     }
+
+    --mood-button-unselected: var(--color-base-40);
+
+    @each $color in $moodColors {
+      $index: list.index($moodColors, $color);
+      --mood-button-selected-primary-#{$index}: var(--color-#{$color}-50);
+      --mood-button-selected-secondary-#{$index}: var(--color-#{$color}-40);
+      --mood-button-selected-tertiary-#{$index}: var(--color-#{$color}-20);
+
+      --mood-value-#{$index}-background: var(--color-#{$color}-50);
+      --mood-value-#{$index}-background-hover: var(--color-#{$color}-50);
+      --mood-value-#{$index}-background-active: var(--color-#{$color}-40);
+      --mood-value-#{$index}-color: var(--color-base-100);
+      --mood-value-#{$index}-background-muted: var(--color-#{$color}-30);
+    }
+
+    --mood-bar-color-primary: var(--color-base-40);
+    --mood-bar-color-secondary: var(--color-base-20);
+    --mood-bar-color-primary-filled: var(--color-base-50);
+    --mood-bar-color-secondary-filled: var(--color-base-60);
+
+    --circle-background-color: var(--color-base-30);
+    --circle-fill-color-base: var(--color-base-60);
+    --circle-fill-color-blue: var(--color-blue-50);
+    --circle-fill-color-green: var(--color-green-50);
+    --circle-fill-color-yellow: var(--color-yellow-50);
+    --circle-fill-color-red: var(--color-red-50);
+    --circle-fill-color-purple: var(--color-purple-50);
+    --circle-fill-color-pink: var(--color-pink-50);
+
+    --inline-code-color: var(--color-purple-60);
+    --inline-code-background: transparent;
+
+    --checkbox-background-color: var(--color-base-20);
+    --checkbox-background-color-hover: var(--color-base-30);
+    --checkbox-background-color-active: var(--color-base-20);
+    --checkbox-border-color: var(--color-base-50);
+    --checkbox-checked-background-color: var(--color-base-100);
+    --checkbox-checked-background-color-hover: var(--color-base-90);
+    --checkbox-checked-background-color-active: var(--color-base-80);
+    --checkbox-checked-border-color: var(--color-base-100);
+    --checkbox-checkmark-color: var(--color-base-00);
+
+    @each $color in $saturatedColors {
+      .color-#{$color}-text {
+        color: var(--color-#{$color}-60);
+      }
+
+      .color-#{$color}-background {
+        background-color: var(--color-#{$color}-90);
+      }
+    }
+
+    --calendar-selected-background: var(--color-base-90);
+    --calendar-selected-color: var(--color-base-00);
+    --calendar-between-selected-background: var(--color-base-80);
+    --calendar-between-selected-color: var(--color-base-30);
   }
 
-  --calendar-selected-background: var(--color-base-90);
-  --calendar-selected-color: var(--color-base-00);
-  --calendar-between-selected-background: var(--color-base-80);
-  --calendar-between-selected-color: var(--color-base-30);
+  @each $color in $colors {
+    &.color-#{$color} {
+      --color-personalized: var(--color-#{$color}-60);
+      --color-personalized-hover: var(--color-#{$color}-40);
+      --color-personalized-active: var(--color-#{$color}-30);
+      --color-personalized-border: var(--color-#{$color}-70);
+      --color-personalized-background: var(--color-#{$color}-90);
+
+      &.theme-dark {
+        --color-personalized: var(--color-#{$color}-50);
+        --color-personalized-hover: var(--color-#{$color}-40);
+        --color-personalized-active: var(--color-#{$color}-30);
+        --color-personalized-border: var(--color-#{$color}-50);
+        --color-personalized-background: var(--color-#{$color}-10);
+
+        --color-link: var(--color-#{$color}-60);
+      }
+    }
+  }
 }

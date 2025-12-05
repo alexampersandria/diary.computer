@@ -186,11 +186,11 @@ let timestamp = $derived.by(() => formatTimestamp(session.accessed_at))
     }
 
     &.active {
-      background-color: var(--color-info-background);
-      border-color: var(--color-info-border);
+      background-color: var(--color-personalized-background);
+      border-color: var(--color-personalized-border);
 
       .icon {
-        color: var(--color-info);
+        color: var(--color-personalized);
       }
     }
 

@@ -1,10 +1,12 @@
 import { browser } from '$app/environment'
+import type { Color } from '$lib/types/color'
 
 export const themes = ['dark', 'light', 'system'] as const
 export type Theme = (typeof themes)[number]
 
 export type UiState = {
   theme: Theme
+  color: Color
   loading: boolean
   leftMenuOpen: boolean
   leftMenuWidth: number
@@ -12,6 +14,7 @@ export type UiState = {
 }
 
 let theme: Theme = $state('system')
+let color: Color = $state('pink')
 let loading = $state(true)
 let leftMenuOpen = $state(true)
 let leftMenuWidth = $state(326)
@@ -41,6 +44,12 @@ export const useUiStore: () => UiState = () => {
     },
     set theme(value) {
       theme = value
+    },
+    get color() {
+      return color
+    },
+    set color(value) {
+      color = value
     },
     get loading() {
       return loading

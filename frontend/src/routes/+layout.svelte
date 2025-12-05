@@ -20,7 +20,7 @@ const title = $derived('diary.computer')
   <title>{title}</title>
 </svelte:head>
 
-<div id="root" class="theme-{uiStore.appliedTheme}">
+<div id="root" class="theme-{uiStore.appliedTheme} color-{uiStore.color}">
   {#if uiStore.loading}
     <Preloader />
   {:else}
