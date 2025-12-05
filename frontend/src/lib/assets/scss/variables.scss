@@ -100,7 +100,7 @@ $mood-bar-width: 2px;
   --message-gap-m: var(--padding-s);
   --message-gap-l: var(--padding-m);
 
-  --select-padding: var(--padding-s) calc(var(--padding-m) + var(--select-arrow-right)) var(--padding-s) var(--padding-m);
+  --select-padding: var(--padding-s) calc(var(--padding-m) + var(--select-arrow-right) + var(--padding-s) / 2) var(--padding-s) var(--padding-m);
   --select-radius: var(--input-radius);
   --select-arrow-right: var(--padding-s);
 
