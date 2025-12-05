@@ -242,7 +242,7 @@ watch(
       </div>
 
       <div class="form-field inline">
-        <Label>Accent Colour</Label>
+        <Label>Color</Label>
         <ColorPicker bind:value={uiStore.color} />
       </div>
     </div>
