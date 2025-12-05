@@ -27,6 +27,7 @@ import Logo from '$lib/components/Logo.svelte'
 import Calendar from '$lib/components/Calendar.svelte'
 import { page } from '$app/state'
 import { watch } from 'runed'
+import ColorPicker from '$lib/components/ColorPicker.svelte'
 
 let { children } = $props()
 
@@ -237,6 +238,11 @@ watch(
     <div class="form-field inline">
       <Label>Theme</Label>
       <ThemeToggle />
+    </div>
+
+    <div class="form-field inline">
+      <Label>Accent Colour</Label>
+      <ColorPicker bind:value={uiStore.color} />
     </div>
 
     <div class="settings-actions">
