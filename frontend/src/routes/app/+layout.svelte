@@ -21,13 +21,13 @@ import Button from '$lib/components/Button.svelte'
 import Modal from '$lib/components/Modal.svelte'
 import { useUiStore } from '$lib/store/uiStore.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
-import ThemeToggle from '$lib/components/ThemeToggle.svelte'
 import Label from '$lib/components/Label.svelte'
 import Logo from '$lib/components/Logo.svelte'
 import Calendar from '$lib/components/Calendar.svelte'
 import { page } from '$app/state'
 import { watch } from 'runed'
 import ColorPicker from '$lib/components/ColorPicker.svelte'
+import ThemePicker from '$lib/components/ThemePicker.svelte'
 
 let { children } = $props()
 
@@ -235,14 +235,16 @@ watch(
   <div class="app-modal settings-modal">
     <div class="title">Settings</div>
 
-    <div class="form-field inline">
-      <Label>Theme</Label>
-      <ThemeToggle />
-    </div>
+    <div class="settings-options">
+      <div class="form-field inline">
+        <Label>Theme</Label>
+        <ThemePicker />
+      </div>
 
-    <div class="form-field inline">
-      <Label>Accent Colour</Label>
-      <ColorPicker bind:value={uiStore.color} />
+      <div class="form-field inline">
+        <Label>Accent Colour</Label>
+        <ColorPicker bind:value={uiStore.color} />
+      </div>
     </div>
 
     <div class="settings-actions">
@@ -606,9 +608,12 @@ watch(
     font-weight: 600;
   }
 
+  .user-actions {
+    padding-top: var(--padding-m);
+  }
+
   .user-actions,
   .settings-actions {
-    padding-top: var(--padding-m);
     display: flex;
     flex-direction: column;
     gap: var(--padding-xs);
@@ -620,6 +625,19 @@ watch(
 
     .internal-element {
       flex: 1;
+    }
+  }
+
+  &.settings-modal {
+    .settings-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--padding-s);
+      padding-block: var(--padding-m);
+    }
+
+    .settings-actions {
+      padding-top: var(--padding-s);
     }
   }
 }
