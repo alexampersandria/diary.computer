@@ -2,17 +2,22 @@
 import type { SessionProps } from '$lib/types/components/session'
 import {
   Bot,
+  Chrome,
   Clock,
   ClockCheck,
+  Compass,
+  Cpu,
+  Gamepad,
   Globe,
   Laptop,
   Option,
   Smartphone,
   Tablet,
   Trash,
+  Tv,
 } from 'lucide-svelte'
 import Button from './Button.svelte'
-import { parseUserAgent } from '$lib/utils/userAgent'
+import { parseUserAgent } from '$lib/useragent/useragent'
 import { formatTimestamp, timeAgo } from '$lib/utils/time'
 import Alert from './Alert.svelte'
 
@@ -20,16 +25,26 @@ let { session, active = false, onrevoke }: SessionProps = $props()
 
 let userAgent = $derived.by(() => parseUserAgent(session.user_agent))
 let DeviceIcon = $derived.by(() => {
-  if (userAgent.isMacOS) {
-    return Option
-  } else if (userAgent.isNonHuman) {
+  if (userAgent.isBot) {
     return Bot
   } else if (userAgent.isMobile) {
     return Smartphone
   } else if (userAgent.isTablet) {
     return Tablet
-  } else {
+  } else if (userAgent.isChrome) {
+    return Chrome
+  } else if (userAgent.isSafari) {
+    return Compass
+  } else if (userAgent.isMacOS) {
+    return Option
+  } else if (userAgent.isTV) {
+    return Tv
+  } else if (userAgent.isConsole) {
+    return Gamepad
+  } else if (userAgent.isDesktop) {
     return Laptop
+  } else {
+    return Cpu
   }
 })
 
@@ -55,7 +70,9 @@ let timestamp = $derived.by(() => formatTimestamp(session.accessed_at))
     class:active
     class:error={revokeError}
     class:loading={revokeLoading}>
-    <div class="session-item device" title={`User Agent: ${userAgent.raw}`}>
+    <div
+      class="session-item device"
+      title={`User Agent: ${userAgent.useragent}`}>
       <div class="icon">
         <DeviceIcon />
       </div>
