@@ -2,34 +2,49 @@
 import type { SessionProps } from '$lib/types/components/session'
 import {
   Bot,
+  Chrome,
   Clock,
   ClockCheck,
+  Compass,
+  Cpu,
+  Gamepad,
   Globe,
   Laptop,
   Option,
   Smartphone,
   Tablet,
   Trash,
+  Tv,
 } from 'lucide-svelte'
 import Button from './Button.svelte'
-import { parseUserAgent } from '$lib/utils/userAgent'
+import { parseUseragent } from '$lib/useragent/useragent'
 import { formatTimestamp, timeAgo } from '$lib/utils/time'
 import Alert from './Alert.svelte'
 
 let { session, active = false, onrevoke }: SessionProps = $props()
 
-let userAgent = $derived.by(() => parseUserAgent(session.user_agent))
+let useragent = $derived.by(() => parseUseragent(session.user_agent))
 let DeviceIcon = $derived.by(() => {
-  if (userAgent.isMacOS) {
-    return Option
-  } else if (userAgent.isNonHuman) {
+  if (useragent.isBot) {
     return Bot
-  } else if (userAgent.isMobile) {
+  } else if (useragent.isMobile) {
     return Smartphone
-  } else if (userAgent.isTablet) {
+  } else if (useragent.isTablet) {
     return Tablet
-  } else {
+  } else if (useragent.isTV) {
+    return Tv
+  } else if (useragent.isConsole) {
+    return Gamepad
+  } else if (useragent.isChrome) {
+    return Chrome
+  } else if (useragent.isSafari) {
+    return Compass
+  } else if (useragent.isMacOS) {
+    return Option
+  } else if (useragent.isDesktop) {
     return Laptop
+  } else {
+    return Cpu
   }
 })
 
@@ -55,40 +70,44 @@ let timestamp = $derived.by(() => formatTimestamp(session.accessed_at))
     class:active
     class:error={revokeError}
     class:loading={revokeLoading}>
-    <div class="session-item device" title={`User Agent: ${userAgent.raw}`}>
-      <div class="icon">
-        <DeviceIcon />
-      </div>
-      <div class="value">
-        {userAgent.display}
-      </div>
-    </div>
-    <div
-      class="session-item ip-address"
-      title={`IP Address: ${session.ip_address}`}>
-      <div class="icon">
-        <Globe />
-      </div>
-      <div class="value" aria-label={`IP Address: ${session.ip_address}`}>
-        {session.ip_address}
-      </div>
-    </div>
-    <div class="session-item last-active" title={`Last Active: ${timestamp}`}>
-      {#if active}
+    <div class="session-info">
+      <div
+        class="session-item device"
+        title={`User Agent: ${useragent.useragent}`}>
         <div class="icon">
-          <ClockCheck />
+          <DeviceIcon />
         </div>
-        <div class="value" aria-label="This device, last active">
-          This device
+        <div class="value">
+          {useragent.display}
         </div>
-      {:else}
+      </div>
+      <div
+        class="session-item ip-address"
+        title={`IP Address: ${session.ip_address}`}>
         <div class="icon">
-          <Clock />
+          <Globe />
         </div>
-        <div class="value" aria-label={`Last Active: ${timestamp}`}>
-          {timeAgo(session.accessed_at)}
+        <div class="value" aria-label={`IP Address: ${session.ip_address}`}>
+          {session.ip_address}
         </div>
-      {/if}
+      </div>
+      <div class="session-item last-active" title={`Last Active: ${timestamp}`}>
+        {#if active}
+          <div class="icon">
+            <ClockCheck />
+          </div>
+          <div class="value" aria-label="This device, last active">
+            This device
+          </div>
+        {:else}
+          <div class="icon">
+            <Clock />
+          </div>
+          <div class="value" aria-label={`Last Active: ${timestamp}`}>
+            {timeAgo(session.accessed_at)}
+          </div>
+        {/if}
+      </div>
     </div>
     {#if onrevoke}
       <div class="revoke">
@@ -99,6 +118,7 @@ let timestamp = $derived.by(() => formatTimestamp(session.accessed_at))
           disabled={active}
           aria-label="Revoke Session">
           <Trash />
+          <div class="mobile-only">Revoke session</div>
         </Button>
       </div>
     {/if}
@@ -131,17 +151,26 @@ let timestamp = $derived.by(() => formatTimestamp(session.accessed_at))
   }
 
   .session {
-    display: grid;
+    display: flex;
 
-    grid-template-columns: 2fr 1fr 1fr;
-    &:has(.revoke) {
-      grid-template-columns: 2fr 1fr 1fr 4rem;
+    .session-info {
+      flex-grow: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--padding-s);
+    }
+
+    .revoke {
+      flex-shrink: 1;
     }
 
     @media (max-width: 768px) {
-      &:has(.revoke),
-      & {
-        grid-template-columns: 1fr;
+      flex-direction: column;
+      gap: var(--padding-s);
+      align-items: stretch;
+
+      .session-info {
+        grid-template-columns: repeat(1, 1fr);
       }
       gap: var(--padding-s);
     }
@@ -195,11 +224,6 @@ let timestamp = $derived.by(() => formatTimestamp(session.accessed_at))
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-    }
-
-    .revoke {
-      display: flex;
-      justify-content: flex-end;
     }
   }
 }
