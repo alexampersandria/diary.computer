@@ -857,4 +857,258 @@ describe('parseUserAgent', () => {
       expect(tabletResult.isMobile).toBe(false)
     })
   })
+
+  describe('Display value edge cases', () => {
+    it('should handle bot with no device or browser', () => {
+      const ua =
+        'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toContain('undefined')
+      expect(result.display).not.toContain('null')
+      expect(result.display).not.toContain('on')
+      expect(result.display).toContain('Bot')
+    })
+
+    it('should handle user agent with no browser version', () => {
+      const ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit Safari'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toContain('undefined')
+      expect(result.display).toContain('Safari on macOS')
+    })
+
+    it('should handle user agent with device but no OS', () => {
+      const ua = 'Roku/DVP-9.10 (519.10E04111A)'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toContain('undefined')
+      expect(result.display).toContain('Roku')
+      expect(result.display).not.toContain('on')
+    })
+
+    it('should handle user agent with OS but no version', () => {
+      const ua = 'Mozilla/5.0 (Linux; Android) Mobile'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toBe('Android Phone')
+    })
+
+    it('should handle extremely minimal user agent/curl', () => {
+      const ua = 'curl/7.64.1'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toContain('undefined')
+      expect(result.display).not.toContain('on')
+      expect(result.display).toBe('Developer Tool')
+    })
+
+    it('should handle yaak', () => {
+      const ua = 'yaak'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toContain('undefined')
+      expect(result.display).not.toContain('on')
+      expect(result.display).toBe('Developer Tool')
+    })
+
+    it('should handle user agent with special characters + emoji in device name', () => {
+      const ua =
+        'Mozilla/5.0 (Linux; Android 10; 🐶 SM-G973F/DS Build/QP1A) 🎈 Chrome/91.0'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toMatch(/[<>]/)
+    })
+
+    it('should handle duplicate information in user agent', () => {
+      const ua =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      // Should not duplicate "iPhone" or version numbers
+      const displayParts = result.display.split(' ')
+      expect(
+        displayParts.filter(p => p === 'iPhone').length,
+      ).toBeLessThanOrEqual(1)
+    })
+
+    it('should handle user agent with version but no browser name', () => {
+      const ua = 'Mozilla/5.0 AppleWebKit/537.36 Version/18.0'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toContain('undefined')
+      expect(result.display).toBe('Unknown Device')
+    })
+
+    it('should handle user agent with browser but no device or OS', () => {
+      const ua = 'Opera/9.80'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('Opera')
+      expect(result.display).toBe('Opera on Unknown Device')
+    })
+
+    it('should handle console with no OS version', () => {
+      const ua =
+        'Mozilla/5.0 (PlayStation 4) AppleWebKit/537.73 (KHTML, like Gecko)'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('PlayStation')
+    })
+
+    it('should handle TV device with minimal info', () => {
+      const ua = 'Roku4640X/DVP-7.70'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('Roku')
+      expect(result.display).not.toContain('undefined')
+    })
+
+    it('should handle multiple browser identifiers', () => {
+      const ua =
+        'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      // Should only show one browser
+      expect((result.display.match(/Edge|Chrome/g) || []).length).toBe(1)
+    })
+
+    it('should handle user agent with very long version string', () => {
+      const ua =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/91.0.4472.124.10.20.30.40'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toContain('undefined')
+    })
+
+    it('should handle device with parentheses in OS info', () => {
+      const ua =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      // Should have properly balanced parentheses
+      const openParens = (result.display.match(/\(/g) || []).length
+      const closeParens = (result.display.match(/\)/g) || []).length
+      expect(openParens).toBe(closeParens)
+    })
+
+    it('should handle Apple device without explicit model', () => {
+      const ua =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('macOS')
+      expect(result.display).not.toContain('undefined')
+    })
+
+    it('should handle Android device with no model info', () => {
+      const ua = 'Mozilla/5.0 (Linux; Android 11) Mobile'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('Android')
+      expect(result.display).not.toContain('undefined')
+    })
+
+    it('should handle tablet with vendor but generic model', () => {
+      const ua =
+        'Mozilla/5.0 (Linux; Android 12; Lenovo YT-J706X) Chrome/96.0.4664.45'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('Lenovo')
+    })
+
+    it('should handle e-reader with minimal browser info', () => {
+      const ua = 'Mozilla/5.0 (Linux; U; en-US) AppleWebKit/528.5+ Kindle/3.0'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('Kindle')
+    })
+
+    it('should handle Windows Phone with Microsoft vendor', () => {
+      const ua =
+        'Mozilla/5.0 (Windows Phone 10.0; Android 6.0.1; Microsoft; Lumia 950)'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toContain('undefined')
+    })
+
+    it('should handle smart TV with complex user agent', () => {
+      const ua =
+        'Mozilla/5.0 (Linux; Android 9; AFTR) AppleWebKit/537.36 Silk/98.6.10'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('Fire TV')
+    })
+
+    it('should handle gaming console with Xbox identifier', () => {
+      const ua =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; Xbox; Xbox Series X) Chrome/48.0'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('Xbox')
+    })
+
+    it('should handle user agent with only version numbers', () => {
+      const ua = 'Mozilla/5.0 (12.3.4; 56.78.90)'
+      const result = parseUserAgent(ua)
+      expect(result.display).not.toContain('undefined')
+      expect(result.display).not.toContain('null')
+    })
+
+    it('should handle ChromeOS without device model', () => {
+      const ua = 'Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) Chrome/134.0.0.0'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('Chrome')
+      expect(result.display).toContain('Chrome OS')
+    })
+
+    it('should handle nested device identifiers', () => {
+      const ua =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) Mobile Safari'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('iPhone')
+      expect(result.display).toContain('iOS')
+    })
+
+    it('should handle bot with model identifier', () => {
+      const ua =
+        'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toContain('undefined')
+    })
+
+    it('should handle Samsung device with long model code', () => {
+      const ua =
+        'Mozilla/5.0 (Linux; Android 14; SM-S928B/DS) Chrome/120.0.6099.230'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).toContain('Samsung')
+    })
+
+    it('should handle device with multiple OS mentions', () => {
+      const ua =
+        'Mozilla/5.0 (Linux; iPad; CPU OS 15_0 like Mac OS X; Windows XP) AppleWebKit/605.1.15'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.os.name).toBe('iPadOS')
+      expect(result.display).toBe('iPad (iPadOS 15.0)')
+    })
+
+    it('should handle very short user agent', () => {
+      const ua = 'Bot'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeDefined()
+      expect(result.display).not.toContain('undefined')
+    })
+
+    it('should handle user agent with Unicode characters', () => {
+      const ua = 'Mozilla/5.0 (Linux; Android 10; 中文设备) Chrome/91.0'
+      const result = parseUserAgent(ua)
+      expect(result.display).toBeTruthy()
+      expect(result.display).not.toContain('undefined')
+    })
+  })
 })
