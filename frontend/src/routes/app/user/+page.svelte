@@ -26,6 +26,7 @@ import Modal from '$lib/components/Modal.svelte'
 import PasswordInput from '$lib/assemblies/PasswordInput.svelte'
 import Alert from '$lib/components/Alert.svelte'
 import Session from '$lib/components/Session.svelte'
+import Chip from '$lib/components/Chip.svelte'
 
 let userStore = useUserStore()
 
@@ -272,8 +273,10 @@ onMount(async () => {
     <div class="section sessions">
       <div class="section-title">
         Active Sessions
-        {#if sessions && sessions.length > 0}
-          ({sessions.length})
+        {#if sessions}
+          <Chip>
+            {sessions.length}
+          </Chip>
         {/if}
       </div>
       {#if sessions}
@@ -294,6 +297,7 @@ onMount(async () => {
 
     <div class="section delete">
       <div class="section-title">Delete account</div>
+
       <div class="delete-button">
         <Button type="destructive" onclick={() => (deleteModal = true)}>
           <Trash />
@@ -302,9 +306,9 @@ onMount(async () => {
       </div>
 
       <div class="muted small">
-        <TriangleAlert />
-        This action is irreversible, all of your data will be permanently deleted
-        with no way to recover it
+        All of your data will be permanently deleted with no way to recover it
+        <br />
+        You will be asked to confirm your email before proceeding
       </div>
     </div>
   </div>
@@ -348,6 +352,10 @@ onMount(async () => {
     margin-bottom: var(--padding-l);
 
     .section-title {
+      display: flex;
+      align-items: center;
+      gap: var(--padding-s);
+      margin-bottom: var(--padding-m);
       font-size: var(--font-size-m);
       font-weight: 600;
     }
@@ -356,10 +364,6 @@ onMount(async () => {
       display: flex;
       flex-direction: column;
       position: relative;
-
-      .section-title {
-        margin-bottom: var(--padding-xs);
-      }
 
       &.editing {
         gap: var(--padding-xs);
@@ -423,10 +427,6 @@ onMount(async () => {
     }
 
     &.sessions {
-      .section-title {
-        margin-bottom: var(--padding-s);
-      }
-
       .loading {
         display: flex;
         align-items: center;
@@ -444,7 +444,11 @@ onMount(async () => {
     &.delete {
       display: flex;
       flex-direction: column;
-      gap: var(--padding-xs);
+      gap: var(--padding-s);
+
+      .section-title {
+        margin: 0;
+      }
     }
   }
 }
@@ -457,7 +461,7 @@ onMount(async () => {
   .confirm-email {
     display: flex;
     flex-direction: column;
-    gap: var(--padding-xs);
+    gap: var(--padding-m);
   }
 
   .delete-actions {
