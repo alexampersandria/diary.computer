@@ -394,31 +394,40 @@ let categorySelectOptions = $derived.by(() => {
 
               <div class="tag-details-actions">
                 {#if tagDetails.mode === 'add'}
-                  <Button
-                    type="primary"
-                    onclick={submitAddTag}
-                    loading={tagDetails.loading}
-                    disabled={!validAddTag}>
-                    <Plus /> Add
-                  </Button>
+                  <div class="create">
+                    <Button
+                      fullwidth
+                      type="primary"
+                      onclick={submitAddTag}
+                      loading={tagDetails.loading}
+                      disabled={!validAddTag}>
+                      <Plus /> Add
+                    </Button>
+                  </div>
                 {:else if tagDetails.mode === 'edit'}
-                  <Button
-                    type="destructive"
-                    onclick={deleteEditTag}
-                    disabled={tagDetails.loading}
-                    loading={tagDetails.deleteLoading}>
-                    <Trash />
-                    Delete tag
-                  </Button>
+                  <div class="delete">
+                    <Button
+                      fullwidth
+                      type="destructive"
+                      onclick={deleteEditTag}
+                      disabled={tagDetails.loading}
+                      loading={tagDetails.deleteLoading}>
+                      <Trash />
+                      Delete tag
+                    </Button>
+                  </div>
 
-                  <Button
-                    type="primary"
-                    onclick={submitEditTag}
-                    loading={tagDetails.loading}
-                    disabled={!validAddTag || tagDetails.deleteLoading}>
-                    <Save />
-                    Save changes
-                  </Button>
+                  <div class="save">
+                    <Button
+                      fullwidth
+                      type="primary"
+                      onclick={submitEditTag}
+                      loading={tagDetails.loading}
+                      disabled={!validAddTag || tagDetails.deleteLoading}>
+                      <Save />
+                      Save changes
+                    </Button>
+                  </div>
                 {/if}
               </div>
             </div>
@@ -538,8 +547,14 @@ let categorySelectOptions = $derived.by(() => {
   .tag-details-actions {
     display: flex;
     justify-content: space-between;
+    gap: var(--padding-xs);
+    flex-wrap: wrap;
 
-    :global(:only-child) {
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+
+    .create {
       margin-left: auto;
     }
   }
