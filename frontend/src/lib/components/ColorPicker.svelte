@@ -53,7 +53,7 @@ const sortedColors = $derived.by(() => {
 
 .color-picker {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   padding: var(--input-padding);
   padding-inline: 0;
   gap: var(--padding-xs);

@@ -222,31 +222,40 @@ const deleteCategory = async () => {
 
         <div class="category-details-actions">
           {#if categoryDetails.mode === 'create'}
-            <Button
-              onclick={submitAddCategory}
-              loading={categoryDetails.loading}
-              disabled={categoryDetails.errors.length > 0}>
-              <Plus />
-              Add
-            </Button>
+            <div class="create">
+              <Button
+                fullwidth
+                onclick={submitAddCategory}
+                loading={categoryDetails.loading}
+                disabled={categoryDetails.errors.length > 0}>
+                <Plus />
+                Add
+              </Button>
+            </div>
           {:else if categoryDetails.mode === 'edit'}
-            <Button
-              type="destructive"
-              onclick={deleteCategory}
-              loading={categoryDetails.deleteLoading}
-              disabled={categoryDetails.loading}>
-              <Trash />
-              Delete category
-            </Button>
+            <div class="delete">
+              <Button
+                fullwidth
+                type="destructive"
+                onclick={deleteCategory}
+                loading={categoryDetails.deleteLoading}
+                disabled={categoryDetails.loading}>
+                <Trash />
+                Delete category
+              </Button>
+            </div>
 
-            <Button
-              onclick={submitEditCategory}
-              loading={categoryDetails.loading}
-              disabled={categoryDetails.deleteLoading ||
-                categoryDetails.errors.length > 0}>
-              <Save />
-              Save changes
-            </Button>
+            <div class="save">
+              <Button
+                fullwidth
+                onclick={submitEditCategory}
+                loading={categoryDetails.loading}
+                disabled={categoryDetails.deleteLoading ||
+                  categoryDetails.errors.length > 0}>
+                <Save />
+                Save changes
+              </Button>
+            </div>
           {/if}
         </div>
       </div>
@@ -286,8 +295,14 @@ const deleteCategory = async () => {
   .category-details-actions {
     display: flex;
     justify-content: space-between;
+    gap: var(--padding-xs);
+    flex-wrap: wrap;
 
-    :global(:only-child) {
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+
+    .create {
       margin-left: auto;
     }
   }

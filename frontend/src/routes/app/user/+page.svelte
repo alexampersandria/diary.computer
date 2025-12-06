@@ -434,6 +434,10 @@ onMount(async () => {
         padding: var(--padding-l);
       }
 
+      .section-title {
+        justify-content: space-between;
+      }
+
       .sessions-list {
         display: flex;
         flex-direction: column;
