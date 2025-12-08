@@ -2,6 +2,7 @@ pub mod auth;
 pub mod category;
 pub mod entries;
 pub mod entry;
+pub mod health;
 pub mod index;
 pub mod metrics;
 pub mod session;

@@ -1,6 +1,7 @@
 pub mod auth;
 pub mod category;
 pub mod entry;
+pub mod health;
 pub mod invite;
 pub mod log;
 pub mod pagination;
