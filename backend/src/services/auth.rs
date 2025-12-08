@@ -38,7 +38,7 @@ pub struct AuthConfig {
 }
 
 pub async fn session_metadata(request: &Request) -> SessionMetadata {
-  let remote_addr = RealIp::from_request_without_body(&request)
+  let remote_addr = RealIp::from_request_without_body(request)
     .await
     .ok()
     .and_then(|real_ip| real_ip.0)
@@ -73,7 +73,7 @@ pub async fn authorize_request(request: &Request) -> Result<Session, APIError> {
     Err(_) => return Err(APIError::Unauthorized),
   }
 
-  let updated = update_session(&token, &request).await;
+  let updated = update_session(&token, request).await;
 
   match updated {
     Ok(session) => Ok(session),
