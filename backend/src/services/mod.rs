@@ -14,3 +14,5 @@ pub mod log;
 pub use log::*;
 pub mod pagination;
 pub use pagination::*;
+pub mod health;
+pub use health::*;
