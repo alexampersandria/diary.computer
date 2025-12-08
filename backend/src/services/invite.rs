@@ -1,8 +1,7 @@
 use crate::{
   establish_connection,
   schema::{self, invites},
-  util::error::APIError,
-  util::generate_invite_code,
+  util::{error::APIError, invite_code::generate_invite_code},
 };
 use diesel::{
   prelude::{Insertable, Queryable},

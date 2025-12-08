@@ -1,8 +1,8 @@
 use crate::{
   establish_connection,
   schema::tags,
-  services::{category::get_category, get_user},
-  util::{self, APIError, Color},
+  services::{category::get_category, user::get_user},
+  util::{self, color::Color, error::APIError},
 };
 use diesel::{
   prelude::{Insertable, Queryable},
@@ -80,7 +80,7 @@ pub fn create_tag(tag: CreateTag) -> Result<Tag, APIError> {
     color: color_value.to_string(),
     user_id: tag.user_id,
     category_id: tag.category_id,
-    created_at: util::unix_ms(),
+    created_at: util::unix_time::unix_ms(),
   };
 
   match diesel::insert_into(tags::table)

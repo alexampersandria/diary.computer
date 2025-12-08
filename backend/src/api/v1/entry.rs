@@ -1,6 +1,13 @@
 use crate::{
-  services::{authorize_request, log},
-  util::{error::error_response, response, APIError},
+  services::{
+    auth::authorize_request,
+    entry,
+    entry::{CreateEntry, EditEntry},
+  },
+  util::{
+    error::{error_response, APIError},
+    response::response,
+  },
 };
 use poem::{
   handler,
@@ -33,7 +40,7 @@ pub async fn create_entry(Json(entry): Json<CreateEntryRequest>, request: &Reque
     Err(error) => return error_response(error),
   };
 
-  let created_entry = log::create_entry(log::CreateEntry {
+  let created_entry = entry::create_entry(CreateEntry {
     date: entry.date,
     mood: entry.mood,
     entry: entry.entry,
@@ -58,7 +65,7 @@ pub async fn edit_entry(
     Err(error) => return error_response(error),
   };
 
-  let edited_entry = log::edit_entry(log::EditEntry {
+  let edited_entry = entry::edit_entry(EditEntry {
     id,
     date: entry.date,
     mood: entry.mood,
@@ -80,7 +87,7 @@ pub async fn delete_entry(Path(id): Path<String>, request: &Request) -> Response
     Err(error) => return error_response(error),
   };
 
-  let deleted_entry = match log::delete_entry(&id, &session.user_id) {
+  let deleted_entry = match entry::delete_entry(&id, &session.user_id) {
     Ok(deleted) => deleted,
     Err(error) => return error_response(error),
   };

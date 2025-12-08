@@ -6,7 +6,7 @@ pub mod schema;
 pub mod services;
 pub mod util;
 
-use crate::util::ServiceError;
+use crate::util::error::ServiceError;
 use diesel::{pg, Connection};
 use diesel_migrations::{embed_migrations, MigrationHarness};
 use dotenvy::dotenv;

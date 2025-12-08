@@ -2,10 +2,10 @@ use crate::{
   establish_connection,
   schema::categories,
   services::{
-    get_user,
     tag::{delete_all_category_tags, get_category_tags, Tag},
+    user::get_user,
   },
-  util::{self, APIError},
+  util::{self, error::APIError},
 };
 use diesel::{
   prelude::{Insertable, Queryable},
@@ -72,7 +72,7 @@ pub fn create_category(category: CreateCategory) -> Result<Category, APIError> {
     id: Uuid::new_v4().to_string(),
     name: category.name,
     user_id: category.user_id,
-    created_at: util::unix_ms(),
+    created_at: util::unix_time::unix_ms(),
   };
 
   match diesel::insert_into(categories::table)
