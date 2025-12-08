@@ -1,8 +1,9 @@
 [package]
 name = "diarycomputer"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 default-run = "diarycomputer"
+rust-version = "1.90.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
