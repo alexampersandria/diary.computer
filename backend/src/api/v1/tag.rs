@@ -1,6 +1,13 @@
 use crate::{
-  services::{authorize_request, log},
-  util::{error::error_response, response, APIError},
+  services::{
+    auth::authorize_request,
+    tag,
+    tag::{CreateTag, EditTag},
+  },
+  util::{
+    error::{error_response, APIError},
+    response::response,
+  },
 };
 use poem::{
   handler,
@@ -31,7 +38,7 @@ pub async fn create_tag(Json(tag): Json<CreateTagRequest>, request: &Request) ->
     Err(error) => return error_response(error),
   };
 
-  match log::create_tag(log::CreateTag {
+  match tag::create_tag(CreateTag {
     name: tag.name,
     color: tag.color,
     category_id: tag.category_id,
@@ -53,7 +60,7 @@ pub async fn edit_tag(
     Err(error) => return error_response(error),
   };
 
-  match log::edit_tag(log::EditTag {
+  match tag::edit_tag(EditTag {
     id,
     name: tag.name,
     color: tag.color,
@@ -72,7 +79,7 @@ pub async fn delete_tag(Path(id): Path<String>, request: &Request) -> Response {
     Err(error) => return error_response(error),
   };
 
-  match log::delete_tag(&id, &session.user_id) {
+  match tag::delete_tag(&id, &session.user_id) {
     Ok(deleted) => match deleted {
       true => response(StatusCode::NO_CONTENT, &()),
       false => error_response(APIError::TagNotFound),

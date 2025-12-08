@@ -1,6 +1,6 @@
 use crate::{
-  services::{auth, authorize_request},
-  util::{error::error_response, response},
+  services::{auth, auth::authorize_request},
+  util::{error::error_response, response::response},
 };
 use poem::{handler, http::StatusCode, Request, Response};
 

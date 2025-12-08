@@ -1,4 +1,4 @@
-use diarycomputer::services::{auth, log, user};
+use diarycomputer::services::{auth, category, tag, user};
 use uuid::Uuid;
 
 #[test]
@@ -23,14 +23,14 @@ fn create_user() {
   let found_user = found_user.unwrap();
   assert_eq!(found_user.name, random_name);
 
-  let found_categories = log::get_all_categories(&found_user.id);
+  let found_categories = category::get_all_categories(&found_user.id);
 
   assert!(found_categories.is_ok());
   let categories = found_categories.unwrap();
   assert!(!categories.is_empty());
 
   for category in categories {
-    let found_tags = log::get_category_tags(&category.id, &found_user.id);
+    let found_tags = tag::get_category_tags(&category.id, &found_user.id);
     assert!(found_tags.is_ok());
     assert!(!found_tags.unwrap().is_empty());
   }

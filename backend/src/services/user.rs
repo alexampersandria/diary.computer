@@ -1,21 +1,18 @@
 use crate::{
   establish_connection,
   schema::{self, users},
-  services::{create_default_data, log},
+  services::{auth::delete_all_user_sessions, log, log::create_default_data},
   util::{self, error::APIError},
 };
 use diesel::{
   deserialize::Queryable, prelude::Insertable, AggregateExpressionMethods, ExpressionMethods,
   JoinOnDsl, QueryDsl, RunQueryDsl,
 };
+use dotenvy::dotenv;
 use serde::{Deserialize, Serialize};
+use std::env;
 use uuid::Uuid;
 use validator::Validate;
-
-use super::delete_all_user_sessions;
-
-use dotenvy::dotenv;
-use std::env;
 
 #[derive(Debug, Deserialize, Serialize, Validate)]
 pub struct CreateUser {

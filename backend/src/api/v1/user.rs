@@ -1,13 +1,16 @@
 use crate::{
-  services::{auth, authorize_request, invite, log, user, UserCredentials},
+  services::{
+    auth,
+    auth::{authorize_request, UserCredentials},
+    category, invite, user,
+  },
   util::{
     error::{error_response, APIError},
-    response,
+    response::response,
   },
 };
-use poem::{handler, http::StatusCode, web::Json, Request, Response};
-
 use dotenvy::dotenv;
+use poem::{handler, http::StatusCode, web::Json, Request, Response};
 use std::env;
 
 #[handler]
@@ -113,7 +116,7 @@ pub async fn get_user_categories_with_tags(request: &Request) -> Response {
     Err(error) => return error_response(error),
   };
 
-  match log::get_user_categories_with_tags(&session.user_id) {
+  match category::get_user_categories_with_tags(&session.user_id) {
     Ok(categories) => response(StatusCode::OK, &categories),
     Err(error) => error_response(error),
   }

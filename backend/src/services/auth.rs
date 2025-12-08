@@ -1,8 +1,3 @@
-use diesel::{deserialize::Queryable, ExpressionMethods, Insertable, QueryDsl, RunQueryDsl};
-use poem::{web::RealIp, FromRequest, Request};
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
-
 use crate::{
   establish_connection,
   schema::{self, sessions},
@@ -10,6 +5,10 @@ use crate::{
   util,
   util::error::APIError,
 };
+use diesel::{deserialize::Queryable, ExpressionMethods, Insertable, QueryDsl, RunQueryDsl};
+use poem::{web::RealIp, FromRequest, Request};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize, Insertable, Queryable)]
 pub struct Session {

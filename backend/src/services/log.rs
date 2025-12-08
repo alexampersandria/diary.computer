@@ -1,15 +1,12 @@
-// moved category, entry, and tag to their own modules
-// exporting from log for backwards compatibility
-// but usage should migrate to the new modules
-// #TODO: move usage, see above :)
-pub use super::category::*;
-pub use super::entry::*;
-pub use super::tag::*;
 use crate::{
   establish_connection,
   schema::{categories, entries, tags},
-  services::get_user,
-  util::APIError,
+  services::{
+    category::{create_category, CreateCategory},
+    tag::{create_tag, CreateTag},
+    user::get_user,
+  },
+  util::error::APIError,
 };
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 

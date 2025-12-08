@@ -1,16 +1,18 @@
 use crate::{
-  services::{auth, user, AuthConfig, UserCredentials},
+  services::{
+    auth,
+    auth::{AuthConfig, UserCredentials},
+    user,
+  },
   util::{
     error::{error_response, APIError},
-    response,
+    response::response,
   },
 };
-use poem::{handler, http::StatusCode, web::Json, Request, Response};
-
-use validator::Validate;
-
 use dotenvy::dotenv;
+use poem::{handler, http::StatusCode, web::Json, Request, Response};
 use std::env;
+use validator::Validate;
 
 #[handler]
 pub async fn authenticate_user(Json(user): Json<user::AuthUser>, request: &Request) -> Response {

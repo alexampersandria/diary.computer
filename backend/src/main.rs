@@ -86,7 +86,7 @@ async fn main() -> Result<(), std::io::Error> {
         .fallback_to_index(),
     )
     .with(NormalizePath::new(TrailingSlash::Trim))
-    .with(middleware::Trace)
+    .with(middleware::trace::Trace)
     .with(cors);
 
   tracing::event!(tracing::Level::INFO, "listening on port {port}");
