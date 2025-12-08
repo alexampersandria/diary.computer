@@ -395,7 +395,10 @@ describe('useragent', () => {
       expect(result.isSafari).toBe(true)
       expect(result.isDesktop).toBe(true)
       expect(result.isMobile).toBe(false)
-      expect(result.display).toBe('Safari on macOS 10.15.7')
+      expect(result.display).toBe('Safari on macOS')
+      expect(result.display).not.toContain('10')
+      expect(result.display).not.toContain('15')
+      expect(result.display).not.toContain('7')
     })
 
     it('should parse ChromeOS', () => {

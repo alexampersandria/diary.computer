@@ -166,5 +166,13 @@ export const operatingSystem = (useragent: string): OperatingSystemInfo => {
     }
   }
 
+  if (osInfo.name === 'macOS' && osInfo.version) {
+    // if macOS version is 10_15 remove it entirely as it is not accurately reported
+    // this is due to https://chromestatus.com/feature/5452592194781184
+    if (osInfo.version.startsWith('10.15')) {
+      osInfo.version = undefined
+    }
+  }
+
   return osInfo
 }
