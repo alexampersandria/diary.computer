@@ -1,6 +1,6 @@
 use crate::{
-  services::{auth, authorize_request},
-  util::{error::error_response, response},
+  services::{auth, auth::authorize_request},
+  util::{error::error_response, response::response},
 };
 use poem::{handler, http::StatusCode, Request, Response};
 
@@ -11,9 +11,7 @@ pub async fn get_sessions(request: &Request) -> Response {
     Err(error) => return error_response(error),
   };
 
-  let sessions = auth::get_all_user_sessions(&session.user_id);
-
-  match sessions {
+  match auth::get_all_user_sessions(&session.user_id) {
     Ok(sessions) => response(StatusCode::OK, &sessions),
     Err(error) => error_response(error),
   }

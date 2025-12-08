@@ -1,21 +1,18 @@
 use crate::{
   establish_connection,
   schema::{self, users},
-  services::{create_default_data, log},
+  services::{auth::delete_all_user_sessions, log, log::create_default_data},
   util::{self, error::APIError},
 };
 use diesel::{
   deserialize::Queryable, prelude::Insertable, AggregateExpressionMethods, ExpressionMethods,
   JoinOnDsl, QueryDsl, RunQueryDsl,
 };
+use dotenvy::dotenv;
 use serde::{Deserialize, Serialize};
+use std::env;
 use uuid::Uuid;
 use validator::Validate;
-
-use super::delete_all_user_sessions;
-
-use dotenvy::dotenv;
-use std::env;
 
 #[derive(Debug, Deserialize, Serialize, Validate)]
 pub struct CreateUser {
@@ -69,28 +66,17 @@ pub struct UserDetails {
   pub invite: Option<String>,
 }
 
-fn user_details(user: User) -> UserDetails {
-  UserDetails {
-    id: user.id,
-    created_at: user.created_at,
-    name: user.name,
-    email: user.email,
-    invite: user.invite,
-  }
-}
-
 pub fn get_user_id(email: &str) -> Result<String, APIError> {
   let mut conn = match establish_connection() {
     Ok(connection) => connection,
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = schema::users::table
+  match schema::users::table
     .filter(schema::users::email.eq(email))
     .select(schema::users::id)
-    .first(&mut conn);
-
-  match result {
+    .first(&mut conn)
+  {
     Ok(id) => Ok(id),
     Err(_) => Err(APIError::UserNotFound),
   }
@@ -102,17 +88,18 @@ pub fn get_user(id: &str) -> Result<UserDetails, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  // should only select some fields here not all
-  // we remove password has with the user_details function
-  // but this could be fixed by only selecting needed fields
-  // #TODO: that ^
-  let result = schema::users::table
+  match schema::users::table
     .filter(schema::users::id.eq(&id))
-    .first(&mut conn);
-
-  match result {
-    // #TODO: see above todo, but this needs to be fixed
-    Ok(user) => Ok(user_details(user)),
+    .select((
+      schema::users::id,
+      schema::users::created_at,
+      schema::users::name,
+      schema::users::email,
+      schema::users::invite,
+    ))
+    .first(&mut conn)
+  {
+    Ok(user) => Ok(user),
     Err(_) => Err(APIError::UserNotFound),
   }
 }
@@ -123,11 +110,10 @@ pub fn get_password_hash(id: &str) -> Result<String, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = schema::users::table
+  match schema::users::table
     .filter(schema::users::id.eq(&id))
-    .first::<User>(&mut conn);
-
-  match result {
+    .first::<User>(&mut conn)
+  {
     Ok(user) => Ok(user.password),
     Err(_) => Err(APIError::UserNotFound),
   }
@@ -149,6 +135,7 @@ pub fn create_user(user: CreateUser) -> Result<UserDetails, APIError> {
   };
 
   dotenv().ok();
+
   let cost = match env::var("BCRYPT_COST") {
     Ok(val) => match val.parse::<u32>() {
       Ok(parsed) => parsed,
@@ -162,30 +149,37 @@ pub fn create_user(user: CreateUser) -> Result<UserDetails, APIError> {
     Err(_) => return Err(APIError::InternalServerError),
   };
 
-  let new_user = User {
+  let user_details = UserDetails {
     id: Uuid::new_v4().to_string(),
     created_at: util::unix_time::unix_ms(),
     name: user.name,
     email: user.email,
-    password: password_hash,
     invite: user.invite,
   };
 
-  let result = diesel::insert_into(schema::users::table)
+  let new_user = User {
+    id: user_details.id.clone(),
+    created_at: user_details.created_at,
+    name: user_details.name.clone(),
+    email: user_details.email.clone(),
+    password: password_hash,
+    invite: user_details.invite.clone(),
+  };
+
+  match diesel::insert_into(schema::users::table)
     .values(&new_user)
-    .execute(&mut conn);
+    .execute(&mut conn)
+  {
+    Ok(_) => (),
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
-  if result.is_err() {
-    return Err(APIError::DatabaseError);
-  }
+  match create_default_data(new_user.id.clone()) {
+    Ok(_) => (),
+    Err(_) => return Err(APIError::DatabaseError),
+  };
 
-  let created_user_defaults = create_default_data(new_user.id.clone());
-
-  if created_user_defaults.is_err() {
-    return Err(APIError::DatabaseError);
-  }
-
-  Ok(user_details(new_user))
+  Ok(user_details)
 }
 
 pub fn delete_user(id: &str) -> Result<bool, APIError> {
@@ -204,10 +198,7 @@ pub fn delete_user(id: &str) -> Result<bool, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result =
-    diesel::delete(schema::users::table.filter(schema::users::id.eq(id))).execute(&mut conn);
-
-  match result {
+  match diesel::delete(schema::users::table.filter(schema::users::id.eq(id))).execute(&mut conn) {
     Ok(rows_affected) => Ok(rows_affected > 0),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -230,14 +221,13 @@ pub fn update_user(id: &str, user: UpdateUser) -> Result<bool, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = diesel::update(schema::users::table.filter(schema::users::id.eq(id)))
+  match diesel::update(schema::users::table.filter(schema::users::id.eq(id)))
     .set((
       schema::users::name.eq(&user.name),
       schema::users::email.eq(&user.email),
     ))
-    .execute(&mut conn);
-
-  match result {
+    .execute(&mut conn)
+  {
     Ok(rows_affected) => Ok(rows_affected > 0),
     Err(_) => Err(APIError::UserNotFound),
   }
@@ -254,11 +244,10 @@ pub fn update_password(id: &str, password: UpdatePassword) -> Result<bool, APIEr
     Err(_) => return Err(APIError::InternalServerError),
   };
 
-  let result = diesel::update(schema::users::table.filter(schema::users::id.eq(id)))
+  match diesel::update(schema::users::table.filter(schema::users::id.eq(id)))
     .set(schema::users::password.eq(&password_hash))
-    .execute(&mut conn);
-
-  match result {
+    .execute(&mut conn)
+  {
     Ok(rows_affected) => Ok(rows_affected > 0),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -270,9 +259,7 @@ pub fn user_count() -> Result<i64, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = schema::users::table.count().get_result::<i64>(&mut conn);
-
-  match result {
+  match schema::users::table.count().get_result::<i64>(&mut conn) {
     Ok(count) => Ok(count),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -284,13 +271,12 @@ pub fn active_user_count(since_timestamp: i64) -> Result<i64, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = schema::users::table
+  match schema::users::table
     .inner_join(schema::sessions::table.on(schema::users::id.eq(schema::sessions::user_id)))
     .filter(schema::sessions::accessed_at.ge(since_timestamp))
     .select(diesel::dsl::count(schema::users::id).aggregate_distinct())
-    .first::<i64>(&mut conn);
-
-  match result {
+    .first::<i64>(&mut conn)
+  {
     Ok(count) => Ok(count),
     Err(_) => Err(APIError::DatabaseError),
   }

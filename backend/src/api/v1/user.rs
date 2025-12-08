@@ -1,13 +1,16 @@
 use crate::{
-  services::{auth, authorize_request, invite, log, user, UserCredentials},
+  services::{
+    auth,
+    auth::{authorize_request, UserCredentials},
+    category, invite, user,
+  },
   util::{
     error::{error_response, APIError},
-    response,
+    response::response,
   },
 };
-use poem::{handler, http::StatusCode, web::Json, Request, Response};
-
 use dotenvy::dotenv;
+use poem::{handler, http::StatusCode, web::Json, Request, Response};
 use std::env;
 
 #[handler]
@@ -30,15 +33,13 @@ pub async fn create_user(Json(user): Json<user::CreateUser>, request: &Request) 
     Err(error) => return error_response(error),
   };
 
-  let session = auth::create_user_session(
+  match auth::create_user_session(
     UserCredentials {
       email: created_user.email,
       password,
     },
     auth::session_metadata(request).await,
-  );
-
-  match session {
+  ) {
     Ok(session) => response(StatusCode::CREATED, &session),
     Err(error) => error_response(error),
   }
@@ -51,9 +52,7 @@ pub async fn get_current_user(request: &Request) -> Response {
     Err(error) => return error_response(error),
   };
 
-  let user = user::get_user(&session.user_id);
-
-  match user {
+  match user::get_user(&session.user_id) {
     Ok(user) => response(StatusCode::OK, &user),
     Err(error) => error_response(error),
   }
@@ -66,14 +65,12 @@ pub async fn delete_user(request: &Request) -> Response {
     Err(error) => return error_response(error),
   };
 
-  let deleted = match user::delete_user(&session.user_id) {
-    Ok(deleted) => deleted,
-    Err(error) => return error_response(error),
-  };
-
-  match deleted {
-    true => response(StatusCode::NO_CONTENT, &()),
-    false => error_response(APIError::UserNotFound),
+  match user::delete_user(&session.user_id) {
+    Ok(deleted) => match deleted {
+      true => response(StatusCode::NO_CONTENT, &()),
+      false => error_response(APIError::UserNotFound),
+    },
+    Err(error) => error_response(error),
   }
 }
 
@@ -84,14 +81,12 @@ pub async fn update_user(Json(user): Json<user::UpdateUser>, request: &Request) 
     Err(error) => return error_response(error),
   };
 
-  let updated_user = match user::update_user(&session.user_id, user) {
-    Ok(user) => user,
-    Err(error) => return error_response(error),
-  };
-
-  match updated_user {
-    true => response(StatusCode::NO_CONTENT, &()),
-    false => error_response(APIError::UserNotFound),
+  match user::update_user(&session.user_id, user) {
+    Ok(user) => match user {
+      true => response(StatusCode::NO_CONTENT, &()),
+      false => error_response(APIError::UserNotFound),
+    },
+    Err(error) => error_response(error),
   }
 }
 
@@ -105,14 +100,12 @@ pub async fn update_password(
     Err(error) => return error_response(error),
   };
 
-  let updated_password = match user::update_password(&session.user_id, password) {
-    Ok(updated) => updated,
-    Err(error) => return error_response(error),
-  };
-
-  match updated_password {
-    true => response(StatusCode::NO_CONTENT, &()),
-    false => error_response(APIError::UserNotFound),
+  match user::update_password(&session.user_id, password) {
+    Ok(updated) => match updated {
+      true => response(StatusCode::NO_CONTENT, &()),
+      false => error_response(APIError::UserNotFound),
+    },
+    Err(error) => error_response(error),
   }
 }
 
@@ -123,10 +116,8 @@ pub async fn get_user_categories_with_tags(request: &Request) -> Response {
     Err(error) => return error_response(error),
   };
 
-  let categories = match log::get_user_categories_with_tags(&session.user_id) {
-    Ok(categories) => categories,
-    Err(error) => return error_response(error),
-  };
-
-  response(StatusCode::OK, &categories)
+  match category::get_user_categories_with_tags(&session.user_id) {
+    Ok(categories) => response(StatusCode::OK, &categories),
+    Err(error) => error_response(error),
+  }
 }

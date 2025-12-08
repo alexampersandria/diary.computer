@@ -1,14 +1,12 @@
-use std::sync::LazyLock;
-
 use crate::{
   establish_connection,
   schema::{self},
   services::{
-    get_user,
+    pagination::{Paginated, PaginationObject},
     tag::{get_tag, Tag},
-    Paginated, PaginationObject,
+    user::get_user,
   },
-  util::{self, APIError},
+  util::{self, error::APIError},
 };
 use diesel::{
   define_sql_function,
@@ -19,6 +17,7 @@ use diesel::{
 };
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use std::sync::LazyLock;
 use uuid::Uuid;
 use validator::Validate;
 
@@ -123,7 +122,7 @@ pub fn create_entry(entry: CreateEntry) -> Result<EntryWithTags, APIError> {
     id: Uuid::new_v4().to_string(),
     user_id: entry.user_id.clone(),
     date: naive_date,
-    created_at: util::unix_ms(),
+    created_at: util::unix_time::unix_ms(),
     mood: entry.mood,
     entry: entry.entry.clone(),
   };
@@ -310,14 +309,13 @@ pub fn delete_entry(entry_id: &str, user_id: &str) -> Result<bool, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = diesel::delete(
+  match diesel::delete(
     schema::entries::table
       .filter(schema::entries::id.eq(entry_id))
       .filter(schema::entries::user_id.eq(user_id)),
   )
-  .execute(&mut conn);
-
-  match result {
+  .execute(&mut conn)
+  {
     Ok(count) => Ok(count > 0),
     Err(_) => Err(APIError::DatabaseError),
   }

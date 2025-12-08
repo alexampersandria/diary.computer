@@ -1,6 +1,6 @@
 use diarycomputer::{
-  services::{log, user},
-  util::APIError,
+  services::{category, entry, log, tag, user},
+  util::error::APIError,
 };
 use uuid::Uuid;
 
@@ -22,7 +22,7 @@ fn create_user() -> user::UserDetails {
 fn create_category() {
   let user = create_user();
 
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   });
@@ -37,13 +37,13 @@ fn create_category() {
 fn edit_category() {
   let user = create_user();
 
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Original Name".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
-  let edited = log::edit_category(log::EditCategory {
+  let edited = category::edit_category(category::EditCategory {
     id: category.id.clone(),
     name: "Updated Name".to_string(),
     user_id: user.id.clone(),
@@ -59,13 +59,13 @@ fn edit_category() {
 fn get_category() {
   let user = create_user();
 
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Get Test".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
-  let found = log::get_category(&category.id, &user.id);
+  let found = category::get_category(&category.id, &user.id);
 
   assert!(found.is_ok());
   let found = found.unwrap();
@@ -77,18 +77,18 @@ fn get_category() {
 fn get_all_categories() {
   let user = create_user();
 
-  log::create_category(log::CreateCategory {
+  category::create_category(category::CreateCategory {
     name: "Category 1".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  log::create_category(log::CreateCategory {
+  category::create_category(category::CreateCategory {
     name: "Category 2".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
-  let categories = log::get_all_categories(&user.id);
+  let categories = category::get_all_categories(&user.id);
 
   assert!(categories.is_ok());
   let categories = categories.unwrap();
@@ -99,19 +99,19 @@ fn get_all_categories() {
 fn get_category_with_tags() {
   let user = create_user();
 
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Category with Tags".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  log::create_tag(log::CreateTag {
+  tag::create_tag(tag::CreateTag {
     name: "Tag 1".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  log::create_tag(log::CreateTag {
+  tag::create_tag(tag::CreateTag {
     name: "Tag 2".to_string(),
     color: "red".to_string(),
     category_id: category.id.clone(),
@@ -119,7 +119,7 @@ fn get_category_with_tags() {
   })
   .unwrap();
 
-  let category_with_tags = log::get_category_with_tags(&category.id, &user.id);
+  let category_with_tags = category::get_category_with_tags(&category.id, &user.id);
 
   assert!(category_with_tags.is_ok());
   let category_with_tags = category_with_tags.unwrap();
@@ -131,7 +131,7 @@ fn get_category_with_tags() {
 fn get_category_with_tags_not_found() {
   let user = create_user();
 
-  let result = log::get_category_with_tags("nonexistent_id", &user.id);
+  let result = category::get_category_with_tags("nonexistent_id", &user.id);
 
   assert!(result.is_err());
   assert_eq!(result.err().unwrap(), APIError::CategoryNotFound);
@@ -141,25 +141,25 @@ fn get_category_with_tags_not_found() {
 fn get_user_categories_with_tags() {
   let user = create_user();
 
-  let cat1 = log::create_category(log::CreateCategory {
+  let cat1 = category::create_category(category::CreateCategory {
     name: "Category 1".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let cat2 = log::create_category(log::CreateCategory {
+  let cat2 = category::create_category(category::CreateCategory {
     name: "Category 2".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
-  log::create_tag(log::CreateTag {
+  tag::create_tag(tag::CreateTag {
     name: "Tag 1".to_string(),
     color: "blue".to_string(),
     category_id: cat1.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  log::create_tag(log::CreateTag {
+  tag::create_tag(tag::CreateTag {
     name: "Tag 2".to_string(),
     color: "red".to_string(),
     category_id: cat2.id.clone(),
@@ -167,7 +167,7 @@ fn get_user_categories_with_tags() {
   })
   .unwrap();
 
-  let categories_with_tags = log::get_user_categories_with_tags(&user.id);
+  let categories_with_tags = category::get_user_categories_with_tags(&user.id);
 
   assert!(categories_with_tags.is_ok());
   let categories_with_tags = categories_with_tags.unwrap();
@@ -184,12 +184,12 @@ fn get_user_categories_with_tags() {
 fn delete_category() {
   let user = create_user();
 
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "To Delete".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  log::create_tag(log::CreateTag {
+  tag::create_tag(tag::CreateTag {
     name: "Tag".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -197,25 +197,25 @@ fn delete_category() {
   })
   .unwrap();
 
-  let deleted = log::delete_category(&category.id, &user.id);
+  let deleted = category::delete_category(&category.id, &user.id);
 
   assert!(deleted.is_ok());
   assert!(deleted.unwrap());
 
-  let found = log::get_category(&category.id, &user.id);
+  let found = category::get_category(&category.id, &user.id);
   assert!(found.is_err());
 }
 
 #[test]
 fn create_tag() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Test Tag".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -232,12 +232,12 @@ fn create_tag() {
 #[test]
 fn edit_tag() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Original".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -245,7 +245,7 @@ fn edit_tag() {
   })
   .unwrap();
 
-  let edited = log::edit_tag(log::EditTag {
+  let edited = tag::edit_tag(tag::EditTag {
     id: tag.id.clone(),
     name: "Updated".to_string(),
     color: "red".to_string(),
@@ -262,12 +262,12 @@ fn edit_tag() {
 #[test]
 fn get_tag() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Test Tag".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -275,7 +275,7 @@ fn get_tag() {
   })
   .unwrap();
 
-  let found = log::get_tag(&tag.id, &user.id);
+  let found = tag::get_tag(&tag.id, &user.id);
 
   assert!(found.is_ok());
   let found = found.unwrap();
@@ -286,19 +286,19 @@ fn get_tag() {
 #[test]
 fn get_tags() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag1 = log::create_tag(log::CreateTag {
+  let tag1 = tag::create_tag(tag::CreateTag {
     name: "Tag 1".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag2 = log::create_tag(log::CreateTag {
+  let tag2 = tag::create_tag(tag::CreateTag {
     name: "Tag 2".to_string(),
     color: "red".to_string(),
     category_id: category.id.clone(),
@@ -307,7 +307,7 @@ fn get_tags() {
   .unwrap();
 
   let tag_ids = vec![tag1.id.as_str(), tag2.id.as_str()];
-  let tags = log::get_tags(tag_ids, &user.id);
+  let tags = tag::get_tags(tag_ids, &user.id);
 
   assert!(tags.is_ok());
   let tags = tags.unwrap();
@@ -317,19 +317,19 @@ fn get_tags() {
 #[test]
 fn get_category_tags() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  log::create_tag(log::CreateTag {
+  tag::create_tag(tag::CreateTag {
     name: "Tag 1".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  log::create_tag(log::CreateTag {
+  tag::create_tag(tag::CreateTag {
     name: "Tag 2".to_string(),
     color: "red".to_string(),
     category_id: category.id.clone(),
@@ -337,7 +337,7 @@ fn get_category_tags() {
   })
   .unwrap();
 
-  let tags = log::get_category_tags(&category.id, &user.id);
+  let tags = tag::get_category_tags(&category.id, &user.id);
 
   assert!(tags.is_ok());
   let tags = tags.unwrap();
@@ -347,12 +347,12 @@ fn get_category_tags() {
 #[test]
 fn delete_tag() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "To Delete".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -360,31 +360,31 @@ fn delete_tag() {
   })
   .unwrap();
 
-  let deleted = log::delete_tag(&tag.id, &user.id);
+  let deleted = tag::delete_tag(&tag.id, &user.id);
 
   assert!(deleted.is_ok());
   assert!(deleted.unwrap());
 
-  let found = log::get_tag(&tag.id, &user.id);
+  let found = tag::get_tag(&tag.id, &user.id);
   assert!(found.is_err());
 }
 
 #[test]
 fn delete_all_category_tags() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  log::create_tag(log::CreateTag {
+  tag::create_tag(tag::CreateTag {
     name: "Tag 1".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  log::create_tag(log::CreateTag {
+  tag::create_tag(tag::CreateTag {
     name: "Tag 2".to_string(),
     color: "red".to_string(),
     category_id: category.id.clone(),
@@ -392,12 +392,12 @@ fn delete_all_category_tags() {
   })
   .unwrap();
 
-  let deleted = log::delete_all_category_tags(&category.id, &user.id);
+  let deleted = tag::delete_all_category_tags(&category.id, &user.id);
 
   assert!(deleted.is_ok());
   assert!(deleted.unwrap());
 
-  let tags = log::get_category_tags(&category.id, &user.id);
+  let tags = tag::get_category_tags(&category.id, &user.id);
   assert!(tags.is_ok());
   assert_eq!(tags.unwrap().len(), 0);
 }
@@ -405,12 +405,12 @@ fn delete_all_category_tags() {
 #[test]
 fn create_entry() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Test Tag".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -418,7 +418,7 @@ fn create_entry() {
   })
   .unwrap();
 
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 5,
     entry: Some("Test entry content".to_string()),
@@ -442,7 +442,7 @@ fn create_entry() {
 fn create_entry_without_content() {
   let user = create_user();
 
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 3,
     entry: None,
@@ -459,19 +459,19 @@ fn create_entry_without_content() {
 #[test]
 fn edit_entry() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag1 = log::create_tag(log::CreateTag {
+  let tag1 = tag::create_tag(tag::CreateTag {
     name: "Tag 1".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag2 = log::create_tag(log::CreateTag {
+  let tag2 = tag::create_tag(tag::CreateTag {
     name: "Tag 2".to_string(),
     color: "red".to_string(),
     category_id: category.id.clone(),
@@ -479,7 +479,7 @@ fn edit_entry() {
   })
   .unwrap();
 
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 3,
     entry: Some("Original content".to_string()),
@@ -488,7 +488,7 @@ fn edit_entry() {
   })
   .unwrap();
 
-  let edited = log::edit_entry(log::EditEntry {
+  let edited = entry::edit_entry(entry::EditEntry {
     id: entry.id.clone(),
     date: "2025-10-18".to_string(),
     mood: 4,
@@ -512,12 +512,12 @@ fn edit_entry() {
 #[test]
 fn get_entry_with_tags() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Test Tag".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -525,7 +525,7 @@ fn get_entry_with_tags() {
   })
   .unwrap();
 
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 5,
     entry: Some("Test entry".to_string()),
@@ -534,7 +534,7 @@ fn get_entry_with_tags() {
   })
   .unwrap();
 
-  let found = log::get_entry_with_tags(&entry.id, &user.id);
+  let found = entry::get_entry_with_tags(&entry.id, &user.id);
 
   assert!(found.is_ok());
   let found = found.unwrap();
@@ -551,7 +551,7 @@ fn create_default_data() {
 
   assert!(result.is_ok());
 
-  let categories = log::get_all_categories(&user.id).unwrap();
+  let categories = category::get_all_categories(&user.id).unwrap();
   assert!(categories.len() >= 2);
 
   let activities_cat = categories.iter().find(|c| c.name == "Activities");
@@ -561,12 +561,12 @@ fn create_default_data() {
   assert!(tags_cat.is_some());
 
   if let Some(activities) = activities_cat {
-    let tags = log::get_category_tags(&activities.id, &user.id).unwrap();
+    let tags = tag::get_category_tags(&activities.id, &user.id).unwrap();
     assert!(tags.len() >= 6);
   }
 
   if let Some(tags) = tags_cat {
-    let tag_list = log::get_category_tags(&tags.id, &user.id).unwrap();
+    let tag_list = tag::get_category_tags(&tags.id, &user.id).unwrap();
     assert!(tag_list.len() >= 3);
   }
 }
@@ -577,7 +577,7 @@ fn create_default_data() {
 fn create_category_empty_name() {
   let user = create_user();
 
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "".to_string(),
     user_id: user.id.clone(),
   });
@@ -590,7 +590,7 @@ fn create_category_name_too_long() {
   let user = create_user();
 
   let long_name = "a".repeat(256);
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: long_name,
     user_id: user.id.clone(),
   });
@@ -601,13 +601,13 @@ fn create_category_name_too_long() {
 #[test]
 fn edit_category_empty_name() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Original Name".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
-  let edited = log::edit_category(log::EditCategory {
+  let edited = category::edit_category(category::EditCategory {
     id: category.id.clone(),
     name: "".to_string(),
     user_id: user.id.clone(),
@@ -619,14 +619,14 @@ fn edit_category_empty_name() {
 #[test]
 fn edit_category_name_too_long() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Original Name".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
   let long_name = "a".repeat(256);
-  let edited = log::edit_category(log::EditCategory {
+  let edited = category::edit_category(category::EditCategory {
     id: category.id.clone(),
     name: long_name,
     user_id: user.id.clone(),
@@ -638,13 +638,13 @@ fn edit_category_name_too_long() {
 #[test]
 fn create_tag_empty_name() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -657,14 +657,14 @@ fn create_tag_empty_name() {
 #[test]
 fn create_tag_name_too_long() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
   let long_name = "a".repeat(256);
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: long_name,
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -677,13 +677,13 @@ fn create_tag_name_too_long() {
 #[test]
 fn create_tag_empty_color() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Test Tag".to_string(),
     color: "".to_string(),
     category_id: category.id.clone(),
@@ -696,14 +696,14 @@ fn create_tag_empty_color() {
 #[test]
 fn create_tag_color_too_long() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
   let long_color = "a".repeat(17);
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Test Tag".to_string(),
     color: long_color,
     category_id: category.id.clone(),
@@ -716,12 +716,12 @@ fn create_tag_color_too_long() {
 #[test]
 fn edit_tag_empty_name() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Original".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -729,7 +729,7 @@ fn edit_tag_empty_name() {
   })
   .unwrap();
 
-  let edited = log::edit_tag(log::EditTag {
+  let edited = tag::edit_tag(tag::EditTag {
     id: tag.id.clone(),
     name: "".to_string(),
     color: "red".to_string(),
@@ -743,12 +743,12 @@ fn edit_tag_empty_name() {
 #[test]
 fn edit_tag_name_too_long() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Original".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -757,7 +757,7 @@ fn edit_tag_name_too_long() {
   .unwrap();
 
   let long_name = "a".repeat(256);
-  let edited = log::edit_tag(log::EditTag {
+  let edited = tag::edit_tag(tag::EditTag {
     id: tag.id.clone(),
     name: long_name,
     color: "red".to_string(),
@@ -771,12 +771,12 @@ fn edit_tag_name_too_long() {
 #[test]
 fn edit_tag_empty_color() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Original".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -784,7 +784,7 @@ fn edit_tag_empty_color() {
   })
   .unwrap();
 
-  let edited = log::edit_tag(log::EditTag {
+  let edited = tag::edit_tag(tag::EditTag {
     id: tag.id.clone(),
     name: "Updated".to_string(),
     color: "".to_string(),
@@ -798,12 +798,12 @@ fn edit_tag_empty_color() {
 #[test]
 fn edit_tag_color_too_long() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Original".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -812,7 +812,7 @@ fn edit_tag_color_too_long() {
   .unwrap();
 
   let long_color = "a".repeat(17);
-  let edited = log::edit_tag(log::EditTag {
+  let edited = tag::edit_tag(tag::EditTag {
     id: tag.id.clone(),
     name: "Updated".to_string(),
     color: long_color,
@@ -827,7 +827,7 @@ fn edit_tag_color_too_long() {
 fn create_entry_empty_date() {
   let user = create_user();
 
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "".to_string(),
     mood: 3,
     entry: Some("Test content".to_string()),
@@ -843,7 +843,7 @@ fn create_entry_date_too_long() {
   let user = create_user();
 
   let long_date = "a".repeat(256);
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: long_date,
     mood: 3,
     entry: Some("Test content".to_string()),
@@ -858,7 +858,7 @@ fn create_entry_date_too_long() {
 fn create_entry_mood_too_low() {
   let user = create_user();
 
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 0,
     entry: Some("Test content".to_string()),
@@ -873,7 +873,7 @@ fn create_entry_mood_too_low() {
 fn create_entry_mood_too_high() {
   let user = create_user();
 
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 6,
     entry: Some("Test content".to_string()),
@@ -889,7 +889,7 @@ fn create_entry_content_too_long() {
   let user = create_user();
 
   let long_content = "a".repeat(1001);
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 3,
     entry: Some(long_content),
@@ -903,7 +903,7 @@ fn create_entry_content_too_long() {
 #[test]
 fn edit_entry_empty_date() {
   let user = create_user();
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 3,
     entry: Some("Original content".to_string()),
@@ -912,7 +912,7 @@ fn edit_entry_empty_date() {
   })
   .unwrap();
 
-  let edited = log::edit_entry(log::EditEntry {
+  let edited = entry::edit_entry(entry::EditEntry {
     id: entry.id.clone(),
     date: "".to_string(),
     mood: 4,
@@ -927,7 +927,7 @@ fn edit_entry_empty_date() {
 #[test]
 fn edit_entry_date_too_long() {
   let user = create_user();
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 3,
     entry: Some("Original content".to_string()),
@@ -937,7 +937,7 @@ fn edit_entry_date_too_long() {
   .unwrap();
 
   let long_date = "a".repeat(256);
-  let edited = log::edit_entry(log::EditEntry {
+  let edited = entry::edit_entry(entry::EditEntry {
     id: entry.id.clone(),
     date: long_date,
     mood: 4,
@@ -952,7 +952,7 @@ fn edit_entry_date_too_long() {
 #[test]
 fn edit_entry_mood_too_low() {
   let user = create_user();
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 3,
     entry: Some("Original content".to_string()),
@@ -961,7 +961,7 @@ fn edit_entry_mood_too_low() {
   })
   .unwrap();
 
-  let edited = log::edit_entry(log::EditEntry {
+  let edited = entry::edit_entry(entry::EditEntry {
     id: entry.id.clone(),
     date: "2025-10-18".to_string(),
     mood: 0,
@@ -976,7 +976,7 @@ fn edit_entry_mood_too_low() {
 #[test]
 fn edit_entry_mood_too_high() {
   let user = create_user();
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 3,
     entry: Some("Original content".to_string()),
@@ -985,7 +985,7 @@ fn edit_entry_mood_too_high() {
   })
   .unwrap();
 
-  let edited = log::edit_entry(log::EditEntry {
+  let edited = entry::edit_entry(entry::EditEntry {
     id: entry.id.clone(),
     date: "2025-10-18".to_string(),
     mood: 6,
@@ -1000,7 +1000,7 @@ fn edit_entry_mood_too_high() {
 #[test]
 fn edit_entry_content_too_long() {
   let user = create_user();
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 3,
     entry: Some("Original content".to_string()),
@@ -1010,7 +1010,7 @@ fn edit_entry_content_too_long() {
   .unwrap();
 
   let long_content = "a".repeat(1001);
-  let edited = log::edit_entry(log::EditEntry {
+  let edited = entry::edit_entry(entry::EditEntry {
     id: entry.id.clone(),
     date: "2025-10-18".to_string(),
     mood: 4,
@@ -1025,19 +1025,19 @@ fn edit_entry_content_too_long() {
 #[test]
 fn delete_tag_in_use_by_entry() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "In Use".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 5,
     entry: Some("Test entry".to_string()),
@@ -1046,9 +1046,9 @@ fn delete_tag_in_use_by_entry() {
   })
   .unwrap();
 
-  let deleted = log::delete_tag(&tag.id, &user.id);
+  let deleted = tag::delete_tag(&tag.id, &user.id);
 
-  let get_entry_again = log::get_entry_with_tags(&entry.id, &user.id);
+  let get_entry_again = entry::get_entry_with_tags(&entry.id, &user.id);
 
   assert!(deleted.is_ok());
   assert!(deleted.unwrap());
@@ -1060,12 +1060,12 @@ fn delete_tag_in_use_by_entry() {
 #[test]
 fn delete_category_with_tags() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "To Delete".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Tag".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -1073,9 +1073,9 @@ fn delete_category_with_tags() {
   })
   .unwrap();
 
-  let deleted = log::delete_category(&category.id, &user.id);
+  let deleted = category::delete_category(&category.id, &user.id);
 
-  let found_tag = log::get_tag(&tag.id, &user.id);
+  let found_tag = tag::get_tag(&tag.id, &user.id);
 
   assert!(deleted.is_ok());
   assert!(deleted.unwrap());
@@ -1086,28 +1086,28 @@ fn delete_category_with_tags() {
 fn create_entry_date_validation() {
   let user = create_user();
 
-  let string_date = log::create_entry(log::CreateEntry {
+  let string_date = entry::create_entry(entry::CreateEntry {
     date: "invalid-date".to_string(),
     mood: 3,
     entry: Some("Test content".to_string()),
     selected_tags: vec![],
     user_id: user.id.clone(),
   });
-  let empty_date = log::create_entry(log::CreateEntry {
+  let empty_date = entry::create_entry(entry::CreateEntry {
     date: "".to_string(),
     mood: 3,
     entry: Some("Test content".to_string()),
     selected_tags: vec![],
     user_id: user.id.clone(),
   });
-  let invalid_format_date = log::create_entry(log::CreateEntry {
+  let invalid_format_date = entry::create_entry(entry::CreateEntry {
     date: "2025/10/17".to_string(),
     mood: 3,
     entry: Some("Test content".to_string()),
     selected_tags: vec![],
     user_id: user.id.clone(),
   });
-  let american_format_date = log::create_entry(log::CreateEntry {
+  let american_format_date = entry::create_entry(entry::CreateEntry {
     date: "10-17-2025".to_string(),
     mood: 3,
     entry: Some("Test content".to_string()),
@@ -1124,13 +1124,13 @@ fn create_entry_date_validation() {
 #[test]
 fn tag_color_default() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
 
-  let invalid_color_tag = log::create_tag(log::CreateTag {
+  let invalid_color_tag = tag::create_tag(tag::CreateTag {
     name: "Invalid Color".to_string(),
     color: "invalid".to_string(),
     category_id: category.id.clone(),
@@ -1146,7 +1146,7 @@ fn tag_color_default() {
 fn get_entries_in_range() {
   let user = create_user();
 
-  let entry1 = log::create_entry(log::CreateEntry {
+  let entry1 = entry::create_entry(entry::CreateEntry {
     date: "2025-10-15".to_string(),
     mood: 4,
     entry: Some("Entry 1".to_string()),
@@ -1155,7 +1155,7 @@ fn get_entries_in_range() {
   })
   .unwrap();
 
-  let entry2 = log::create_entry(log::CreateEntry {
+  let entry2 = entry::create_entry(entry::CreateEntry {
     date: "2025-10-16".to_string(),
     mood: 5,
     entry: Some("Entry 2".to_string()),
@@ -1164,7 +1164,7 @@ fn get_entries_in_range() {
   })
   .unwrap();
 
-  let entry3 = log::create_entry(log::CreateEntry {
+  let entry3 = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 3,
     entry: Some("Entry 3".to_string()),
@@ -1173,7 +1173,7 @@ fn get_entries_in_range() {
   })
   .unwrap();
 
-  let entry4 = log::create_entry(log::CreateEntry {
+  let entry4 = entry::create_entry(entry::CreateEntry {
     date: "2025-10-14".to_string(),
     mood: 2,
     entry: Some("Entry 4".to_string()),
@@ -1182,12 +1182,12 @@ fn get_entries_in_range() {
   })
   .unwrap();
 
-  let options = log::GetEntriesOptions {
+  let options = entry::GetEntriesOptions {
     from_date: Some("2025-10-15".to_string()),
     to_date: Some("2025-10-16".to_string()),
     ..Default::default()
   };
-  let entries = log::get_entries(&user.id, Some(options));
+  let entries = entry::get_entries(&user.id, Some(options));
 
   assert!(entries.is_ok());
   let entries = entries.unwrap();
@@ -1203,7 +1203,7 @@ fn get_entries_in_range() {
 fn get_all_entries_no_options() {
   let user = create_user();
 
-  let entry1 = log::create_entry(log::CreateEntry {
+  let entry1 = entry::create_entry(entry::CreateEntry {
     date: "2025-10-15".to_string(),
     mood: 4,
     entry: Some("Entry 1".to_string()),
@@ -1212,7 +1212,7 @@ fn get_all_entries_no_options() {
   })
   .unwrap();
 
-  let entry2 = log::create_entry(log::CreateEntry {
+  let entry2 = entry::create_entry(entry::CreateEntry {
     date: "2025-10-16".to_string(),
     mood: 5,
     entry: Some("Entry 2".to_string()),
@@ -1221,7 +1221,7 @@ fn get_all_entries_no_options() {
   })
   .unwrap();
 
-  let entries = log::get_entries(&user.id, None);
+  let entries = entry::get_entries(&user.id, None);
 
   assert!(entries.is_ok());
   let entries = entries.unwrap();
@@ -1235,7 +1235,7 @@ fn get_all_entries_no_options() {
 fn get_entries_in_mood_range() {
   let user = create_user();
 
-  let entry1 = log::create_entry(log::CreateEntry {
+  let entry1 = entry::create_entry(entry::CreateEntry {
     date: "2025-10-15".to_string(),
     mood: 2,
     entry: Some("Entry 1".to_string()),
@@ -1244,7 +1244,7 @@ fn get_entries_in_mood_range() {
   })
   .unwrap();
 
-  let entry2 = log::create_entry(log::CreateEntry {
+  let entry2 = entry::create_entry(entry::CreateEntry {
     date: "2025-10-16".to_string(),
     mood: 4,
     entry: Some("Entry 2".to_string()),
@@ -1253,7 +1253,7 @@ fn get_entries_in_mood_range() {
   })
   .unwrap();
 
-  let entry3 = log::create_entry(log::CreateEntry {
+  let entry3 = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 5,
     entry: Some("Entry 3".to_string()),
@@ -1262,12 +1262,12 @@ fn get_entries_in_mood_range() {
   })
   .unwrap();
 
-  let options = log::GetEntriesOptions {
+  let options = entry::GetEntriesOptions {
     from_mood: Some(3),
     to_mood: Some(5),
     ..Default::default()
   };
-  let entries = log::get_entries(&user.id, Some(options));
+  let entries = entry::get_entries(&user.id, Some(options));
 
   assert!(entries.is_ok());
   let entries = entries.unwrap();
@@ -1281,12 +1281,12 @@ fn get_entries_in_mood_range() {
 #[test]
 fn get_entries_with_tags() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Test Tag".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -1294,7 +1294,7 @@ fn get_entries_with_tags() {
   })
   .unwrap();
 
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 5,
     entry: Some("Test entry".to_string()),
@@ -1303,7 +1303,7 @@ fn get_entries_with_tags() {
   })
   .unwrap();
 
-  let _entry_no_tag = log::create_entry(log::CreateEntry {
+  let _entry_no_tag = entry::create_entry(entry::CreateEntry {
     date: "2025-10-18".to_string(),
     mood: 4,
     entry: Some("Another entry".to_string()),
@@ -1312,11 +1312,11 @@ fn get_entries_with_tags() {
   })
   .unwrap();
 
-  let options = log::GetEntriesOptions {
+  let options = entry::GetEntriesOptions {
     tags: Some(vec![tag.id.clone()]),
     ..Default::default()
   };
-  let entries = log::get_entries(&user.id, Some(options));
+  let entries = entry::get_entries(&user.id, Some(options));
 
   assert!(entries.is_ok());
   let entries = entries.unwrap();
@@ -1327,19 +1327,19 @@ fn get_entries_with_tags() {
 #[test]
 fn delete_category_with_tags_where_tags_are_also_in_use() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "To Delete".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Tag".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 5,
     entry: Some("Test entry".to_string()),
@@ -1348,10 +1348,10 @@ fn delete_category_with_tags_where_tags_are_also_in_use() {
   })
   .unwrap();
 
-  let deleted = log::delete_category(&category.id, &user.id);
+  let deleted = category::delete_category(&category.id, &user.id);
 
-  let found_tag = log::get_tag(&tag.id, &user.id);
-  let found_entry = log::get_entry_with_tags(&entry.id, &user.id);
+  let found_tag = tag::get_tag(&tag.id, &user.id);
+  let found_entry = entry::get_entry_with_tags(&entry.id, &user.id);
 
   assert!(deleted.is_ok());
   assert!(deleted.unwrap());
@@ -1366,7 +1366,7 @@ fn get_entries_limit_and_offset() {
   let user = create_user();
 
   for i in 1..=10 {
-    let _ = log::create_entry(log::CreateEntry {
+    let _ = entry::create_entry(entry::CreateEntry {
       date: format!("2025-10-{i:02}"),
       mood: (i % 5) + 1,
       entry: Some(format!("Entry {i}")),
@@ -1375,12 +1375,12 @@ fn get_entries_limit_and_offset() {
     });
   }
 
-  let options = log::GetEntriesOptions {
+  let options = entry::GetEntriesOptions {
     limit: Some(3),
     offset: Some(4),
     ..Default::default()
   };
-  let entries = log::get_entries(&user.id, Some(options));
+  let entries = entry::get_entries(&user.id, Some(options));
 
   assert!(entries.is_ok());
   let entries = entries.unwrap();
@@ -1399,7 +1399,7 @@ fn get_entries_limit_0_selects_more_than_31() {
 
   for i in 1..=35 {
     let year = 1998 + i;
-    let _ = log::create_entry(log::CreateEntry {
+    let _ = entry::create_entry(entry::CreateEntry {
       date: format!("{year}-10-01"),
       mood: (i % 5) + 1,
       entry: Some(format!("Entry {i}")),
@@ -1408,11 +1408,11 @@ fn get_entries_limit_0_selects_more_than_31() {
     });
   }
 
-  let options = log::GetEntriesOptions {
+  let options = entry::GetEntriesOptions {
     limit: Some(0),
     ..Default::default()
   };
-  let entries = log::get_entries(&user.id, Some(options));
+  let entries = entry::get_entries(&user.id, Some(options));
 
   assert!(entries.is_ok());
   let entries = entries.unwrap();
@@ -1422,19 +1422,19 @@ fn get_entries_limit_0_selects_more_than_31() {
 #[test]
 fn delete_user_deletes_all_data() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Test Tag".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 5,
     entry: Some("Test entry".to_string()),
@@ -1445,9 +1445,9 @@ fn delete_user_deletes_all_data() {
 
   let deleted = user::delete_user(&user.id);
 
-  let found_category = log::get_category(&category.id, &user.id);
-  let found_tag = log::get_tag(&tag.id, &user.id);
-  let found_entry = log::get_entry_with_tags(&entry.id, &user.id);
+  let found_category = category::get_category(&category.id, &user.id);
+  let found_tag = tag::get_tag(&tag.id, &user.id);
+  let found_entry = entry::get_entry_with_tags(&entry.id, &user.id);
 
   assert!(deleted.is_ok());
   assert!(deleted.unwrap());
@@ -1459,19 +1459,19 @@ fn delete_user_deletes_all_data() {
 #[test]
 fn delete_tag_in_use() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "In Use".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 5,
     entry: Some("Test entry".to_string()),
@@ -1480,12 +1480,12 @@ fn delete_tag_in_use() {
   })
   .unwrap();
 
-  let deleted = log::delete_tag(&tag.id, &user.id);
+  let deleted = tag::delete_tag(&tag.id, &user.id);
 
   assert!(deleted.is_ok());
   assert!(deleted.unwrap());
 
-  let found_entry = log::get_entry_with_tags(&entry.id, &user.id);
+  let found_entry = entry::get_entry_with_tags(&entry.id, &user.id);
   assert!(found_entry.is_ok());
   let entry_with_tags = found_entry.unwrap();
   assert!(entry_with_tags.selected_tags.is_empty());
@@ -1494,12 +1494,12 @@ fn delete_tag_in_use() {
 #[test]
 fn delete_entry_with_tags() {
   let user = create_user();
-  let category = log::create_category(log::CreateCategory {
+  let category = category::create_category(category::CreateCategory {
     name: "Test Category".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Test Tag".to_string(),
     color: "blue".to_string(),
     category_id: category.id.clone(),
@@ -1507,7 +1507,7 @@ fn delete_entry_with_tags() {
   })
   .unwrap();
 
-  let entry = log::create_entry(log::CreateEntry {
+  let entry = entry::create_entry(entry::CreateEntry {
     date: "2025-10-17".to_string(),
     mood: 5,
     entry: Some("Test entry".to_string()),
@@ -1516,10 +1516,10 @@ fn delete_entry_with_tags() {
   })
   .unwrap();
 
-  let deleted = log::delete_entry(&entry.id, &user.id);
+  let deleted = entry::delete_entry(&entry.id, &user.id);
 
-  let found_entry = log::get_entry_with_tags(&entry.id, &user.id);
-  let found_tag = log::get_tag(&tag.id, &user.id);
+  let found_entry = entry::get_entry_with_tags(&entry.id, &user.id);
+  let found_tag = tag::get_tag(&tag.id, &user.id);
 
   assert!(deleted.is_ok());
   assert!(deleted.unwrap());
@@ -1530,24 +1530,24 @@ fn delete_entry_with_tags() {
 #[test]
 fn edit_tag_category_id() {
   let user = create_user();
-  let category1 = log::create_category(log::CreateCategory {
+  let category1 = category::create_category(category::CreateCategory {
     name: "Category 1".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let category2 = log::create_category(log::CreateCategory {
+  let category2 = category::create_category(category::CreateCategory {
     name: "Category 2".to_string(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag = log::create_tag(log::CreateTag {
+  let tag = tag::create_tag(tag::CreateTag {
     name: "Test Tag".to_string(),
     color: "blue".to_string(),
     category_id: category1.id.clone(),
     user_id: user.id.clone(),
   })
   .unwrap();
-  let tag_no_category_edit = log::create_tag(log::CreateTag {
+  let tag_no_category_edit = tag::create_tag(tag::CreateTag {
     name: "Test Tag 2".to_string(),
     color: "red".to_string(),
     category_id: category1.id.clone(),
@@ -1555,7 +1555,7 @@ fn edit_tag_category_id() {
   })
   .unwrap();
 
-  let moved_tag = log::edit_tag(log::EditTag {
+  let moved_tag = tag::edit_tag(tag::EditTag {
     id: tag.id.clone(),
     name: "Updated Tag".to_string(),
     color: "red".to_string(),
@@ -1563,7 +1563,7 @@ fn edit_tag_category_id() {
     category_id: Some(category2.id.clone()),
   });
 
-  let category_not_edited = log::edit_tag(log::EditTag {
+  let category_not_edited = tag::edit_tag(tag::EditTag {
     id: tag_no_category_edit.id.clone(),
     name: "Updated Tag 2".to_string(),
     color: "green".to_string(),

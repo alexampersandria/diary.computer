@@ -27,7 +27,7 @@ COPY --from=install /temp/prod/node_modules node_modules
 RUN npm run build
 
 # build backend
-FROM rust:1.88.0 AS backend-builder
+FROM rust:1.90.0 AS backend-builder
 WORKDIR /usr/diary.computer/backend
 COPY backend/ .
 RUN cargo build --release

@@ -1,4 +1,4 @@
-use crate::{services::health_check, util::response};
+use crate::{services::health::health_check, util::response::response};
 use poem::{handler, http::StatusCode, Response};
 
 #[handler]

@@ -9,11 +9,10 @@ fn json_response(status_code: StatusCode, body: impl Into<Body>) -> Response {
 }
 
 pub fn response(status_code: StatusCode, body: &impl serde::Serialize) -> Response {
-  let body = match serde_json::to_string(body) {
-    Ok(body) => body,
-    Err(_) => return error_response(APIError::InternalServerError),
-  };
-  json_response(status_code, body)
+  match serde_json::to_string(body) {
+    Ok(body) => json_response(status_code, body),
+    Err(_) => error_response(APIError::InternalServerError),
+  }
 }
 
 pub fn empty_response(status_code: StatusCode) -> Response {

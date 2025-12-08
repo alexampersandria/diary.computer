@@ -2,10 +2,10 @@ use crate::{
   establish_connection,
   schema::categories,
   services::{
-    get_user,
     tag::{delete_all_category_tags, get_category_tags, Tag},
+    user::get_user,
   },
-  util::{self, APIError},
+  util::{self, error::APIError},
 };
 use diesel::{
   prelude::{Insertable, Queryable},
@@ -72,14 +72,13 @@ pub fn create_category(category: CreateCategory) -> Result<Category, APIError> {
     id: Uuid::new_v4().to_string(),
     name: category.name,
     user_id: category.user_id,
-    created_at: util::unix_ms(),
+    created_at: util::unix_time::unix_ms(),
   };
 
-  let result = diesel::insert_into(categories::table)
+  match diesel::insert_into(categories::table)
     .values(&new_category)
-    .execute(&mut conn);
-
-  match result {
+    .execute(&mut conn)
+  {
     Ok(_) => Ok(new_category),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -102,15 +101,14 @@ pub fn edit_category(category: EditCategory) -> Result<Category, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = diesel::update(
+  match diesel::update(
     categories::table
       .filter(categories::id.eq(&category.id))
       .filter(categories::user_id.eq(&category.user_id)),
   )
   .set(categories::name.eq(&category.name))
-  .execute(&mut conn);
-
-  match result {
+  .execute(&mut conn)
+  {
     Ok(_) => get_category(&category.id, &category.user_id),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -122,12 +120,11 @@ pub fn get_category(category_id: &str, user_id: &str) -> Result<Category, APIErr
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = categories::table
+  match categories::table
     .filter(categories::id.eq(category_id))
     .filter(categories::user_id.eq(user_id))
-    .first::<Category>(&mut conn);
-
-  match result {
+    .first::<Category>(&mut conn)
+  {
     Ok(category) => Ok(category),
     Err(_) => Err(APIError::CategoryNotFound),
   }
@@ -142,20 +139,16 @@ pub fn get_category_with_tags(
     Err(_) => return Err(APIError::CategoryNotFound),
   };
 
-  let tags = match get_category_tags(category_id, user_id) {
-    Ok(tags) => tags,
-    Err(_) => return Err(APIError::DatabaseError),
-  };
-
-  let category_with_tags = CategoryWithTags {
-    id: category.id,
-    name: category.name,
-    user_id: category.user_id,
-    created_at: category.created_at,
-    tags,
-  };
-
-  Ok(category_with_tags)
+  match get_category_tags(category_id, user_id) {
+    Ok(tags) => Ok(CategoryWithTags {
+      id: category.id,
+      name: category.name,
+      user_id: category.user_id,
+      created_at: category.created_at,
+      tags,
+    }),
+    Err(_) => Err(APIError::DatabaseError),
+  }
 }
 
 pub fn get_user_categories_with_tags(user_id: &str) -> Result<Vec<CategoryWithTags>, APIError> {
@@ -210,14 +203,13 @@ pub fn delete_category(category_id: &str, user_id: &str) -> Result<bool, APIErro
     return Err(APIError::DatabaseError);
   }
 
-  let result = diesel::delete(
+  match diesel::delete(
     categories::table
       .filter(categories::id.eq(category_id))
       .filter(categories::user_id.eq(user_id)),
   )
-  .execute(&mut conn);
-
-  match result {
+  .execute(&mut conn)
+  {
     Ok(count) => Ok(count > 0),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -235,12 +227,11 @@ pub fn get_all_categories(user_id: &str) -> Result<Vec<Category>, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = categories::table
+  match categories::table
     .filter(categories::user_id.eq(user_id))
     .order(categories::name.asc())
-    .load::<Category>(&mut conn);
-
-  match result {
+    .load::<Category>(&mut conn)
+  {
     Ok(categories) => Ok(categories),
     Err(_) => Err(APIError::DatabaseError),
   }

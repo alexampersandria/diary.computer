@@ -6,7 +6,7 @@ pub mod schema;
 pub mod services;
 pub mod util;
 
-use crate::util::ServiceError;
+use crate::util::error::ServiceError;
 use diesel::{pg, Connection};
 use diesel_migrations::{embed_migrations, MigrationHarness};
 use dotenvy::dotenv;
@@ -69,8 +69,7 @@ pub fn run_migrations() -> Result<(), ServiceError> {
     }
   }
 
-  let migrations = conn.run_pending_migrations(EMBEDDED_MIGRATIONS);
-  match migrations {
+  return match conn.run_pending_migrations(EMBEDDED_MIGRATIONS) {
     Ok(applied_migrations) => {
       tracing::event!(tracing::Level::INFO, "applied migrations:");
       for migration in applied_migrations {
@@ -82,5 +81,5 @@ pub fn run_migrations() -> Result<(), ServiceError> {
       tracing::event!(tracing::Level::ERROR, "error running migrations: {e}");
       Err(ServiceError::MigrationError)
     }
-  }
+  };
 }

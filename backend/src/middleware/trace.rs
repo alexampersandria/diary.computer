@@ -1,10 +1,8 @@
-use std::time::Instant;
-
-use tracing::Level;
-
 use poem::{
   web::RealIp, Endpoint, FromRequest, IntoResponse, Middleware, Request, Response, Result,
 };
+use std::time::Instant;
+use tracing::Level;
 
 /// custom implementation of the poem tracing middleware
 /// original https://github.com/poem-web/poem/blob/master/poem/src/middleware/tracing_mw.rs

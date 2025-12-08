@@ -1,4 +1,4 @@
-use crate::{api::v1, util::response};
+use crate::{api::v1, util::response::response};
 use poem::{get, handler, http::StatusCode, Response, Route};
 use serde::Serialize;
 
@@ -19,7 +19,7 @@ pub fn package_version() -> Response {
 }
 
 pub fn v1_endpoint() -> poem::Route {
-  Route::new().nest("/", v1::endpoint())
+  Route::new().nest("/", v1::index::endpoint())
 }
 
 pub fn endpoint() -> poem::Route {

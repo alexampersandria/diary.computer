@@ -1,6 +1,13 @@
 use crate::{
-  services::{authorize_request, log},
-  util::{error::error_response, response, APIError},
+  services::{
+    auth::authorize_request,
+    tag,
+    tag::{CreateTag, EditTag},
+  },
+  util::{
+    error::{error_response, APIError},
+    response::response,
+  },
 };
 use poem::{
   handler,
@@ -31,14 +38,12 @@ pub async fn create_tag(Json(tag): Json<CreateTagRequest>, request: &Request) ->
     Err(error) => return error_response(error),
   };
 
-  let created_tag = log::create_tag(log::CreateTag {
+  match tag::create_tag(CreateTag {
     name: tag.name,
     color: tag.color,
     category_id: tag.category_id,
     user_id: session.user_id,
-  });
-
-  match created_tag {
+  }) {
     Ok(created_tag) => response(StatusCode::CREATED, &created_tag),
     Err(error) => error_response(error),
   }
@@ -55,15 +60,13 @@ pub async fn edit_tag(
     Err(error) => return error_response(error),
   };
 
-  let edited_tag = log::edit_tag(log::EditTag {
+  match tag::edit_tag(EditTag {
     id,
     name: tag.name,
     color: tag.color,
     category_id: tag.category_id,
     user_id: session.user_id,
-  });
-
-  match edited_tag {
+  }) {
     Ok(edited_tag) => response(StatusCode::OK, &edited_tag),
     Err(error) => error_response(error),
   }
@@ -76,13 +79,11 @@ pub async fn delete_tag(Path(id): Path<String>, request: &Request) -> Response {
     Err(error) => return error_response(error),
   };
 
-  let deleted_tag = match log::delete_tag(&id, &session.user_id) {
-    Ok(deleted) => deleted,
-    Err(error) => return error_response(error),
-  };
-
-  match deleted_tag {
-    true => response(StatusCode::NO_CONTENT, &()),
-    false => error_response(APIError::TagNotFound),
+  match tag::delete_tag(&id, &session.user_id) {
+    Ok(deleted) => match deleted {
+      true => response(StatusCode::NO_CONTENT, &()),
+      false => error_response(APIError::TagNotFound),
+    },
+    Err(error) => error_response(error),
   }
 }

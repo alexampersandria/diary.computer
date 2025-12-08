@@ -1,6 +1,10 @@
 use crate::{
-  services::{authorize_request, log, GetEntriesOptions},
-  util::{error::error_response, response},
+  services::{
+    auth::authorize_request,
+    entry,
+    entry::{EntryOptionsOrder, GetEntriesOptions},
+  },
+  util::{error::error_response, response::response},
 };
 use poem::{handler, http::StatusCode, web::Query, Request, Response};
 use serde::Deserialize;
@@ -33,19 +37,17 @@ pub async fn get_entries(Query(_options): Query<EntryParams>, request: &Request)
     from_mood: _options.from_mood,
     to_mood: _options.to_mood,
     order: match _options.order.as_deref() {
-      Some("date_asc") => Some(log::EntryOptionsOrder::DateAsc),
-      Some("date_desc") => Some(log::EntryOptionsOrder::DateDesc),
-      Some("mood_asc") => Some(log::EntryOptionsOrder::MoodAsc),
-      Some("mood_desc") => Some(log::EntryOptionsOrder::MoodDesc),
+      Some("date_asc") => Some(EntryOptionsOrder::DateAsc),
+      Some("date_desc") => Some(EntryOptionsOrder::DateDesc),
+      Some("mood_asc") => Some(EntryOptionsOrder::MoodAsc),
+      Some("mood_desc") => Some(EntryOptionsOrder::MoodDesc),
       _ => None,
     },
     limit: _options.limit,
     offset: _options.offset,
   };
 
-  let entries = log::get_entries(&session.user_id, Some(options));
-
-  match entries {
+  match entry::get_entries(&session.user_id, Some(options)) {
     Ok(entries) => response(StatusCode::OK, &entries),
     Err(error) => error_response(error),
   }
