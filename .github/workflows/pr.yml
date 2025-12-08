@@ -1,9 +1,8 @@
-name: main
+name: PR
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["main"]
+  pull_request:
 
 env:
   CARGO_TERM_COLOR: always
