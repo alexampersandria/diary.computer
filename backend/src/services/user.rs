@@ -69,16 +69,6 @@ pub struct UserDetails {
   pub invite: Option<String>,
 }
 
-fn user_details(user: User) -> UserDetails {
-  UserDetails {
-    id: user.id,
-    created_at: user.created_at,
-    name: user.name,
-    email: user.email,
-    invite: user.invite,
-  }
-}
-
 pub fn get_user_id(email: &str) -> Result<String, APIError> {
   let mut conn = match establish_connection() {
     Ok(connection) => connection,
@@ -101,16 +91,18 @@ pub fn get_user(id: &str) -> Result<UserDetails, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  // should only select some fields here not all
-  // we remove password has with the user_details function
-  // but this could be fixed by only selecting needed fields
-  // #TODO: that ^
   match schema::users::table
     .filter(schema::users::id.eq(&id))
+    .select((
+      schema::users::id,
+      schema::users::created_at,
+      schema::users::name,
+      schema::users::email,
+      schema::users::invite,
+    ))
     .first(&mut conn)
   {
-    // #TODO: see above todo, but this needs to be fixed
-    Ok(user) => Ok(user_details(user)),
+    Ok(user) => Ok(user),
     Err(_) => Err(APIError::UserNotFound),
   }
 }
@@ -160,13 +152,21 @@ pub fn create_user(user: CreateUser) -> Result<UserDetails, APIError> {
     Err(_) => return Err(APIError::InternalServerError),
   };
 
-  let new_user = User {
+  let user_details = UserDetails {
     id: Uuid::new_v4().to_string(),
     created_at: util::unix_time::unix_ms(),
     name: user.name,
     email: user.email,
-    password: password_hash,
     invite: user.invite,
+  };
+
+  let new_user = User {
+    id: user_details.id.clone(),
+    created_at: user_details.created_at,
+    name: user_details.name.clone(),
+    email: user_details.email.clone(),
+    password: password_hash,
+    invite: user_details.invite.clone(),
   };
 
   match diesel::insert_into(schema::users::table)
@@ -182,7 +182,7 @@ pub fn create_user(user: CreateUser) -> Result<UserDetails, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  Ok(user_details(new_user))
+  Ok(user_details)
 }
 
 pub fn delete_user(id: &str) -> Result<bool, APIError> {
