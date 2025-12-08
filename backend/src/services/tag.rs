@@ -83,11 +83,10 @@ pub fn create_tag(tag: CreateTag) -> Result<Tag, APIError> {
     created_at: util::unix_ms(),
   };
 
-  let tag_result = diesel::insert_into(tags::table)
+  match diesel::insert_into(tags::table)
     .values(&tag)
-    .execute(&mut conn);
-
-  match tag_result {
+    .execute(&mut conn)
+  {
     Ok(_) => Ok(tag),
     _ => Err(APIError::DatabaseError),
   }
@@ -129,7 +128,7 @@ pub fn edit_tag(tag: EditTag) -> Result<Tag, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = diesel::update(
+  match diesel::update(
     tags::table
       .filter(tags::id.eq(&tag.id))
       .filter(tags::user_id.eq(&tag.user_id)),
@@ -139,9 +138,8 @@ pub fn edit_tag(tag: EditTag) -> Result<Tag, APIError> {
     tags::color.eq(color_value.to_string()),
     tags::category_id.eq(tag_category_id),
   ))
-  .execute(&mut conn);
-
-  match result {
+  .execute(&mut conn)
+  {
     Ok(_) => get_tag(&tag.id, &tag.user_id),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -159,12 +157,11 @@ pub fn get_tag(tag_id: &str, user_id: &str) -> Result<Tag, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = tags::table
+  match tags::table
     .filter(tags::id.eq(tag_id))
     .filter(tags::user_id.eq(user_id))
-    .first::<Tag>(&mut conn);
-
-  match result {
+    .first::<Tag>(&mut conn)
+  {
     Ok(tag) => Ok(tag),
     Err(_) => Err(APIError::TagNotFound),
   }
@@ -182,13 +179,12 @@ pub fn get_tags(tag_ids: Vec<&str>, user_id: &str) -> Result<Vec<Tag>, APIError>
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = tags::table
+  match tags::table
     .filter(tags::id.eq_any(tag_ids))
     .filter(tags::user_id.eq(user_id))
     .order(tags::name.asc())
-    .load::<Tag>(&mut conn);
-
-  match result {
+    .load::<Tag>(&mut conn)
+  {
     Ok(tags) => Ok(tags),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -206,36 +202,36 @@ pub fn delete_tag(tag_id: &str, user_id: &str) -> Result<bool, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = diesel::delete(
+  match diesel::delete(
     tags::table
       .filter(tags::id.eq(tag_id))
       .filter(tags::user_id.eq(user_id)),
   )
-  .execute(&mut conn);
-
-  match result {
+  .execute(&mut conn)
+  {
     Ok(count) => Ok(count > 0),
     Err(_) => Err(APIError::DatabaseError),
   }
 }
 
 pub fn delete_all_category_tags(category_id: &str, user_id: &str) -> Result<bool, APIError> {
-  let user = get_user(user_id);
+  match get_user(user_id) {
+    Ok(user) => user,
+    Err(_) => return Err(APIError::UserNotFound),
+  };
 
-  if user.is_err() {
-    return Err(APIError::UserNotFound);
-  }
-
-  let category = get_category(category_id, user_id);
-
-  if category.is_err() {
-    return Err(APIError::CategoryNotFound);
-  }
+  match get_category(category_id, user_id) {
+    Ok(_) => (),
+    Err(_) => return Err(APIError::CategoryNotFound),
+  };
 
   let category_tags = get_category_tags(category_id, user_id)?;
 
   for tag in category_tags {
-    delete_tag(&tag.id, user_id)?;
+    match delete_tag(&tag.id, user_id) {
+      Ok(_) => (),
+      Err(_) => return Err(APIError::DatabaseError),
+    }
   }
 
   Ok(true)
@@ -259,13 +255,12 @@ pub fn get_category_tags(category_id: &str, user_id: &str) -> Result<Vec<Tag>, A
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = tags::table
+  match tags::table
     .filter(tags::category_id.eq(category_id))
     .filter(tags::user_id.eq(user_id))
     .order(tags::name.asc())
-    .load::<Tag>(&mut conn);
-
-  match result {
+    .load::<Tag>(&mut conn)
+  {
     Ok(tags) => Ok(tags),
     Err(_) => Err(APIError::DatabaseError),
   }

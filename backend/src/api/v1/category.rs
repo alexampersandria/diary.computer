@@ -30,12 +30,10 @@ pub async fn create_category(
     Err(error) => return error_response(error),
   };
 
-  let created_category = log::create_category(log::CreateCategory {
+  match log::create_category(log::CreateCategory {
     name: category.name,
     user_id: session.user_id,
-  });
-
-  match created_category {
+  }) {
     Ok(created_category) => response(StatusCode::CREATED, &created_category),
     Err(error) => error_response(error),
   }
@@ -52,13 +50,11 @@ pub async fn edit_category(
     Err(error) => return error_response(error),
   };
 
-  let edited_category = log::edit_category(log::EditCategory {
+  match log::edit_category(log::EditCategory {
     id,
     name: category.name,
     user_id: session.user_id,
-  });
-
-  match edited_category {
+  }) {
     Ok(edited_category) => response(StatusCode::OK, &edited_category),
     Err(error) => error_response(error),
   }
@@ -71,13 +67,11 @@ pub async fn delete_category(Path(id): Path<String>, request: &Request) -> Respo
     Err(error) => return error_response(error),
   };
 
-  let deleted_category = match log::delete_category(&id, &session.user_id) {
-    Ok(deleted) => deleted,
-    Err(error) => return error_response(error),
-  };
-
-  match deleted_category {
-    true => response(StatusCode::NO_CONTENT, &()),
-    false => error_response(APIError::CategoryNotFound),
+  match log::delete_category(&id, &session.user_id) {
+    Ok(deleted) => match deleted {
+      true => response(StatusCode::NO_CONTENT, &()),
+      false => error_response(APIError::CategoryNotFound),
+    },
+    Err(error) => error_response(error),
   }
 }

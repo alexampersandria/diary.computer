@@ -38,7 +38,7 @@ pub struct AuthConfig {
 }
 
 pub async fn session_metadata(request: &Request) -> SessionMetadata {
-  let remote_addr = RealIp::from_request_without_body(&request)
+  let remote_addr = RealIp::from_request_without_body(request)
     .await
     .ok()
     .and_then(|real_ip| real_ip.0)
@@ -73,9 +73,7 @@ pub async fn authorize_request(request: &Request) -> Result<Session, APIError> {
     Err(_) => return Err(APIError::Unauthorized),
   }
 
-  let updated = update_session(&token, &request).await;
-
-  match updated {
+  match update_session(&token, request).await {
     Ok(session) => Ok(session),
     Err(error) => Err(error),
   }
@@ -117,11 +115,10 @@ pub fn create_user_session(
     user_agent: metadata.user_agent,
   };
 
-  let result = diesel::insert_into(schema::sessions::table)
+  match diesel::insert_into(schema::sessions::table)
     .values(&session)
-    .execute(&mut conn);
-
-  match result {
+    .execute(&mut conn)
+  {
     Ok(_) => Ok(session),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -136,15 +133,14 @@ async fn update_session(session_id: &str, request: &Request) -> Result<Session, 
 
   let session_metadata = session_metadata(request).await;
 
-  let updated = diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
+  match diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
     .set((
       schema::sessions::accessed_at.eq(util::unix_time::unix_ms()),
       schema::sessions::ip_address.eq(session_metadata.ip_address),
       schema::sessions::user_agent.eq(session_metadata.user_agent),
     ))
-    .execute(&mut conn);
-
-  match updated {
+    .execute(&mut conn)
+  {
     Ok(_) => get_user_session_by_id(session_id),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -157,11 +153,10 @@ pub fn get_user_session_by_id(session_id: &str) -> Result<Session, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = schema::sessions::table
+  match schema::sessions::table
     .filter(schema::sessions::id.eq(session_id))
-    .first::<Session>(&mut conn);
-
-  match result {
+    .first::<Session>(&mut conn)
+  {
     Ok(session) => Ok(session),
     Err(_) => Err(APIError::SessionNotFound),
   }
@@ -173,12 +168,11 @@ pub fn get_all_user_sessions(user_id: &str) -> Result<Vec<Session>, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = schema::sessions::table
+  match schema::sessions::table
     .filter(schema::sessions::user_id.eq(&user_id))
     .order(schema::sessions::accessed_at.desc())
-    .load::<Session>(&mut conn);
-
-  match result {
+    .load::<Session>(&mut conn)
+  {
     Ok(sessions) => Ok(sessions),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -190,10 +184,9 @@ pub fn delete_user_session(session_id: &str) -> Result<bool, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = diesel::delete(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
-    .execute(&mut conn);
-
-  match result {
+  match diesel::delete(schema::sessions::table.filter(schema::sessions::id.eq(session_id)))
+    .execute(&mut conn)
+  {
     Ok(rows_affected) => Ok(rows_affected > 0),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -205,11 +198,9 @@ pub fn delete_all_user_sessions(user_id: &str) -> Result<bool, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result =
-    diesel::delete(schema::sessions::table.filter(schema::sessions::user_id.eq(user_id)))
-      .execute(&mut conn);
-
-  match result {
+  match diesel::delete(schema::sessions::table.filter(schema::sessions::user_id.eq(user_id)))
+    .execute(&mut conn)
+  {
     Ok(rows_affected) => Ok(rows_affected > 0),
     Err(_) => Err(APIError::DatabaseError),
   }

@@ -25,11 +25,10 @@ pub fn get_invite(code: &str) -> Result<Invite, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = schema::invites::table
+  match schema::invites::table
     .filter(schema::invites::code.eq(&code))
-    .first(&mut conn);
-
-  match result {
+    .first(&mut conn)
+  {
     Ok(invite) => Ok(invite),
     Err(_) => Err(APIError::InviteNotFound),
   }
@@ -47,11 +46,10 @@ pub fn use_invite(code: &str) -> Result<Invite, APIError> {
     return Err(APIError::InviteUsed);
   }
 
-  let result = diesel::update(schema::invites::table.filter(schema::invites::code.eq(&code)))
+  match diesel::update(schema::invites::table.filter(schema::invites::code.eq(&code)))
     .set(schema::invites::used.eq(true))
-    .get_result(&mut conn);
-
-  match result {
+    .get_result(&mut conn)
+  {
     Ok(invite) => Ok(invite),
     Err(_) => Err(APIError::DatabaseError),
   }
@@ -78,11 +76,10 @@ pub fn generate_invite(code: Option<&str>) -> Result<Invite, APIError> {
     used: false,
   };
 
-  let result = diesel::insert_into(schema::invites::table)
+  match diesel::insert_into(schema::invites::table)
     .values(&new_invite)
-    .execute(&mut conn);
-
-  match result {
+    .execute(&mut conn)
+  {
     Ok(_) => Ok(new_invite),
     Err(_) => Err(APIError::DatabaseError),
   }

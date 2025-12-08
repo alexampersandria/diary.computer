@@ -310,14 +310,13 @@ pub fn delete_entry(entry_id: &str, user_id: &str) -> Result<bool, APIError> {
     Err(_) => return Err(APIError::DatabaseError),
   };
 
-  let result = diesel::delete(
+  match diesel::delete(
     schema::entries::table
       .filter(schema::entries::id.eq(entry_id))
       .filter(schema::entries::user_id.eq(user_id)),
   )
-  .execute(&mut conn);
-
-  match result {
+  .execute(&mut conn)
+  {
     Ok(count) => Ok(count > 0),
     Err(_) => Err(APIError::DatabaseError),
   }

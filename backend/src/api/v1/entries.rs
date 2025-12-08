@@ -43,9 +43,7 @@ pub async fn get_entries(Query(_options): Query<EntryParams>, request: &Request)
     offset: _options.offset,
   };
 
-  let entries = log::get_entries(&session.user_id, Some(options));
-
-  match entries {
+  match log::get_entries(&session.user_id, Some(options)) {
     Ok(entries) => response(StatusCode::OK, &entries),
     Err(error) => error_response(error),
   }
