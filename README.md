@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-  A mood tracking / short journaling web app built with Rust and Svelte.
+  A mood tracking / short journaling web app built with Rust and Svelte
 </p>
 
 <p align="center">
