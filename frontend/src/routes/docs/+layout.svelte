@@ -61,7 +61,7 @@ const title = $derived.by(() => {
     )
     .join('/')
   if (pre === '') {
-    pre = 'Frontend'
+    pre = 'Readme'
   }
   return pre + ' — diary.computer Documentation'
 })
