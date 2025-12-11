@@ -1,7 +1,5 @@
-<!-- should be kept up to date and the exact same as the project README.md -->
-
 <h1 align="center">
-  📔 diary.computer
+  diary.computer
 </h1>
 
 <p align="center">
@@ -9,12 +7,12 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/alexampersandria/diary.computer/actions/workflows/main.yml/badge.svg" alt="miain branch GitHub Actions Build Badge" />
+  <img src="https://github.com/alexampersandria/diary.computer/actions/workflows/main.yml/badge.svg" alt="main branch GitHub Actions Build Badge" />
 </p>
 
-## 👩‍💻 Getting Started
+## Getting Started
 
-### ⚒️ Backend
+### Backend
 
 All of the following commands should be run from the `backend` directory.
 
@@ -62,7 +60,7 @@ $ cargo clippy
 $ cargo build
 ```
 
-### 🖥️ Frontend
+### Frontend
 
 All of the following commands should be run from the `frontend` directory.
 
@@ -90,13 +88,13 @@ $ bun run build
 $ bun run dev
 ```
 
-### ⛽ Diesel
+### Diesel
 
 This project uses [Diesel](https://diesel.rs/) and Postgres.
 
 Running this project requires installation and setup of both `diesel_cli` and `postgresql`, as well as creating a `.env` file to store the database url.
 
-### 🐚 setup.sh
+### setup.sh
 
 There is a `setup.sh` script that will install the required dependencies, setup the database, and create required `.env` files.
 
@@ -106,7 +104,7 @@ There is a `setup.sh` script that will install the required dependencies, setup 
 $ sh ./setup.sh
 ```
 
-### 📝 Manual Setup
+### Manual Setup
 
 #### Installing postgres
 
@@ -141,7 +139,7 @@ $ cd backend
 $ diesel migration redo --all
 ```
 
-### 🐚 lint.sh, build.sh, & test.sh
+### lint.sh, build.sh, & test.sh
 
 There are also `lint.sh`, `build.sh`, and `test.sh` scripts that will run linting, building, and testing for both the backend and frontend.
 
@@ -151,7 +149,7 @@ $ sh ./build.sh
 $ sh ./test.sh
 ```
 
-## 🩺 Backend Tests
+## Backend Tests
 
 GitHub actions will run `cargo test ci --verbose` on commit to `main` or when creaing a pull request. In order to have a backend test run using GitHub actions, include `ci` in the test name.
 
@@ -171,7 +169,7 @@ mod ci_unit {
 }
 ```
 
-## 📂 Conventional Commits
+## Conventional Commits
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) to manage commits.
 
@@ -181,7 +179,7 @@ Use the following format when committing:
 $ git commit -m "type(scope): message"
 ```
 
-### 📃 Commit Types
+### Commit Types
 
 `feat` A new feature
 
@@ -205,14 +203,6 @@ $ git commit -m "type(scope): message"
 
 `revert` Reverts a previous commit
 
-### 📚 Scope
+### Scope
 
 The scope is optional and should be a GitHub issue number if applicable.
-
----
-
-<br />
-
-<p align="center"><i>But how could you live and have no story to tell?</i> — Fyodor Dostoevsky<br>🖤</p>
-
-<br />

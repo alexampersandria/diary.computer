@@ -30,7 +30,7 @@ let { item }: TableOfContentsItemProps = $props()
 
   @for $i from 1 through 6 {
     &.level-#{$i} {
-      padding-left: #{$i - 2}ch;
+      padding-left: calc(#{$i - 2} * 2ch);
     }
   }
 }
