@@ -78,10 +78,16 @@ export const isValidDate = (dateString: string) => {
  */
 export const currentDate = () => {
   const now = new Date()
+  // #TODO: make day start time customizable
+  // if before 4am, return previous date
   if (now.getHours() < 4) {
     now.setDate(now.getDate() - 1)
   }
-  return now.toISOString().split('T')[0]
+  // account for local timezone
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 /**
