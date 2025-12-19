@@ -67,6 +67,16 @@ fn mood_stats_no_entries() {
   let stats = stats::mood_stats(&user.id).unwrap();
   assert_eq!(stats.entry_count, 0);
   assert_eq!(stats.average_mood, 0.0);
+  let tag_stats = stats::tag_stats(&user.id).unwrap();
+  assert!(tag_stats.is_empty());
+  let weekday_stats = stats::weekday_stats(&user.id).unwrap();
+  assert_eq!(weekday_stats.monday.entry_count, 0);
+  assert_eq!(weekday_stats.tuesday.entry_count, 0);
+  assert_eq!(weekday_stats.wednesday.entry_count, 0);
+  assert_eq!(weekday_stats.thursday.entry_count, 0);
+  assert_eq!(weekday_stats.friday.entry_count, 0);
+  assert_eq!(weekday_stats.saturday.entry_count, 0);
+  assert_eq!(weekday_stats.sunday.entry_count, 0);
 }
 
 #[test]
