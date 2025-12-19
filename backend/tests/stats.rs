@@ -52,6 +52,7 @@ fn mood_stats() {
 
   assert_eq!(stats.entry_count, 25);
   assert_eq!(stats.average_mood, 3.24);
+  assert_eq!(stats.median_mood, 3);
 
   assert_eq!(stats.mood_entry_count.mood_1, 1);
   assert_eq!(stats.mood_entry_count.mood_2, 3);
@@ -85,6 +86,7 @@ fn mood_stats_one_entry() {
 
   assert_eq!(stats.entry_count, 1);
   assert_eq!(stats.average_mood, 4.0);
+  assert_eq!(stats.median_mood, 4);
 }
 
 #[test]
@@ -236,6 +238,63 @@ fn weekday_stats() {
   assert_eq!(weekday_stats.tuesday.average_mood, 3.33);
   assert_eq!(weekday_stats.wednesday.entry_count, 3);
   assert_eq!(weekday_stats.wednesday.average_mood, 3.33);
+  assert_eq!(weekday_stats.wednesday.median_mood, 3);
   assert_eq!(weekday_stats.thursday.entry_count, 3);
   assert_eq!(weekday_stats.thursday.average_mood, 3.33);
+}
+
+#[test]
+fn median_even_number_of_entries() {
+  let user = create_user();
+
+  // create entries with moods: 1, 2, 3, 4
+  for (i, mood) in [1, 2, 3, 4].iter().enumerate() {
+    entry::create_entry(entry::CreateEntry {
+      date: format!("2025-10-1{}", i + 1),
+      mood: *mood,
+      entry: Some("Test entry content".to_string()),
+      selected_tags: vec![],
+      user_id: user.id.clone(),
+    })
+    .unwrap();
+  }
+
+  let stats = stats::mood_stats(&user.id).unwrap();
+
+  assert_eq!(stats.entry_count, 4);
+  assert_eq!(stats.average_mood, 2.5);
+  assert_eq!(stats.median_mood, 2); // median of [1,2,3,4] is (2+3)/2 = 2.5 -> floor to 2
+}
+
+#[test]
+fn median_is_high() {
+  let user = create_user();
+
+  // create 10 entries with mood 5 and 1 entry with mood 1
+  let mut date = chrono::NaiveDate::from_ymd_opt(2025, 11, 1).unwrap();
+  for _ in 0..10 {
+    entry::create_entry(entry::CreateEntry {
+      date: date.format("%Y-%m-%d").to_string(),
+      mood: 5,
+      entry: Some("Test entry content".to_string()),
+      selected_tags: vec![],
+      user_id: user.id.clone(),
+    })
+    .unwrap();
+    date = date.succ_opt().unwrap();
+  }
+  entry::create_entry(entry::CreateEntry {
+    date: date.format("%Y-%m-%d").to_string(),
+    mood: 1,
+    entry: Some("Test entry content".to_string()),
+    selected_tags: vec![],
+    user_id: user.id.clone(),
+  })
+  .unwrap();
+
+  let stats = stats::mood_stats(&user.id).unwrap();
+
+  assert_eq!(stats.entry_count, 11);
+  assert_eq!(stats.average_mood, 4.64);
+  assert_eq!(stats.median_mood, 5);
 }

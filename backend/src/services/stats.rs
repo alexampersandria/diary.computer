@@ -19,6 +19,7 @@ pub struct MoodCount {
 pub struct MoodStats {
   pub entry_count: i64,
   pub average_mood: f64,
+  pub median_mood: i32,
   pub mood_entry_count: MoodCount,
 }
 
@@ -27,6 +28,7 @@ pub struct TagStats {
   pub tag_id: String,
   pub entry_count: i64,
   pub average_mood: f64,
+  pub median_mood: i32,
   pub mood_entry_count: MoodCount,
 }
 
@@ -63,10 +65,16 @@ pub fn mood_stats(user_id: &str) -> Result<MoodStats, APIError> {
 
   let result = schema::entries::table
     .filter(schema::entries::user_id.eq(user_id))
-    .select((count_star(), avg(schema::entries::mood)))
-    .get_result::<(i64, Option<BigDecimal>)>(&mut conn);
+    .select((
+      count_star(),
+      avg(schema::entries::mood),
+      sql::<diesel::sql_types::Nullable<diesel::sql_types::Integer>>(
+        "PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY mood)",
+      ),
+    ))
+    .get_result::<(i64, Option<BigDecimal>, Option<i32>)>(&mut conn);
 
-  let (entry_count, average_mood) = match result {
+  let (entry_count, average_mood, median_mood) = match result {
     Ok(data) => data,
     Err(_) => return Err(APIError::DatabaseError),
   };
@@ -110,6 +118,7 @@ pub fn mood_stats(user_id: &str) -> Result<MoodStats, APIError> {
   Ok(MoodStats {
     entry_count,
     average_mood: format_average_mood(average_mood.and_then(|v| v.to_f64()).unwrap_or(0.0)),
+    median_mood: median_mood.unwrap_or(0),
     mood_entry_count: MoodCount {
       mood_1,
       mood_2,
@@ -145,14 +154,17 @@ pub fn tag_stats(user_id: &str) -> Result<Vec<TagStats>, APIError> {
       schema::entry_tags::tag_id,
       count_star(),
       avg(schema::entries::mood),
+      sql::<diesel::sql_types::Nullable<diesel::sql_types::Integer>>(
+        "PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY entries.mood)",
+      ),
     ))
-    .load::<(String, i64, Option<BigDecimal>)>(&mut conn);
+    .load::<(String, i64, Option<BigDecimal>, Option<i32>)>(&mut conn);
 
   match results {
     Ok(rows) => Ok(
       rows
         .into_iter()
-        .map(|(tag_id, entry_count, average_mood)| {
+        .map(|(tag_id, entry_count, average_mood, median_mood)| {
           // Get mood counts for this tag
           let mood_1 = schema::entry_tags::table
             .inner_join(
@@ -213,6 +225,7 @@ pub fn tag_stats(user_id: &str) -> Result<Vec<TagStats>, APIError> {
             tag_id,
             entry_count,
             average_mood: format_average_mood(average_mood.and_then(|v| v.to_f64()).unwrap_or(0.0)),
+            median_mood: median_mood.unwrap_or(0),
             mood_entry_count: MoodCount {
               mood_1,
               mood_2,
@@ -241,10 +254,16 @@ fn mood_stats_for_weekday(
       sql::<diesel::sql_types::Bool>("TRIM(TO_CHAR(date, 'Day')) = ")
         .bind::<diesel::sql_types::Text, _>(day_name),
     )
-    .select((count_star(), avg(schema::entries::mood)))
-    .get_result::<(i64, Option<BigDecimal>)>(conn);
+    .select((
+      count_star(),
+      avg(schema::entries::mood),
+      sql::<diesel::sql_types::Nullable<diesel::sql_types::Integer>>(
+        "PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY mood)",
+      ),
+    ))
+    .get_result::<(i64, Option<BigDecimal>, Option<i32>)>(conn);
 
-  let (entry_count, average_mood) = result.unwrap_or((0, None));
+  let (entry_count, average_mood, median_mood) = result.unwrap_or((0, None, None));
 
   // Get mood counts for each mood level
   let mood_1 = schema::entries::table
@@ -305,6 +324,7 @@ fn mood_stats_for_weekday(
   MoodStats {
     entry_count,
     average_mood: format_average_mood(average_mood.and_then(|v| v.to_f64()).unwrap_or(0.0)),
+    median_mood: median_mood.unwrap_or(0),
     mood_entry_count: MoodCount {
       mood_1,
       mood_2,
