@@ -51,6 +51,12 @@ fn mood_stats() {
 
   assert_eq!(stats.entry_count, 25);
   assert_eq!(stats.average_mood, 3.24);
+
+  assert_eq!(stats.mood_entry_count.mood_1, 1);
+  assert_eq!(stats.mood_entry_count.mood_2, 3);
+  assert_eq!(stats.mood_entry_count.mood_3, 12);
+  assert_eq!(stats.mood_entry_count.mood_4, 7);
+  assert_eq!(stats.mood_entry_count.mood_5, 2);
 }
 
 #[test]
@@ -148,7 +154,19 @@ fn tag_stats() {
   assert_eq!(tag1_stats.entry_count, 9);
   assert_eq!(tag1_stats.average_mood, 3.67);
 
+  assert_eq!(tag1_stats.mood_entry_count.mood_1, 2);
+  assert_eq!(tag1_stats.mood_entry_count.mood_2, 0);
+  assert_eq!(tag1_stats.mood_entry_count.mood_3, 0);
+  assert_eq!(tag1_stats.mood_entry_count.mood_4, 4);
+  assert_eq!(tag1_stats.mood_entry_count.mood_5, 3);
+
   let tag2_stats = stats.iter().find(|s| s.tag_id == tag2.id).unwrap();
   assert_eq!(tag2_stats.entry_count, 8);
   assert_eq!(tag2_stats.average_mood, 3.25);
+
+  assert_eq!(tag2_stats.mood_entry_count.mood_1, 2);
+  assert_eq!(tag2_stats.mood_entry_count.mood_2, 2);
+  assert_eq!(tag2_stats.mood_entry_count.mood_3, 0);
+  assert_eq!(tag2_stats.mood_entry_count.mood_4, 0);
+  assert_eq!(tag2_stats.mood_entry_count.mood_5, 4);
 }
