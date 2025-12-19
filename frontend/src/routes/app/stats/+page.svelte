@@ -1,6 +1,7 @@
 <script lang="ts">
 import Button from '$lib/components/Button.svelte'
 import Heatmap from '$lib/components/Heatmap.svelte'
+import LoadingText from '$lib/components/LoadingText.svelte'
 import Table from '$lib/components/Table.svelte'
 import { useDataStore } from '$lib/store/dataStore.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
@@ -62,7 +63,7 @@ let weekdayData: WeekdayStats | undefined = $state(undefined)
 
 const getMoodData = async () => {
   if (userStore.sessionId) {
-    const moodStats = await getMoodStats(userStore.sessionId)
+    const moodStats = await takeAtLeast(getMoodStats(userStore.sessionId))
 
     if (moodStats) {
       moodData = moodStats
@@ -128,7 +129,7 @@ const formatTag = (tagStat: TagMoodStats) => {
                 {#if moodData}
                   {formatNumber(moodData.entry_count)}
                 {:else}
-                  loading...
+                  <LoadingText length={6} />
                 {/if}
               </td>
             </tr>
@@ -138,7 +139,7 @@ const formatTag = (tagStat: TagMoodStats) => {
                 {#if moodData}
                   {formatNumber(moodData.average_mood)}
                 {:else}
-                  loading...
+                  <LoadingText length={4} />
                 {/if}
               </td>
             </tr>
@@ -243,7 +244,7 @@ const formatTag = (tagStat: TagMoodStats) => {
 
       .value {
         text-align: right;
-        min-width: 5ch;
+        min-width: 8ch;
       }
     }
   }

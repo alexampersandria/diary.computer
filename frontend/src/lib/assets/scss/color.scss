@@ -473,6 +473,9 @@ $moodColors: ('red', 'orange', 'yellow', 'lime', 'green');
   --calendar-between-selected-background: var(--color-base-30);
   --calendar-between-selected-color: var(--color-base-100);
 
+  --skeleton-loading-background: var(--color-base-95);
+  --skeleton-loading-highlight: var(--color-base-90);
+
   &.theme-dark {
     color-scheme: dark;
 
@@ -636,6 +639,9 @@ $moodColors: ('red', 'orange', 'yellow', 'lime', 'green');
     --checkbox-checked-background-color-active: var(--color-base-80);
     --checkbox-checked-border-color: var(--color-base-100);
     --checkbox-checkmark-color: var(--color-base-00);
+
+    --skeleton-loading-background: var(--color-base-20);
+    --skeleton-loading-highlight: var(--color-base-30);
 
     @each $color in $saturatedColors {
       .color-#{$color}-text {
