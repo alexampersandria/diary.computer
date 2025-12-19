@@ -35,6 +35,7 @@ pub fn endpoint() -> poem::Route {
 
     .at("/stats/mood", get(v1::stats::mood_stats))
     .at("/stats/tags", get(v1::stats::tag_stats))
+    .at("/stats/weekday", get(v1::stats::weekda_stats))
 
     .at("/metrics", get(v1::metrics::metrics))
     .at("/health", get(v1::health::health))

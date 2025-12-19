@@ -29,3 +29,16 @@ pub async fn tag_stats(request: &Request) -> Response {
     Err(error) => error_response(error),
   }
 }
+
+#[handler]
+pub async fn weekda_stats(request: &Request) -> Response {
+  let session = match authorize_request(request).await {
+    Ok(session) => session,
+    Err(error) => return error_response(error),
+  };
+
+  match stats::weekday_stats(&session.user_id) {
+    Ok(weekday_stats) => response(StatusCode::OK, &weekday_stats),
+    Err(error) => error_response(error),
+  }
+}

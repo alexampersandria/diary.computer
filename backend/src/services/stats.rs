@@ -1,7 +1,7 @@
 use crate::{establish_connection, schema, services::user::get_user, util::error::APIError};
 use bigdecimal::{BigDecimal, ToPrimitive};
 use diesel::{
-  dsl::{avg, count_star},
+  dsl::{avg, count_star, sql},
   ExpressionMethods, JoinOnDsl, QueryDsl, RunQueryDsl,
 };
 use serde::{Deserialize, Serialize};
@@ -28,6 +28,17 @@ pub struct TagStats {
   pub entry_count: i64,
   pub average_mood: f64,
   pub mood_entry_count: MoodCount,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct WeekdayStats {
+  pub monday: MoodStats,
+  pub tuesday: MoodStats,
+  pub wednesday: MoodStats,
+  pub thursday: MoodStats,
+  pub friday: MoodStats,
+  pub saturday: MoodStats,
+  pub sunday: MoodStats,
 }
 
 /// Format average mood to two decimal places
@@ -215,4 +226,115 @@ pub fn tag_stats(user_id: &str) -> Result<Vec<TagStats>, APIError> {
     ),
     Err(_) => Err(APIError::DatabaseError),
   }
+}
+
+/// Helper function to get mood stats for a specific weekday
+/// day_name: day of week as string (e.g., 'Monday', 'Tuesday', etc.)
+fn mood_stats_for_weekday(
+  user_id: &str,
+  day_name: &str,
+  conn: &mut diesel::PgConnection,
+) -> MoodStats {
+  let result = schema::entries::table
+    .filter(schema::entries::user_id.eq(user_id))
+    .filter(
+      sql::<diesel::sql_types::Bool>("TRIM(TO_CHAR(date, 'Day')) = ")
+        .bind::<diesel::sql_types::Text, _>(day_name),
+    )
+    .select((count_star(), avg(schema::entries::mood)))
+    .get_result::<(i64, Option<BigDecimal>)>(conn);
+
+  let (entry_count, average_mood) = result.unwrap_or((0, None));
+
+  // Get mood counts for each mood level
+  let mood_1 = schema::entries::table
+    .filter(schema::entries::user_id.eq(user_id))
+    .filter(
+      sql::<diesel::sql_types::Bool>("TRIM(TO_CHAR(date, 'Day')) = ")
+        .bind::<diesel::sql_types::Text, _>(day_name),
+    )
+    .filter(schema::entries::mood.eq(1))
+    .count()
+    .get_result::<i64>(conn)
+    .unwrap_or(0);
+
+  let mood_2 = schema::entries::table
+    .filter(schema::entries::user_id.eq(user_id))
+    .filter(
+      sql::<diesel::sql_types::Bool>("TRIM(TO_CHAR(date, 'Day')) = ")
+        .bind::<diesel::sql_types::Text, _>(day_name),
+    )
+    .filter(schema::entries::mood.eq(2))
+    .count()
+    .get_result::<i64>(conn)
+    .unwrap_or(0);
+
+  let mood_3 = schema::entries::table
+    .filter(schema::entries::user_id.eq(user_id))
+    .filter(
+      sql::<diesel::sql_types::Bool>("TRIM(TO_CHAR(date, 'Day')) = ")
+        .bind::<diesel::sql_types::Text, _>(day_name),
+    )
+    .filter(schema::entries::mood.eq(3))
+    .count()
+    .get_result::<i64>(conn)
+    .unwrap_or(0);
+
+  let mood_4 = schema::entries::table
+    .filter(schema::entries::user_id.eq(user_id))
+    .filter(
+      sql::<diesel::sql_types::Bool>("TRIM(TO_CHAR(date, 'Day')) = ")
+        .bind::<diesel::sql_types::Text, _>(day_name),
+    )
+    .filter(schema::entries::mood.eq(4))
+    .count()
+    .get_result::<i64>(conn)
+    .unwrap_or(0);
+
+  let mood_5 = schema::entries::table
+    .filter(schema::entries::user_id.eq(user_id))
+    .filter(
+      sql::<diesel::sql_types::Bool>("TRIM(TO_CHAR(date, 'Day')) = ")
+        .bind::<diesel::sql_types::Text, _>(day_name),
+    )
+    .filter(schema::entries::mood.eq(5))
+    .count()
+    .get_result::<i64>(conn)
+    .unwrap_or(0);
+
+  MoodStats {
+    entry_count,
+    average_mood: format_average_mood(average_mood.and_then(|v| v.to_f64()).unwrap_or(0.0)),
+    mood_entry_count: MoodCount {
+      mood_1,
+      mood_2,
+      mood_3,
+      mood_4,
+      mood_5,
+    },
+  }
+}
+
+/// Get weekday statistics for a user
+pub fn weekday_stats(user_id: &str) -> Result<WeekdayStats, APIError> {
+  let user = get_user(&user_id);
+
+  if user.is_err() {
+    return Err(APIError::UserNotFound);
+  }
+
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
+
+  Ok(WeekdayStats {
+    monday: mood_stats_for_weekday(user_id, "Monday", &mut conn),
+    tuesday: mood_stats_for_weekday(user_id, "Tuesday", &mut conn),
+    wednesday: mood_stats_for_weekday(user_id, "Wednesday", &mut conn),
+    thursday: mood_stats_for_weekday(user_id, "Thursday", &mut conn),
+    friday: mood_stats_for_weekday(user_id, "Friday", &mut conn),
+    saturday: mood_stats_for_weekday(user_id, "Saturday", &mut conn),
+    sunday: mood_stats_for_weekday(user_id, "Sunday", &mut conn),
+  })
 }

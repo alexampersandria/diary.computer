@@ -26,18 +26,19 @@ fn mood_stats() {
   // 3 with mood 2
   // 1 with mood 1
   // average mood = (2*5 + 7*4 + 12*3 + 3*2 + 1*1) / 25 = 3.24
-  let mut year = 2025;
+
+  let mut date = chrono::NaiveDate::from_ymd_opt(2025, 12, 19).unwrap();
   let mut create_entry_with_mood = |mood: i32, count: i32| {
     for _ in 0..count {
       entry::create_entry(entry::CreateEntry {
-        date: format!("{}-10-17", year),
+        date: date.to_string(),
         mood,
         entry: Some("Test entry content".to_string()),
         selected_tags: vec![],
         user_id: user.id.clone(),
       })
       .unwrap();
-      year += 1;
+      date = date.succ_opt().unwrap();
     }
   };
 
@@ -169,4 +170,72 @@ fn tag_stats() {
   assert_eq!(tag2_stats.mood_entry_count.mood_3, 0);
   assert_eq!(tag2_stats.mood_entry_count.mood_4, 0);
   assert_eq!(tag2_stats.mood_entry_count.mood_5, 4);
+}
+
+#[test]
+fn weekday_stats() {
+  let user = create_user();
+
+  // same as mood_stats because it was easier to copy paste
+  // don't blame me
+  // create several entries
+  // 2 with mood 5
+  // 7 with mood 4
+  // 12 with mood 3
+  // 3 with mood 2
+  // 1 with mood 1
+  // average mood = (2*5 + 7*4 + 12*3 + 3*2 + 1*1) / 25 = 3.24
+
+  // starting date
+  // friday, December 19, 2025
+  let mut date = chrono::NaiveDate::from_ymd_opt(2025, 12, 19).unwrap();
+  let mut create_entry_with_mood = |mood: i32, count: i32| {
+    for _ in 0..count {
+      entry::create_entry(entry::CreateEntry {
+        date: date.to_string(),
+        mood,
+        entry: Some("Test entry content".to_string()),
+        selected_tags: vec![],
+        user_id: user.id.clone(),
+      })
+      .unwrap();
+      date = date.succ_opt().unwrap();
+    }
+  };
+
+  create_entry_with_mood(5, 2);
+  create_entry_with_mood(4, 7);
+  create_entry_with_mood(3, 12);
+  create_entry_with_mood(2, 3);
+  create_entry_with_mood(1, 1);
+
+  // Check weekday stats
+  // the two 5's were on friday and saturday
+  // the seven 4's were on sunday, monday, tuesday, wednesday, thursday, friday, saturday
+  // the twelve 3's were on sunday, monday, tuesday, wednesday, thursday, friday, saturday, sunday, monday, tuesday, wednesday, thursday
+  // the three 2's were on friday, saturday, sunday
+  // the one 1 was on monday
+  // expected stats:
+  // fridays: 4 entries, average mood = (5 + 4 + 3 + 2) / 4 = 3.5
+  // saturdays: 4 entries, average mood = (5 + 4 + 3 + 2) / 4 = 3.5 // same as fridays
+  // sundays: 4 entries, average mood = (4 + 3 + 3 + 2) / 4 = 3.0
+  // mondays: 4 entries, average mood = (4 + 3 + 3 + 1 )/ 4 = 2.75
+  // tuesdays: 3 entries, average mood = (4 + 3 + 3) / 3 = 3.33
+  // wednesday: 3 entries, average mood = (4 + 3 + 3) / 3 = 3.33 // same as tuesdays
+  // thursdays: 3 entries, average mood = (4 + 3 + 3) / 3 = 3.33 // same again :)
+  let weekday_stats = stats::weekday_stats(&user.id).unwrap();
+  assert_eq!(weekday_stats.friday.entry_count, 4);
+  assert_eq!(weekday_stats.friday.average_mood, 3.5);
+  assert_eq!(weekday_stats.saturday.entry_count, 4);
+  assert_eq!(weekday_stats.saturday.average_mood, 3.5);
+  assert_eq!(weekday_stats.sunday.entry_count, 4);
+  assert_eq!(weekday_stats.sunday.average_mood, 3.0);
+  assert_eq!(weekday_stats.monday.entry_count, 4);
+  assert_eq!(weekday_stats.monday.average_mood, 2.75);
+  assert_eq!(weekday_stats.tuesday.entry_count, 3);
+  assert_eq!(weekday_stats.tuesday.average_mood, 3.33);
+  assert_eq!(weekday_stats.wednesday.entry_count, 3);
+  assert_eq!(weekday_stats.wednesday.average_mood, 3.33);
+  assert_eq!(weekday_stats.thursday.entry_count, 3);
+  assert_eq!(weekday_stats.thursday.average_mood, 3.33);
 }
