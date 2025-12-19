@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_TQcNg6QPgp
+createdAt: 2025-12-19T09:32:05.633304
+updatedAt: 2025-12-19T09:32:12.037709
+workspaceId: wk_BESCzWuhSE
+folderId: fl_s7uAHUrDvi
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: tag stats
+sortPriority: 6000.002
+url: ${[ base_url ]}/v1/stats/tags
+urlParameters: []

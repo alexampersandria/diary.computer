@@ -136,7 +136,6 @@ const closeTagDetails = () => {
 }
 
 const validateTagDetails = (requireUntouched = true) => {
-  console.log('validateTagDetails called')
   tagDetails.errors = []
   if (tagDetails.name.value) {
     tagDetails.name.value = tagDetails.name.value.trim()

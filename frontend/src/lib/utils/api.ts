@@ -1,3 +1,4 @@
+import type { MoodStats, TagStats, WeekdayStats } from '$lib/types/api/stats'
 import type { Entry } from '$lib/types/log'
 import type { Paginated } from '$lib/types/paginated'
 import type { Session } from '$lib/types/user'
@@ -105,5 +106,65 @@ export const updatePassword = (sessionId: string, newPassword: string) => {
     .catch(err => {
       console.error('Error updating password:', err)
       return false
+    })
+}
+
+export const getMoodStats = async (sessionId: string) => {
+  const url = new URL(API_URL('/v1/stats/mood'))
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${sessionId}` },
+  })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Failed to fetch mood stats')
+      }
+      return res.json()
+    })
+    .then((data: MoodStats) => {
+      return data
+    })
+    .catch(err => {
+      console.error('Error fetching mood stats:', err)
+    })
+}
+
+export const getTagStats = async (sessionId: string) => {
+  const url = new URL(API_URL('/v1/stats/tags'))
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${sessionId}` },
+  })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Failed to fetch tag stats')
+      }
+      return res.json()
+    })
+    .then((data: TagStats) => {
+      return data
+    })
+    .catch(err => {
+      console.error('Error fetching tag stats:', err)
+    })
+}
+
+export const getWeekdayStats = async (sessionId: string) => {
+  const url = new URL(API_URL('/v1/stats/weekday'))
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${sessionId}` },
+  })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Failed to fetch weekday stats')
+      }
+      return res.json()
+    })
+    .then((data: WeekdayStats) => {
+      return data
+    })
+    .catch(err => {
+      console.error('Error fetching weekday stats:', err)
     })
 }

@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_qZBFWmiUGa
+createdAt: 2025-12-19T09:58:15.552364
+updatedAt: 2025-12-19T09:58:22.543798
+workspaceId: wk_BESCzWuhSE
+folderId: fl_s7uAHUrDvi
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: weekday stats
+sortPriority: 6000.003000000001
+url: ${[ base_url ]}/v1/stats/weekday
+urlParameters: []

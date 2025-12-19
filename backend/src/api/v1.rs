@@ -7,5 +7,6 @@ pub mod index;
 pub mod metrics;
 pub mod session;
 pub mod sessions;
+pub mod stats;
 pub mod tag;
 pub mod user;

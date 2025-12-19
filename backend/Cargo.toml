@@ -10,7 +10,7 @@ rust-version = "1.90.0"
 [dependencies]
 bcrypt = "0.15.0"
 chrono = { version = "0.4.42", features = ["serde"] }
-diesel = { version = "2.3.3", features = ["chrono", "postgres"] }
+diesel = { version = "2.3.3", features = ["chrono", "postgres", "numeric"] }
 dotenvy = "0.15.7"
 poem = { version = "3.1.12", features = ["static-files"] }
 regex = "1.12.2"
@@ -23,3 +23,4 @@ validator = { version = "0.20.0", features = ["derive"] }
 uuid = { version = "1.7.0", features = ["v4", "fast-rng", "macro-diagnostics"] }
 diesel_migrations = { version = "2.3.1", features = ["postgres"] }
 tracing = "0.1.43"
+bigdecimal = "0.4.9"

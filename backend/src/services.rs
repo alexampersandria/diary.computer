@@ -5,5 +5,6 @@ pub mod health;
 pub mod invite;
 pub mod log;
 pub mod pagination;
+pub mod stats;
 pub mod tag;
 pub mod user;
