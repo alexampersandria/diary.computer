@@ -88,12 +88,18 @@ const delta = (key: string, value: any): number | null => {
 }
 
 const formatDelta = (delta: number): string => {
+  let formatted = formatNumber(delta, { decimals: true })
   if (delta === 0) {
-    return `±${delta}`
+    // fixed response for zero values
+    return `±0`
   } else if (delta > 0) {
-    return `+${delta}`
+    // prepend plus sign for positive numbers
+    return `+${formatted}`
+  } else {
+    // negative number
+    // already has minus sign
+    return `${formatted}`
   }
-  return `${delta}`
 }
 </script>
 
