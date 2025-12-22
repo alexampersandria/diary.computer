@@ -174,8 +174,11 @@ const formatDelta = (delta: number): string => {
                   {/if}
                 </div>
                 {#if valueDelta !== null}
-                  <div class="delta">
-                    {formatDelta(valueDelta)}
+                  {@const formattedDelta = formatDelta(valueDelta)}
+                  <div
+                    class="delta"
+                    aria-label={`delta of ${formattedDelta}, value of ${cellValue} compared to average ${compareAverageTo}`}>
+                    {formattedDelta}
                   </div>
                 {/if}
               </div>
@@ -219,9 +222,10 @@ const formatDelta = (delta: number): string => {
       gap: var(--padding-xs);
 
       .delta {
-        font-size: var(--font-size-s);
+        font-size: var(--font-size-xs);
         color: var(--text-muted);
         min-width: 5ch;
+        font-family: 'Fira Code', monospace;
       }
     }
   }
