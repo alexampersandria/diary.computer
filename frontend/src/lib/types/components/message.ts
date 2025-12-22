@@ -6,4 +6,6 @@ export type MessageProps = {
   type?: MessageType
   colortext?: boolean
   size?: MessageSize
+  muted?: boolean
+  centered?: boolean
 }

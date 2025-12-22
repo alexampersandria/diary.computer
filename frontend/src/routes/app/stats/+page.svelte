@@ -1,6 +1,7 @@
 <script lang="ts">
 import Button from '$lib/components/Button.svelte'
 import Heatmap from '$lib/components/Heatmap.svelte'
+import Message from '$lib/components/Message.svelte'
 import Table from '$lib/components/Table.svelte'
 import { useDataStore } from '$lib/store/dataStore.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
@@ -70,12 +71,14 @@ const getMoodData = async () => {
   }
 }
 
+let entriesFilteredOut = $state(false)
 const getTagData = async () => {
   if (userStore.sessionId) {
     const tagStats = await takeAtLeast(getTagStats(userStore.sessionId))
 
     if (tagStats) {
-      tagData = tagStats
+      tagData = tagStats.filter(tag => tag.entry_count > 10)
+      entriesFilteredOut = tagStats.length !== tagData.length
     }
   }
 }
@@ -189,6 +192,13 @@ const formatTag = (tagStat: TagMoodStats) => {
           }))}
           compareAverageTo={moodData?.average_mood}
           sortedBy="entry_count" />
+
+        {#if entriesFilteredOut}
+          <Message type="info" size="small" muted>
+            Tags with 10 or fewer entries have been excluded as they do not
+            provide meaningful insights
+          </Message>
+        {/if}
       </div>
 
       <div class="section weekday-stats">

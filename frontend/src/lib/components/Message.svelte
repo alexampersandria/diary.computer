@@ -12,6 +12,8 @@ let {
   type = 'info',
   colortext,
   size = 'medium',
+  muted,
+  centered,
 }: MessageProps = $props()
 
 let MessageIcon = $derived.by(() => {
@@ -28,7 +30,7 @@ let MessageIcon = $derived.by(() => {
 })
 </script>
 
-<div class="message {type} {size}" class:colortext>
+<div class="message {type} {size}" class:colortext class:muted class:centered>
   <div class="message-icon lucide-icon-wrapper">
     <MessageIcon />
   </div>
@@ -41,6 +43,10 @@ let MessageIcon = $derived.by(() => {
 .message {
   display: flex;
   align-items: flex-start;
+
+  &.centered {
+    justify-content: center;
+  }
 
   &.small {
     font-size: var(--font-size-s);
@@ -94,6 +100,12 @@ let MessageIcon = $derived.by(() => {
 
     &.colortext {
       color: var(--color-info);
+    }
+  }
+
+  &.muted {
+    .message-icon {
+      color: inherit;
     }
   }
 }
