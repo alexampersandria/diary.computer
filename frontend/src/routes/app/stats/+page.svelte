@@ -5,12 +5,7 @@ import Message from '$lib/components/Message.svelte'
 import Table from '$lib/components/Table.svelte'
 import { useDataStore } from '$lib/store/dataStore.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
-import type {
-  MoodStats,
-  TagMoodStats,
-  TagStats,
-  WeekdayStats,
-} from '$lib/types/api/stats'
+import type { MoodStats, TagStats, WeekdayStats } from '$lib/types/api/stats'
 import type { HeatmapDataPoint } from '$lib/types/components/heatmap'
 import {
   getEntries,
@@ -104,14 +99,6 @@ const navigateYear = async (year: number) => {
   yearlyDataYear = year
   getHeatmapData(year, 0)
 }
-
-const formatTag = (tagStat: TagMoodStats) => {
-  const tag = dataStore.getTag(tagStat.tag_id)
-  if (!tag) {
-    return 'Unknown'
-  }
-  return `${tag.category.name}/${tag.name}`
-}
 </script>
 
 <div class="app-page stats-page">
@@ -180,16 +167,21 @@ const formatTag = (tagStat: TagMoodStats) => {
 
         <Table
           fields={[
+            { key: 'category', label: 'Category', sortable: true },
             { key: 'tag', label: 'Tag', sortable: true },
             { key: 'entry_count', label: 'Entry Count', sortable: true },
             { key: 'average_mood', label: 'Average Mood', sortable: true },
           ]}
-          data={tagData?.map(tag => ({
-            tag: formatTag(tag),
-            entry_count: tag.entry_count,
-            average_mood: tag.average_mood,
-            median_mood: tag.median_mood,
-          }))}
+          data={tagData?.map(tag => {
+            const tagData = dataStore.getTag(tag.tag_id)
+            return {
+              category: tagData?.category.name,
+              tag: tagData?.name,
+              entry_count: tag.entry_count,
+              average_mood: tag.average_mood,
+              median_mood: tag.median_mood,
+            }
+          })}
           compareAverageTo={moodData?.average_mood}
           sortedBy="entry_count" />
 
