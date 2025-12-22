@@ -12,10 +12,13 @@ export const formatNumber = (number: number, options?: NumberFormatOptions) => {
     ...options,
   }
 
-  const whole = Math.floor(number)
+  const isNegative = number < 0
+  const abosluteNumber = Math.abs(number)
+  const whole = Math.floor(Math.abs(number))
+
   // format whole with thousands separator ","
   let value = whole.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  const fraction = (number - whole).toFixed(2).substring(2)
+  const fraction = (abosluteNumber - whole).toFixed(2).substring(2)
 
   if (
     optionsWithDefaults.decimals === true ||
@@ -25,9 +28,13 @@ export const formatNumber = (number: number, options?: NumberFormatOptions) => {
     value = `${value}.${fraction}`
   } else if (optionsWithDefaults.decimals === false) {
     // round number to nearest whole number
-    value = Math.round(number)
+    value = Math.round(abosluteNumber)
       .toString()
       .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  }
+
+  if (isNegative) {
+    value = `-${value}`
   }
 
   return value

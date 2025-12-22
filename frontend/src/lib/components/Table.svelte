@@ -82,7 +82,6 @@ const delta = (key: string, value: any): number | null => {
     typeof value === 'number'
   ) {
     delta = value - compareAverageTo
-    delta = Math.round(delta * 100) / 100 // Round to 2 decimal places
   }
   return delta
 }
