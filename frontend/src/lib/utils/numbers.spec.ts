@@ -15,10 +15,14 @@ describe('formatNumber', () => {
   })
 
   it('should format number with two decimal places when decimals is true', () => {
-    const result = formatNumber(1234.5, {
+    const decimalvalue = formatNumber(1234.5, {
       decimals: true,
     })
-    expect(result).toBe('1,234.50')
+    const nondecimalvalue = formatNumber(1234, {
+      decimals: true,
+    })
+    expect(decimalvalue).toBe('1,234.50')
+    expect(nondecimalvalue).toBe('1,234.00')
   })
 
   it('should format number with two decimal places when decimals is undefined and there are decimal digits', () => {
