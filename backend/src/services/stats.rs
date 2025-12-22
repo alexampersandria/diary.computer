@@ -20,11 +20,26 @@ pub struct MoodStats {
   pub entry_count: i64,
   pub average_mood: f64,
   pub median_mood: i32,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct MoodStatsWithCount {
+  pub entry_count: i64,
+  pub average_mood: f64,
+  pub median_mood: i32,
   pub mood_entry_count: MoodCount,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct TagStats {
+  pub tag_id: String,
+  pub entry_count: i64,
+  pub average_mood: f64,
+  pub median_mood: i32,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct TagStatsWithCount {
   pub tag_id: String,
   pub entry_count: i64,
   pub average_mood: f64,
@@ -43,14 +58,26 @@ pub struct WeekdayStats {
   pub sunday: MoodStats,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct WeekdayStatsWithCount {
+  pub monday: MoodStatsWithCount,
+  pub tuesday: MoodStatsWithCount,
+  pub wednesday: MoodStatsWithCount,
+  pub thursday: MoodStatsWithCount,
+  pub friday: MoodStatsWithCount,
+  pub saturday: MoodStatsWithCount,
+  pub sunday: MoodStatsWithCount,
+}
+
 /// Format average mood to two decimal places
 pub fn format_average_mood(value: f64) -> f64 {
   (value * 100.0).round() / 100.0
 }
 
 /// Get mood statistics for a user
-/// entry_count: total number of entries
-/// average_mood: average mood value across all entries
+/// - entry_count: total number of entries
+/// - average_mood: average mood value across all entries
+/// - median_mood: median mood value across all entries
 pub fn mood_stats(user_id: &str) -> Result<MoodStats, APIError> {
   let user = get_user(&user_id);
 
@@ -75,6 +102,39 @@ pub fn mood_stats(user_id: &str) -> Result<MoodStats, APIError> {
     .get_result::<(i64, Option<BigDecimal>, Option<i32>)>(&mut conn);
 
   let (entry_count, average_mood, median_mood) = match result {
+    Ok(data) => data,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
+
+  Ok(MoodStats {
+    entry_count,
+    average_mood: format_average_mood(average_mood.and_then(|v| v.to_f64()).unwrap_or(0.0)),
+    median_mood: median_mood.unwrap_or(0),
+  })
+}
+
+/// Get mood statistics for a user
+/// - entry_count: total number of entries
+/// - average_mood: average mood value across all entries
+/// - median_mood: median mood value across all entries
+/// - mood_entry_count: count of entries for each mood level (1-5)
+pub fn mood_stats_with_count(user_id: &str) -> Result<MoodStatsWithCount, APIError> {
+  let user = get_user(&user_id);
+
+  if user.is_err() {
+    return Err(APIError::UserNotFound);
+  }
+
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
+
+  let MoodStats {
+    entry_count,
+    average_mood,
+    median_mood,
+  } = match mood_stats(user_id) {
     Ok(data) => data,
     Err(_) => return Err(APIError::DatabaseError),
   };
@@ -115,10 +175,10 @@ pub fn mood_stats(user_id: &str) -> Result<MoodStats, APIError> {
     .get_result::<i64>(&mut conn)
     .unwrap_or(0);
 
-  Ok(MoodStats {
+  Ok(MoodStatsWithCount {
     entry_count,
-    average_mood: format_average_mood(average_mood.and_then(|v| v.to_f64()).unwrap_or(0.0)),
-    median_mood: median_mood.unwrap_or(0),
+    average_mood,
+    median_mood,
     mood_entry_count: MoodCount {
       mood_1,
       mood_2,
@@ -130,10 +190,12 @@ pub fn mood_stats(user_id: &str) -> Result<MoodStats, APIError> {
 }
 
 /// Get tag statistics for a user
+///
 /// Returns a vector of TagStats, each containing:
-/// tag_id: ID of the tag
-/// entry_count: number of entries associated with the tag
-/// average_mood: average mood of entries associated with the tag
+/// - tag_id: ID of the tag
+/// - entry_count: number of entries associated with the tag
+/// - average_mood: average mood of entries associated with the tag
+/// - median_mood: median mood of entries associated with the tag
 pub fn tag_stats(user_id: &str) -> Result<Vec<TagStats>, APIError> {
   let user = get_user(&user_id);
 
@@ -164,77 +226,122 @@ pub fn tag_stats(user_id: &str) -> Result<Vec<TagStats>, APIError> {
     Ok(rows) => Ok(
       rows
         .into_iter()
-        .map(|(tag_id, entry_count, average_mood, median_mood)| {
-          // Get mood counts for this tag
-          let mood_1 = schema::entry_tags::table
-            .inner_join(
-              schema::entries::table.on(schema::entry_tags::entry_id.eq(schema::entries::id)),
-            )
-            .filter(schema::entries::user_id.eq(user_id))
-            .filter(schema::entry_tags::tag_id.eq(&tag_id))
-            .filter(schema::entries::mood.eq(1))
-            .count()
-            .get_result::<i64>(&mut conn)
-            .unwrap_or(0);
-
-          let mood_2 = schema::entry_tags::table
-            .inner_join(
-              schema::entries::table.on(schema::entry_tags::entry_id.eq(schema::entries::id)),
-            )
-            .filter(schema::entries::user_id.eq(user_id))
-            .filter(schema::entry_tags::tag_id.eq(&tag_id))
-            .filter(schema::entries::mood.eq(2))
-            .count()
-            .get_result::<i64>(&mut conn)
-            .unwrap_or(0);
-
-          let mood_3 = schema::entry_tags::table
-            .inner_join(
-              schema::entries::table.on(schema::entry_tags::entry_id.eq(schema::entries::id)),
-            )
-            .filter(schema::entries::user_id.eq(user_id))
-            .filter(schema::entry_tags::tag_id.eq(&tag_id))
-            .filter(schema::entries::mood.eq(3))
-            .count()
-            .get_result::<i64>(&mut conn)
-            .unwrap_or(0);
-
-          let mood_4 = schema::entry_tags::table
-            .inner_join(
-              schema::entries::table.on(schema::entry_tags::entry_id.eq(schema::entries::id)),
-            )
-            .filter(schema::entries::user_id.eq(user_id))
-            .filter(schema::entry_tags::tag_id.eq(&tag_id))
-            .filter(schema::entries::mood.eq(4))
-            .count()
-            .get_result::<i64>(&mut conn)
-            .unwrap_or(0);
-
-          let mood_5 = schema::entry_tags::table
-            .inner_join(
-              schema::entries::table.on(schema::entry_tags::entry_id.eq(schema::entries::id)),
-            )
-            .filter(schema::entries::user_id.eq(user_id))
-            .filter(schema::entry_tags::tag_id.eq(&tag_id))
-            .filter(schema::entries::mood.eq(5))
-            .count()
-            .get_result::<i64>(&mut conn)
-            .unwrap_or(0);
-
-          TagStats {
+        .map(
+          |(tag_id, entry_count, average_mood, median_mood)| TagStats {
             tag_id,
             entry_count,
             average_mood: format_average_mood(average_mood.and_then(|v| v.to_f64()).unwrap_or(0.0)),
             median_mood: median_mood.unwrap_or(0),
-            mood_entry_count: MoodCount {
-              mood_1,
-              mood_2,
-              mood_3,
-              mood_4,
-              mood_5,
-            },
-          }
-        })
+          },
+        )
+        .collect(),
+    ),
+    Err(_) => Err(APIError::DatabaseError),
+  }
+}
+
+/// Get tag statistics for a user
+///
+/// Returns a vector of TagStats, each containing:
+/// - tag_id: ID of the tag
+/// - entry_count: number of entries associated with the tag
+/// - average_mood: average mood of entries associated with the tag
+/// - median_mood: median mood of entries associated with the tag
+/// - mood_entry_count: count of entries for each mood level (1-5) associated
+pub fn tag_stats_with_count(user_id: &str) -> Result<Vec<TagStatsWithCount>, APIError> {
+  let user = get_user(&user_id);
+
+  if user.is_err() {
+    return Err(APIError::UserNotFound);
+  }
+
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
+
+  match tag_stats(user_id) {
+    Ok(rows) => Ok(
+      rows
+        .into_iter()
+        .map(
+          |TagStats {
+             tag_id,
+             entry_count,
+             average_mood,
+             median_mood,
+           }| {
+            // Get mood counts for this tag
+            let mood_1 = schema::entry_tags::table
+              .inner_join(
+                schema::entries::table.on(schema::entry_tags::entry_id.eq(schema::entries::id)),
+              )
+              .filter(schema::entries::user_id.eq(user_id))
+              .filter(schema::entry_tags::tag_id.eq(&tag_id))
+              .filter(schema::entries::mood.eq(1))
+              .count()
+              .get_result::<i64>(&mut conn)
+              .unwrap_or(0);
+
+            let mood_2 = schema::entry_tags::table
+              .inner_join(
+                schema::entries::table.on(schema::entry_tags::entry_id.eq(schema::entries::id)),
+              )
+              .filter(schema::entries::user_id.eq(user_id))
+              .filter(schema::entry_tags::tag_id.eq(&tag_id))
+              .filter(schema::entries::mood.eq(2))
+              .count()
+              .get_result::<i64>(&mut conn)
+              .unwrap_or(0);
+
+            let mood_3 = schema::entry_tags::table
+              .inner_join(
+                schema::entries::table.on(schema::entry_tags::entry_id.eq(schema::entries::id)),
+              )
+              .filter(schema::entries::user_id.eq(user_id))
+              .filter(schema::entry_tags::tag_id.eq(&tag_id))
+              .filter(schema::entries::mood.eq(3))
+              .count()
+              .get_result::<i64>(&mut conn)
+              .unwrap_or(0);
+
+            let mood_4 = schema::entry_tags::table
+              .inner_join(
+                schema::entries::table.on(schema::entry_tags::entry_id.eq(schema::entries::id)),
+              )
+              .filter(schema::entries::user_id.eq(user_id))
+              .filter(schema::entry_tags::tag_id.eq(&tag_id))
+              .filter(schema::entries::mood.eq(4))
+              .count()
+              .get_result::<i64>(&mut conn)
+              .unwrap_or(0);
+
+            let mood_5 = schema::entry_tags::table
+              .inner_join(
+                schema::entries::table.on(schema::entry_tags::entry_id.eq(schema::entries::id)),
+              )
+              .filter(schema::entries::user_id.eq(user_id))
+              .filter(schema::entry_tags::tag_id.eq(&tag_id))
+              .filter(schema::entries::mood.eq(5))
+              .count()
+              .get_result::<i64>(&mut conn)
+              .unwrap_or(0);
+
+            TagStatsWithCount {
+              tag_id,
+              entry_count,
+              average_mood,
+              median_mood,
+              mood_entry_count: MoodCount {
+                mood_1,
+                mood_2,
+                mood_3,
+                mood_4,
+                mood_5,
+              },
+            }
+          },
+        )
         .collect(),
     ),
     Err(_) => Err(APIError::DatabaseError),
@@ -248,6 +355,37 @@ fn mood_stats_for_weekday(
   day_name: &str,
   conn: &mut diesel::PgConnection,
 ) -> MoodStats {
+  let result = schema::entries::table
+    .filter(schema::entries::user_id.eq(user_id))
+    .filter(
+      sql::<diesel::sql_types::Bool>("TRIM(TO_CHAR(date, 'Day')) = ")
+        .bind::<diesel::sql_types::Text, _>(day_name),
+    )
+    .select((
+      count_star(),
+      avg(schema::entries::mood),
+      sql::<diesel::sql_types::Nullable<diesel::sql_types::Integer>>(
+        "PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY mood)",
+      ),
+    ))
+    .get_result::<(i64, Option<BigDecimal>, Option<i32>)>(conn);
+
+  let (entry_count, average_mood, median_mood) = result.unwrap_or((0, None, None));
+
+  MoodStats {
+    entry_count,
+    average_mood: format_average_mood(average_mood.and_then(|v| v.to_f64()).unwrap_or(0.0)),
+    median_mood: median_mood.unwrap_or(0),
+  }
+}
+
+/// Helper function to get mood stats for a specific weekday
+/// day_name: day of week as string (e.g., 'Monday', 'Tuesday', etc.)
+fn mood_stats_for_weekday_with_count(
+  user_id: &str,
+  day_name: &str,
+  conn: &mut diesel::PgConnection,
+) -> MoodStatsWithCount {
   let result = schema::entries::table
     .filter(schema::entries::user_id.eq(user_id))
     .filter(
@@ -321,7 +459,7 @@ fn mood_stats_for_weekday(
     .get_result::<i64>(conn)
     .unwrap_or(0);
 
-  MoodStats {
+  MoodStatsWithCount {
     entry_count,
     average_mood: format_average_mood(average_mood.and_then(|v| v.to_f64()).unwrap_or(0.0)),
     median_mood: median_mood.unwrap_or(0),
@@ -356,5 +494,29 @@ pub fn weekday_stats(user_id: &str) -> Result<WeekdayStats, APIError> {
     friday: mood_stats_for_weekday(user_id, "Friday", &mut conn),
     saturday: mood_stats_for_weekday(user_id, "Saturday", &mut conn),
     sunday: mood_stats_for_weekday(user_id, "Sunday", &mut conn),
+  })
+}
+
+/// Get weekday statistics for a user
+pub fn weekday_stats_with_count(user_id: &str) -> Result<WeekdayStatsWithCount, APIError> {
+  let user = get_user(&user_id);
+
+  if user.is_err() {
+    return Err(APIError::UserNotFound);
+  }
+
+  let mut conn = match establish_connection() {
+    Ok(connection) => connection,
+    Err(_) => return Err(APIError::DatabaseError),
+  };
+
+  Ok(WeekdayStatsWithCount {
+    monday: mood_stats_for_weekday_with_count(user_id, "Monday", &mut conn),
+    tuesday: mood_stats_for_weekday_with_count(user_id, "Tuesday", &mut conn),
+    wednesday: mood_stats_for_weekday_with_count(user_id, "Wednesday", &mut conn),
+    thursday: mood_stats_for_weekday_with_count(user_id, "Thursday", &mut conn),
+    friday: mood_stats_for_weekday_with_count(user_id, "Friday", &mut conn),
+    saturday: mood_stats_for_weekday_with_count(user_id, "Saturday", &mut conn),
+    sunday: mood_stats_for_weekday_with_count(user_id, "Sunday", &mut conn),
   })
 }

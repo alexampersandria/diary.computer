@@ -10,6 +10,9 @@ export type MoodStats = {
   entry_count: number
   average_mood: number
   median_mood: number
+}
+
+export type MoodStatsWithCount = MoodStats & {
   mood_entry_count: MoodCount
 }
 
@@ -18,10 +21,14 @@ export type TagMoodStats = {
   entry_count: number
   average_mood: number
   median_mood: number
+}
+
+export type TagMoodStatsWithCount = TagMoodStats & {
   mood_entry_count: MoodCount
 }
 
 export type TagStats = TagMoodStats[]
+export type TagStatsWithCount = TagMoodStatsWithCount[]
 
 export type WeekdayStats = {
   monday: MoodStats
@@ -31,4 +38,14 @@ export type WeekdayStats = {
   friday: MoodStats
   saturday: MoodStats
   sunday: MoodStats
+}
+
+export type WeekdayStatsWithCount = {
+  monday: MoodStatsWithCount
+  tuesday: MoodStatsWithCount
+  wednesday: MoodStatsWithCount
+  thursday: MoodStatsWithCount
+  friday: MoodStatsWithCount
+  saturday: MoodStatsWithCount
+  sunday: MoodStatsWithCount
 }

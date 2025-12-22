@@ -34,8 +34,11 @@ pub fn endpoint() -> poem::Route {
     .at("/auth/config", get(v1::auth::auth_config))
 
     .at("/stats/mood", get(v1::stats::mood_stats))
+    .at("/stats/mood/count", get(v1::stats::mood_stats_with_count))
     .at("/stats/tags", get(v1::stats::tag_stats))
-    .at("/stats/weekday", get(v1::stats::weekda_stats))
+    .at("/stats/tags/count", get(v1::stats::tag_stats_with_count))
+    .at("/stats/weekday", get(v1::stats::weekday_stats))
+    .at("/stats/weekday/count", get(v1::stats::weekday_stats_with_count))
 
     .at("/metrics", get(v1::metrics::metrics))
     .at("/health", get(v1::health::health))
