@@ -22,22 +22,41 @@ let entry: EntryType | null | undefined = $state(
   dataStore.getEntry(data.date) || undefined,
 )
 
-const getData = () => {
+const getData = (forDate: string) => {
   if (!valid) {
     entry = undefined
     return
   }
   setTimeout(async () => {
+    // first check if we already have the entry loaded
+    const entryFromStore = dataStore.getEntry(forDate)
+    // if we do, use it immediately
+    if (entryFromStore) {
+      entry = entryFromStore
+    }
+    // then proceed to fetch the entry from the backend
+    // this ensures that if the entry was updated/deleted elsewhere, we get the latest data
+    // but also that we show the entry immediately if we already have it loaded
+    // it may then update a second later but at least the user sees something right away and don't have to wait for load
+
     // if entry is already loaded, we can skip the minimum duration wait
     // else undefined to use the default duration
     const minDuration = entry !== undefined ? 0 : undefined
     // first fetch the entry from the backend to ensure we have the latest data
     // this is not done automatically in the dataStore to avoid excessive requests
-    await takeAtLeast(dataStore.fetchEntry(data.date), minDuration)
-    entry = dataStore.getEntry(data.date) || null
-    if (entry) {
-      date = entry.date
+    await takeAtLeast(dataStore.fetchEntry(forDate), minDuration)
+    const entryFromStorePostUpdate = dataStore.getEntry(forDate) || null
+
+    // if the date has changed in the meantime, do not update the entry
+    // this can happen if the user navigates quickly between dates
+    if (forDate !== data.date) {
+      return
+    }
+
+    if (entryFromStorePostUpdate) {
+      entry = entryFromStorePostUpdate
     } else {
+      entry = null
       date = data.date
     }
   }, 0)
@@ -46,7 +65,16 @@ const getData = () => {
 watch(
   () => data.date,
   () => {
-    getData()
+    getData(data.date)
+  },
+)
+
+watch(
+  () => entry,
+  () => {
+    if (entry) {
+      date = entry.date
+    }
   },
 )
 
@@ -75,7 +103,7 @@ const onUpdate = async (updatedEntry: EditEntry) => {
     entry = updated
   } else {
     // if update fails, it could be because the entry was deleted elsewhere so refresh data
-    getData()
+    getData(data.date)
   }
   return updated
 }
@@ -83,7 +111,7 @@ const onUpdate = async (updatedEntry: EditEntry) => {
 const onDelete = async (entryId: string) => {
   const success = await dataStore.deleteEntry(entryId)
   if (success) {
-    getData()
+    getData(data.date)
   }
   return success
 }
