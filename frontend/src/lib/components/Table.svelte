@@ -90,7 +90,7 @@ const formatDelta = (delta: number): string => {
   let formatted = formatNumber(delta, { decimals: true })
   if (delta === 0) {
     // fixed response for zero values
-    return `±0`
+    return `±0.00`
   } else if (delta > 0) {
     // prepend plus sign for positive numbers
     return `+${formatted}`
@@ -167,7 +167,11 @@ const formatDelta = (delta: number): string => {
               <div class="cell-content">
                 <div class="value">
                   {#if dataType === 'number'}
-                    {formatNumber(cellValue)}
+                    {#if valueDelta !== null}
+                      {formatNumber(cellValue, { decimals: true })}
+                    {:else}
+                      {formatNumber(cellValue)}
+                    {/if}
                   {:else}
                     {cellValue}
                   {/if}
