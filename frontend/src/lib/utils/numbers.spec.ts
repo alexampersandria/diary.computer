@@ -47,4 +47,24 @@ describe('formatNumber', () => {
     const result = formatNumber(0.1)
     expect(result).toBe('0.10')
   })
+
+  it('should format long decimal values correctly', () => {
+    const result = formatNumber(-0.10999999999999988)
+    expect(result).toBe('-0.11')
+  })
+
+  it('should format negative numbers correctly', () => {
+    const result = formatNumber(-1234.56)
+    expect(result).toBe('-1,234.56')
+  })
+
+  it('should format negative numbers with no decimals correctly', () => {
+    const result = formatNumber(-1234.56, { decimals: false })
+    expect(result).toBe('-1,235')
+  })
+
+  it('should format negative whole numbers correctly', () => {
+    const result = formatNumber(-1234)
+    expect(result).toBe('-1,234')
+  })
 })
