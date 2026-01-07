@@ -90,7 +90,7 @@ const formatDelta = (delta: number): string => {
   let formatted = formatNumber(delta, { decimals: true })
   if (delta === 0) {
     // fixed response for zero values
-    return `±0`
+    return `±0.00`
   } else if (delta > 0) {
     // prepend plus sign for positive numbers
     return `+${formatted}`
@@ -167,14 +167,21 @@ const formatDelta = (delta: number): string => {
               <div class="cell-content">
                 <div class="value">
                   {#if dataType === 'number'}
-                    {formatNumber(cellValue)}
+                    {#if valueDelta !== null}
+                      {formatNumber(cellValue, { decimals: true })}
+                    {:else}
+                      {formatNumber(cellValue)}
+                    {/if}
                   {:else}
                     {cellValue}
                   {/if}
                 </div>
                 {#if valueDelta !== null}
-                  <div class="delta">
-                    {formatDelta(valueDelta)}
+                  {@const formattedDelta = formatDelta(valueDelta)}
+                  <div
+                    class="delta"
+                    aria-label={`delta of ${formattedDelta}, value of ${cellValue} compared to average ${compareAverageTo}`}>
+                    {formattedDelta}
                   </div>
                 {/if}
               </div>
@@ -218,9 +225,10 @@ const formatDelta = (delta: number): string => {
       gap: var(--padding-xs);
 
       .delta {
-        font-size: var(--font-size-s);
+        font-size: var(--font-size-xs);
         color: var(--text-muted);
         min-width: 5ch;
+        font-family: 'Fira Code', monospace;
       }
     }
   }
