@@ -100,6 +100,109 @@ const formatDelta = (delta: number): string => {
     return `${formatted}`
   }
 }
+
+type DeltaExtremes = {
+  min: number
+  max: number
+}
+const deltaExtremes = $derived.by((): DeltaExtremes | null => {
+  if (compareAverageTo === undefined || !data) {
+    return null
+  }
+
+  let min = Infinity
+  let max = -Infinity
+
+  data.forEach(row => {
+    Object.keys(row).forEach(key => {
+      if (
+        (key.startsWith('average') || key.startsWith('avg')) &&
+        typeof row[key] === 'number'
+      ) {
+        const value = row[key] as number
+        const deltaValue = value - compareAverageTo
+        if (deltaValue < min) {
+          min = deltaValue
+        }
+        if (deltaValue > max) {
+          max = deltaValue
+        }
+      }
+    })
+  })
+
+  if (min === Infinity || max === -Infinity) {
+    return null
+  }
+
+  return { min, max }
+})
+
+/**
+ * Get the position of the delta value within the extremes range
+ * Returns a number between -1 and 1, or null if extremes are not defined
+ * Negative values are from 0 to deltaExtremes.min
+ * Positive values are from 0 to deltaExtremes.max
+ * @param delta
+ */
+const deltaPosition = (delta: number): number | null => {
+  if (deltaExtremes === null) {
+    return null
+  }
+
+  const range = deltaExtremes.max - deltaExtremes.min
+  if (range === 0) {
+    return 0
+  }
+
+  if (delta < 0) {
+    return delta / Math.abs(deltaExtremes.min)
+  } else {
+    return delta / deltaExtremes.max
+  }
+}
+
+/**
+ * returns css style string for delta color based on position
+ * using color-mix
+ */
+const deltaStyle = (position: number | null): string => {
+  if (position === null) {
+    return ''
+  }
+
+  const neutral = 'var(--color-neutral)'
+  const positive = 'var(--color-positive)'
+  const slightlyPositive = 'var(--color-slightly-positive)'
+  const negative = 'var(--color-negative)'
+  const slightlyNegative = 'var(--color-slightly-negative)'
+
+  if (position < 0) {
+    if (position > -0.5) {
+      const weight = Math.min(Math.abs(position) * 200, 100)
+      return `color: color-mix(in srgb, ${slightlyNegative} ${weight}%, ${neutral} ${
+        100 - weight
+      }%);`
+    } else {
+      const weight = Math.min((Math.abs(position) - 0.5) * 200, 100)
+      return `color: color-mix(in srgb, ${negative} ${weight}%, ${slightlyNegative} ${
+        100 - weight
+      }%);`
+    }
+  } else {
+    if (position < 0.5) {
+      const weight = Math.min(position * 200, 100)
+      return `color: color-mix(in srgb, ${slightlyPositive} ${weight}%, ${neutral} ${
+        100 - weight
+      }%);`
+    } else {
+      const weight = Math.min((position - 0.5) * 200, 100)
+      return `color: color-mix(in srgb, ${positive} ${weight}%, ${slightlyPositive} ${
+        100 - weight
+      }%);`
+    }
+  }
+}
 </script>
 
 <table class="table">
@@ -178,8 +281,10 @@ const formatDelta = (delta: number): string => {
                 </div>
                 {#if valueDelta !== null}
                   {@const formattedDelta = formatDelta(valueDelta)}
+                  {@const position = deltaPosition(valueDelta)}
                   <div
                     class="delta"
+                    style={deltaStyle(position)}
                     aria-label={`delta of ${formattedDelta}, value of ${cellValue} compared to average ${compareAverageTo}`}>
                     {formattedDelta}
                   </div>
