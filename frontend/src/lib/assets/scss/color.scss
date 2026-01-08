@@ -282,6 +282,12 @@ $moodColors: ('red', 'orange', 'yellow', 'lime', 'green');
   --color-error-border: var(--color-red-70);
   --color-error-background: var(--color-red-90);
 
+  --color-neutral: var(--text-muted);
+  --color-negative: var(--color-error);
+  --color-slightly-negative: var(--color-orange-60);
+  --color-positive: var(--color-success);
+  --color-slightly-positive: var(--color-lime-60);
+
   --color-info: var(--color-blue-60);
   --color-info-border: var(--color-blue-70);
   --color-info-background: var(--color-blue-90);
@@ -507,6 +513,12 @@ $moodColors: ('red', 'orange', 'yellow', 'lime', 'green');
     --color-error: var(--color-red-50);
     --color-error-border: var(--color-red-50);
     --color-error-background: var(--color-red-10);
+
+    --color-neutral: var(--text-muted);
+    --color-negative: var(--color-error);
+    --color-slightly-negative: var(--color-orange-50);
+    --color-positive: var(--color-success);
+    --color-slightly-positive: var(--color-lime-50);
 
     --color-info: var(--color-blue-50);
     --color-info-border: var(--color-blue-50);
