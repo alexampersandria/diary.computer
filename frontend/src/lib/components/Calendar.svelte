@@ -5,8 +5,6 @@ import type {
 } from '$lib/types/components/calendar'
 import {
   calendarDaysInMonth,
-  currentDate,
-  currentDateObject,
   dateClosestToRangeEdge,
   isDateInRange,
   monthDateRange,
@@ -21,10 +19,12 @@ import { onMount } from 'svelte'
 import type { Range } from '$lib/types/range'
 import { watch } from 'runed'
 import Select from './Select.svelte'
+import { useUiStore } from '$lib/store/uiStore.svelte'
 
 let dataStore = useDataStore()
+let uiStore = useUiStore()
 
-let { month: defaultMonth, year: defaultYear } = currentDateObject()
+let { month: defaultMonth, year: defaultYear } = uiStore.date.object
 let {
   mode = 'navigation',
   value = $bindable(undefined),
@@ -72,7 +72,7 @@ const navigate = (increment: number) => {
       year += 1
     }
   } else {
-    const { month: newMonth, year: newYear } = currentDateObject()
+    const { month: newMonth, year: newYear } = uiStore.date.object
     month = newMonth
     year = newYear
   }
@@ -96,12 +96,12 @@ const dayMood = (day: number | null) => {
 }
 
 const isToday = (day: number | null) => {
-  const today = currentDate()
+  const today = uiStore.date.formatted
   return today === formatDay(day || 0)
 }
 
 const isFuture = (day: number | null) => {
-  const today = currentDate()
+  const today = uiStore.date.formatted
   return new Date(formatDay(day || 0)) > new Date(today)
 }
 
