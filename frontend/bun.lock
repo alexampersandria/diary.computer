@@ -34,7 +34,7 @@
         "prettier-plugin-svelte": "^3.3.3",
         "rehype-slug": "^6.0.0",
         "sass-embedded": "^1.83.4",
-        "sv-store": "^0.1.1",
+        "sv-store": "^0.2.0",
         "svelte": "^5.0.0",
         "svelte-check": "^4.0.0",
         "svelte-eslint-parser": "^0.43.0",
@@ -802,7 +802,7 @@
 
     "supports-color": ["supports-color@8.1.1", "", { "dependencies": { "has-flag": "4.0.0" } }, "sha512-MpUEN2OodtUzxvKQl72cUF7RQ5EiHsGvSsVG0ia9c5RbWGL2CI4C7EpPS8UTBIplnlzZiNuV56w+FuNxy3ty2Q=="],
 
-    "sv-store": ["sv-store@0.1.1", "", { "peerDependencies": { "svelte": "^5.0.0" } }, "sha512-432You/ss29g8UhlbERzFS0e1SG29baT1LPenwrgdSTvqQ6Olx2xAnH593SuEU5T7TR9jZB8r/fb4S5E6TCwuA=="],
+    "sv-store": ["sv-store@0.2.0", "", { "peerDependencies": { "svelte": "^5.0.0" } }, "sha512-zRJ1VDjoO6qCRj0cCcQog/sKBY2WMDECLJ16Zf+/R43CE5cc/H3Gl46yAiN3jR694/st4lcEApkDe6hAgs0fdg=="],
 
     "svelte": ["svelte@5.19.9", "", { "dependencies": { "@ampproject/remapping": "2.3.0", "@jridgewell/sourcemap-codec": "1.5.0", "@types/estree": "1.0.6", "acorn": "8.14.0", "acorn-typescript": "1.4.13", "aria-query": "5.3.2", "axobject-query": "4.1.0", "clsx": "2.1.1", "esm-env": "1.2.2", "esrap": "1.4.4", "is-reference": "3.0.3", "locate-character": "3.0.0", "magic-string": "0.30.17", "zimmerframe": "1.1.2" } }, "sha512-860s752/ZZxHIsii31ELkdKBOCeAuDsfb/AGUXJyQyzUVLRSt4oqEw/BV5+2+mNg8mbqmD3OK+vMvwWMPM6f8A=="],
 
