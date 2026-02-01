@@ -54,6 +54,9 @@ export const useUiStore: () => UiState = () => {
     get loading() {
       return loading
     },
+    set loading(value) {
+      loading = value
+    },
     get leftMenuOpen() {
       return leftMenuOpen
     },

@@ -1,5 +1,5 @@
+import { registerStore } from 'sv-store'
 import { useDataStore } from './dataStore.svelte'
-import { registerStore } from './registerStore.svelte'
 import { useUiStore } from './uiStore.svelte'
 import { useUserStore } from './userStore.svelte'
 
@@ -11,6 +11,6 @@ export const initializeStores = () => {
   ]
 
   stores.forEach(store => {
-    registerStore(store.key, store.store)
+    registerStore(store.key, store.store, { prefix: 'store' })
   })
 }
