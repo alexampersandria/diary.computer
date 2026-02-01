@@ -2,6 +2,7 @@
 import type { SelectProps } from '$lib/types/components/select'
 import { evaluateInputState } from '$lib/utils/input'
 import { ChevronDown } from 'lucide-svelte'
+import { watch } from 'runed'
 import { onMount } from 'svelte'
 
 let {
@@ -18,6 +19,8 @@ let {
   oninput: emitOnInput,
   'aria-label': ariaLabel,
 }: SelectProps = $props()
+
+let element = $state<HTMLSelectElement>()
 
 const onchange = (event: Event) => {
   const target = event.target as HTMLSelectElement
@@ -56,10 +59,25 @@ onMount(() => {
     value = options[0].value
   }
 })
+
+// fix for #42
+// https://github.com/alexampersandria/diary.computer/issues/42
+// on change value externally if select element value does not match value change it
+watch(
+  () => [value],
+  () => {
+    if (element) {
+      if (element.value !== String(value)) {
+        element.value = String(value)
+      }
+    }
+  },
+)
 </script>
 
 <div class="select-wrapper">
   <select
+    bind:this={element}
     class="select {placeholder && !value ? 'placeholder-selected' : ''}"
     {disabled}
     {name}
