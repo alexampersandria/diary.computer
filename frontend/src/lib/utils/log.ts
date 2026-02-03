@@ -246,7 +246,9 @@ export const calendarDaysInMonth = (year: number, month: number) => {
   // #TODO: this whole thing is kinda stupid, think of a better way to do it
 
   const daysInMonth = new Date(year, month, 0).getDate()
-  const firstDayOfMonth = new Date(year, month - 1, 1).getDay()
+  let firstDayOfMonth = new Date(year, month - 1, 1).getDay()
+  // fix for sundays being the first day of a month
+  if (firstDayOfMonth === 0) firstDayOfMonth = 7
   const weeks: (number | null)[][] = []
   let currentWeek: (number | null)[] = []
 
