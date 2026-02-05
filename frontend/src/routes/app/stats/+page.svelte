@@ -162,6 +162,20 @@ const navigateYear = async (year: number) => {
           loading={yearlyData === undefined} />
       </div>
 
+      <div class="section weekday-stats">
+        <div class="section-title">Weekday Stats</div>
+
+        <Table
+          data={weekdayData
+            ? Object.entries(weekdayData).map(([key, value]) => ({
+                weekday: formatKey(key),
+                entry_count: value.entry_count,
+                average_mood: value.average_mood,
+              }))
+            : undefined}
+          compareAverageTo={moodData?.average_mood} />
+      </div>
+
       <div class="section tag-stats">
         <div class="section-title">Tag Stats</div>
 
@@ -191,20 +205,6 @@ const navigateYear = async (year: number) => {
             provide meaningful insights
           </Message>
         {/if}
-      </div>
-
-      <div class="section weekday-stats">
-        <div class="section-title">Weekday Stats</div>
-
-        <Table
-          data={weekdayData
-            ? Object.entries(weekdayData).map(([key, value]) => ({
-                weekday: formatKey(key),
-                entry_count: value.entry_count,
-                average_mood: value.average_mood,
-              }))
-            : undefined}
-          compareAverageTo={moodData?.average_mood} />
       </div>
     </div>
   </div>
