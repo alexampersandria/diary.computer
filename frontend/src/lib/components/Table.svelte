@@ -209,7 +209,7 @@ const deltaStyle = (position: number | null): string => {
   <thead class="fields">
     <tr>
       {#each derivedFields as field}
-        <th class="field" data-key={field.key}>
+        <th class="field" data-key={field.key} title={field.label}>
           <div class="field-container">
             <div class="label">
               {field.label}
@@ -301,8 +301,11 @@ const deltaStyle = (position: number | null): string => {
 <style lang="scss">
 .table {
   width: 100%;
-  border-collapse: collapse;
   --table-radius: var(--radius-m);
+  border-spacing: 0;
+  border-radius: var(--table-radius);
+  overflow: hidden;
+  border: var(--border-width) solid var(--border-color);
 
   .field {
     background-color: var(--background-secondary);
@@ -311,8 +314,20 @@ const deltaStyle = (position: number | null): string => {
   .field,
   .cell {
     padding: var(--padding-xs) var(--padding-m);
-    border: var(--border-width) solid var(--border-color);
     text-align: left;
+
+    &:not(:first-child) {
+      border-left: var(--border-width) solid var(--border-color);
+    }
+  }
+
+  tbody {
+    tr {
+      .field,
+      .cell {
+        border-top: var(--border-width) solid var(--border-color);
+      }
+    }
   }
 
   .cell {
@@ -340,10 +355,19 @@ const deltaStyle = (position: number | null): string => {
 
   .field {
     .field-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--padding-xs);
+      &:has(.sort) {
+        position: relative;
+
+        .label {
+          width: calc(100% - (1em + (var(--padding-s) * 2)));
+        }
+      }
+
+      .label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
 
@@ -353,6 +377,11 @@ const deltaStyle = (position: number | null): string => {
     color: var(--text-muted);
     font-size: var(--font-size-m);
     padding: var(--padding-xxs) var(--padding-s);
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    text-align: right;
 
     &.active,
     &:hover {
