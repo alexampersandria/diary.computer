@@ -301,8 +301,11 @@ const deltaStyle = (position: number | null): string => {
 <style lang="scss">
 .table {
   width: 100%;
-  border-collapse: collapse;
   --table-radius: var(--radius-m);
+  border-spacing: 0;
+  border-radius: var(--table-radius);
+  overflow: hidden;
+  border: var(--border-width) solid var(--border-color);
 
   .field {
     background-color: var(--background-secondary);
@@ -311,8 +314,20 @@ const deltaStyle = (position: number | null): string => {
   .field,
   .cell {
     padding: var(--padding-xs) var(--padding-m);
-    border: var(--border-width) solid var(--border-color);
     text-align: left;
+
+    &:not(:first-child) {
+      border-left: var(--border-width) solid var(--border-color);
+    }
+  }
+
+  tbody {
+    tr {
+      .field,
+      .cell {
+        border-top: var(--border-width) solid var(--border-color);
+      }
+    }
   }
 
   .cell {
