@@ -7,6 +7,7 @@ import { useDataStore } from '$lib/store/dataStore.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
 import type { MoodStats, TagStats, WeekdayStats } from '$lib/types/api/stats'
 import type { HeatmapDataPoint } from '$lib/types/components/heatmap'
+import type { Entry } from '$lib/types/log'
 import {
   getEntries,
   getMoodStats,
@@ -14,7 +15,7 @@ import {
   getWeekdayStats,
 } from '$lib/utils/api'
 import { formatKey } from '$lib/utils/formatKey'
-import { currentDateObject, yearDateRange } from '$lib/utils/log'
+import { currentDateObject, fullDate, yearDateRange } from '$lib/utils/log'
 import { formatNumber } from '$lib/utils/numbers'
 import { takeAtLeast } from '$lib/utils/takeAtLeast'
 import { ChartLine, ChevronLeft, ChevronRight } from 'lucide-svelte'
@@ -53,6 +54,7 @@ const getHeatmapData = async (
 }
 
 let moodData: MoodStats | undefined = $state(undefined)
+let firstEntryDate: Entry['date'] | undefined = $state(undefined)
 let tagData: TagStats | undefined = $state(undefined)
 let weekdayData: WeekdayStats | undefined = $state(undefined)
 
@@ -88,11 +90,30 @@ const getWeekdayData = async () => {
   }
 }
 
+const getFirstEntry = async () => {
+  if (userStore.sessionId) {
+    const entriesList = await getEntries(userStore.sessionId, {
+      from_date: '0000-01-01',
+      limit: 1,
+      order: 'date_asc',
+    })
+
+    if (entriesList) {
+      const firstEntryInList = entriesList.data[0]
+
+      if (firstEntryInList) {
+        firstEntryDate = firstEntryInList.date
+      }
+    }
+  }
+}
+
 onMount(() => {
   getHeatmapData()
   getMoodData()
   getTagData()
   getWeekdayData()
+  getFirstEntry()
 })
 
 const navigateYear = async (year: number) => {
@@ -110,30 +131,22 @@ const navigateYear = async (year: number) => {
 
     <div class="stats-sections">
       <div class="section overall">
-        <table class="values">
-          <tbody>
-            <tr class="entry-count">
-              <td class="label">Total Entries</td>
-              <td class="value">
-                {#if moodData}
-                  {formatNumber(moodData.entry_count)}
-                {:else}
-                  loading...
-                {/if}
-              </td>
-            </tr>
-            <tr class="average-mood">
-              <td class="label">Average Mood</td>
-              <td class="value">
-                {#if moodData}
-                  {formatNumber(moodData.average_mood)}
-                {:else}
-                  loading...
-                {/if}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {#if moodData}
+          <div class="text">
+            You have written a total of <b
+              >{formatNumber(moodData.entry_count)}</b>
+            entries
+            {#if firstEntryDate}
+              since <a href={`/app/entry/${firstEntryDate}`}>
+                {fullDate(firstEntryDate)}
+              </a>
+            {/if}
+            where your average mood is
+            <b>{formatNumber(moodData.average_mood)}</b>
+          </div>
+        {:else}
+          <div class="loading">loading...</div>
+        {/if}
       </div>
 
       <div class="section heatmap-current-year">
@@ -216,6 +229,8 @@ const navigateYear = async (year: number) => {
     display: flex;
     flex-direction: column;
     gap: var(--padding-l);
+    padding-top: var(--padding-m);
+
     .section {
       display: flex;
       flex-direction: column;
@@ -230,22 +245,6 @@ const navigateYear = async (year: number) => {
           display: flex;
           gap: var(--padding-xs);
         }
-      }
-    }
-  }
-
-  .overall {
-    .values {
-      width: max-content;
-
-      .label {
-        font-weight: 600;
-        padding-right: var(--padding-m);
-      }
-
-      .value {
-        text-align: right;
-        min-width: 5ch;
       }
     }
   }
