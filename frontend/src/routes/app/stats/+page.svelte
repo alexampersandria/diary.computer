@@ -25,7 +25,7 @@ let userStore = useUserStore()
 let dataStore = useDataStore()
 
 let yearlyDataYear = $state(currentDateObject().year)
-let yearlyData: HeatmapDataPoint[] | undefined = $state(undefined)
+let yearlyData: HeatmapDataPoint[] | undefined = $state()
 
 const getHeatmapData = async (
   year = yearlyDataYear,

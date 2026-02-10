@@ -1,6 +1,6 @@
 <script lang="ts">
 import { useDataStore } from '$lib/store/dataStore.svelte'
-import { Tag, Tags } from 'lucide-svelte'
+import { ChevronLeft, ChevronRight, Tag, Tags } from 'lucide-svelte'
 import type { PageProps } from './$types'
 import Message from '$lib/components/Message.svelte'
 import type { Paginated } from '$lib/types/paginated'
@@ -11,6 +11,10 @@ import { getEntries } from '$lib/utils/api'
 import EntriesList from '$lib/assemblies/EntriesList.svelte'
 import { onMount } from 'svelte'
 import NewIssue from '$lib/components/NewIssue.svelte'
+import { currentDateObject, yearDateRange } from '$lib/utils/log'
+import type { HeatmapDataPoint } from '$lib/types/components/heatmap'
+import Heatmap from '$lib/components/Heatmap.svelte'
+import Button from '$lib/components/Button.svelte'
 
 let { data: pageData }: PageProps = $props()
 
@@ -57,8 +61,44 @@ const onloadmore = async () => {
   }
 }
 
+let yearlyDataYear = $state(currentDateObject().year)
+let yearlyData: HeatmapDataPoint[] | undefined = $state()
+
+const getHeatmapData = async (
+  year = yearlyDataYear,
+  minDuration: number | undefined = undefined,
+) => {
+  if (userStore.sessionId && tag) {
+    const paginatedEntries = await takeAtLeast(
+      getEntries(userStore.sessionId, {
+        from_date: yearDateRange(year).firstDate,
+        to_date: yearDateRange(year).lastDate,
+        limit: 366,
+        tags: [tag.id],
+      }),
+      minDuration !== undefined ? minDuration : 750, // longer because the animation is pretty :)
+    )
+
+    if (paginatedEntries) {
+      const entries = paginatedEntries.data
+      yearlyData = entries.map(entry => {
+        return {
+          date: entry.date,
+          value: entry.mood,
+        }
+      })
+    }
+  }
+}
+
+const navigateYear = async (year: number) => {
+  yearlyDataYear = year
+  getHeatmapData(year, 0)
+}
+
 onMount(() => {
   getData()
+  getHeatmapData(yearlyDataYear)
 })
 </script>
 
@@ -75,11 +115,43 @@ onMount(() => {
         </div>
       </div>
 
-      <EntriesList
-        entries={data?.data}
-        pagination={data?.pagination}
-        {loading}
-        {onloadmore} />
+      <div class="sections">
+        <div class="section heatmap">
+          <div class="section-title">
+            {yearlyDataYear} Heatmap
+            <div class="navigation">
+              <Button
+                type="ghost"
+                onclick={() => navigateYear(yearlyDataYear - 1)}
+                aria-label="Previous Year">
+                <ChevronLeft />
+              </Button>
+
+              <Button
+                type="ghost"
+                onclick={() => navigateYear(yearlyDataYear + 1)}
+                aria-label="Next Year">
+                <ChevronRight />
+              </Button>
+            </div>
+          </div>
+
+          <Heatmap
+            year={yearlyDataYear}
+            data={yearlyData}
+            loading={yearlyData === undefined} />
+        </div>
+
+        <div class="section entries">
+          <div class="section-title">Entries</div>
+
+          <EntriesList
+            entries={data?.data}
+            pagination={data?.pagination}
+            {loading}
+            {onloadmore} />
+        </div>
+      </div>
     {:else}
       <div class="no-tag">
         <Message type="error">Error: Tag not found</Message>
@@ -104,6 +176,30 @@ onMount(() => {
 
   .icon {
     display: flex;
+  }
+
+  .sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-l);
+    padding-top: var(--padding-m);
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--padding-s);
+
+      .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .navigation {
+          display: flex;
+          gap: var(--padding-xs);
+        }
+      }
+    }
   }
 }
 </style>
