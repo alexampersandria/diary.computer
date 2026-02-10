@@ -1,7 +1,12 @@
 <script lang="ts">
 import type { TableField, TableProps } from '$lib/types/components/table'
 import { formatKey } from '$lib/utils/formatKey'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-svelte'
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  SquareArrowOutUpRight,
+} from 'lucide-svelte'
 import Spinner from './Spinner.svelte'
 import { formatNumber } from '$lib/utils/numbers'
 
@@ -260,10 +265,12 @@ const deltaStyle = (position: number | null): string => {
           {#each derivedFields as field}
             {@const cellValue = row[field.key]}
             {@const dataType = typeof cellValue}
+            {@const isPercent =
+              dataType === 'string' && cellValue.endsWith('%')}
             {@const valueDelta = delta(field.key, cellValue)}
             <td
               class="cell"
-              data-type={dataType}
+              data-type={isPercent ? 'number' : dataType}
               data-key={field.key}
               data-value={cellValue}
               data-delta={valueDelta}>
@@ -274,6 +281,21 @@ const deltaStyle = (position: number | null): string => {
                       {formatNumber(cellValue, { decimals: true })}
                     {:else}
                       {formatNumber(cellValue)}
+                    {/if}
+                  {:else if dataType === 'object'}
+                    {#if cellValue.href && cellValue.label}
+                      <div class="flex-between">
+                        <div class="label">
+                          {cellValue.label}
+                        </div>
+                        <div class="link dimmed">
+                          <a href={cellValue.href}>
+                            <SquareArrowOutUpRight />
+                          </a>
+                        </div>
+                      </div>
+                    {:else}
+                      <code>{JSON.stringify(cellValue)}</code>
                     {/if}
                   {:else}
                     {cellValue}
@@ -323,7 +345,6 @@ const deltaStyle = (position: number | null): string => {
 
   tbody {
     tr {
-      .field,
       .cell {
         border-top: var(--border-width) solid var(--border-color);
       }
@@ -349,6 +370,10 @@ const deltaStyle = (position: number | null): string => {
         color: var(--text-muted);
         min-width: 5ch;
         font-family: 'Fira Code', monospace;
+      }
+
+      .value {
+        width: 100%;
       }
     }
   }

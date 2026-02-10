@@ -25,7 +25,7 @@ let userStore = useUserStore()
 let dataStore = useDataStore()
 
 let yearlyDataYear = $state(currentDateObject().year)
-let yearlyData: HeatmapDataPoint[] | undefined = $state(undefined)
+let yearlyData: HeatmapDataPoint[] | undefined = $state()
 
 const getHeatmapData = async (
   year = yearlyDataYear,
@@ -197,16 +197,23 @@ const navigateYear = async (year: number) => {
             { key: 'category', label: 'Category', sortable: true },
             { key: 'tag', label: 'Tag', sortable: true },
             { key: 'entry_count', label: 'Entry Count', sortable: true },
+            { key: 'percentage', label: '%' },
             { key: 'average_mood', label: 'Average Mood', sortable: true },
           ]}
           data={tagData?.map(tag => {
             const tagData = dataStore.getTag(tag.tag_id)
             return {
               category: tagData?.category.name,
-              tag: tagData?.name,
+              tag: {
+                label: tagData?.name,
+                href: `/app/tag/${tagData?.id}`,
+              },
               entry_count: tag.entry_count,
               average_mood: tag.average_mood,
               median_mood: tag.median_mood,
+              percentage: moodData
+                ? `${formatNumber((tag.entry_count / moodData.entry_count) * 100)}%`
+                : undefined,
             }
           })}
           compareAverageTo={moodData?.average_mood}

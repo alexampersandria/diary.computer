@@ -15,5 +15,11 @@ export type TableField = {
 export type TableData = {
   // needs to be any, ignore error
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any
+  [key: string]: TableLinkCell | any
 }[]
+
+export type TableLinkCell = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  label: any
+  href: string
+}
