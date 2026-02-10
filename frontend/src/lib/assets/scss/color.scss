@@ -39,6 +39,20 @@ $color-base-90: oklch(0.92 0.0125 244.26 / 1);
 $color-base-95: oklch(0.96 0.01 247.93 / 1);
 $color-base-100: oklch(1 0 0 / 1);
 
+$color-warm-base-00: oklch(0.13 0.008 40 / 1);
+$color-warm-base-05: oklch(0.17 0.01 42 / 1);
+$color-warm-base-10: oklch(0.2 0.012 43 / 1);
+$color-warm-base-20: oklch(0.29 0.016 44 / 1);
+$color-warm-base-30: oklch(0.38 0.018 45 / 1);
+$color-warm-base-40: oklch(0.49 0.02 45 / 1);
+$color-warm-base-50: oklch(0.57 0.022 45 / 1);
+$color-warm-base-60: oklch(0.68 0.02 44 / 1);
+$color-warm-base-70: oklch(0.72 0.018 43 / 1);
+$color-warm-base-80: oklch(0.8 0.014 42 / 1);
+$color-warm-base-90: oklch(0.92 0.01 40 / 1);
+$color-warm-base-95: oklch(0.96 0.008 38 / 1);
+$color-warm-base-100: oklch(1 0 0 / 1);
+
 $color-blue-00: oklch($oklch-l-00 $oklch-c-00 262.7 / 1);
 $color-blue-10: oklch($oklch-l-10 $oklch-c-10 261.75 / 1);
 $color-blue-20: oklch($oklch-l-20 $oklch-c-20 261.53 / 1);
@@ -153,6 +167,22 @@ $moodColors: ('red', 'orange', 'yellow', 'lime', 'green');
   --color-base-90: #{$color-base-90};
   --color-base-95: #{$color-base-95};
   --color-base-100: #{$color-base-100};
+
+  &.tone-warm {
+    --color-base-00: #{$color-warm-base-00};
+    --color-base-05: #{$color-warm-base-05};
+    --color-base-10: #{$color-warm-base-10};
+    --color-base-20: #{$color-warm-base-20};
+    --color-base-30: #{$color-warm-base-30};
+    --color-base-40: #{$color-warm-base-40};
+    --color-base-50: #{$color-warm-base-50};
+    --color-base-60: #{$color-warm-base-60};
+    --color-base-70: #{$color-warm-base-70};
+    --color-base-80: #{$color-warm-base-80};
+    --color-base-90: #{$color-warm-base-90};
+    --color-base-95: #{$color-warm-base-95};
+    --color-base-100: #{$color-warm-base-100};
+  }
 
   --color-blue-00: #{$color-blue-00};
   --color-blue-10: #{$color-blue-10};
