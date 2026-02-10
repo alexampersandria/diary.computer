@@ -376,7 +376,7 @@ pre {
 
 .button-icon-group {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
   border: var(--border-width) solid var(--border-color);
   border-radius: var(--radius-s);

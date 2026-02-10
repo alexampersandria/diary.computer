@@ -239,7 +239,9 @@ watch(
     <div class="settings-options">
       <div class="form-field inline">
         <Label>
-          <SunMoon />
+          <div class="desktop-only">
+            <SunMoon />
+          </div>
           Theme
         </Label>
         <ThemePicker />
@@ -247,7 +249,9 @@ watch(
 
       <div class="form-field inline">
         <Label>
-          <SunSnow />
+          <div class="desktop-only">
+            <SunSnow />
+          </div>
           Tone
         </Label>
         <TonePicker />
@@ -255,7 +259,9 @@ watch(
 
       <div class="form-field inline">
         <Label>
-          <SwatchBook />
+          <div class="desktop-only">
+            <SwatchBook />
+          </div>
           Color
         </Label>
         <ColorPicker bind:value={uiStore.color} />
