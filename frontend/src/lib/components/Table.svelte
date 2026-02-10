@@ -343,7 +343,6 @@ const deltaStyle = (position: number | null): string => {
 
   tbody {
     tr {
-      .field,
       .cell {
         border-top: var(--border-width) solid var(--border-color);
       }
