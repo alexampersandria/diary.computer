@@ -240,11 +240,6 @@ form,
     label {
       width: auto;
     }
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: flex-start;
-    }
   }
 }
 
@@ -383,19 +378,26 @@ pre {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-s);
+  padding: var(--padding-xxs);
+  height: auto;
+  gap: var(--padding-xxs);
 
   // match color picker
-  height: calc(var(--font-size-xl) + var(--padding-s) * 2);
+  min-height: calc(var(--font-size-xl) + var(--padding-s) * 2);
 
   button {
-    padding: var(--padding-xxs) var(--padding-s);
+    padding: var(--padding-xs) var(--padding-m);
 
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-l);
 
     color: var(--text-muted);
 
     &.active {
       color: var(--text-primary);
+      background-color: var(--background-accent);
+      border-radius: var(--radius-xs);
     }
   }
 }

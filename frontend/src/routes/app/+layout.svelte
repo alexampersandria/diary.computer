@@ -616,6 +616,10 @@ watch(
       flex-direction: column;
       gap: var(--padding-s);
       padding-block: var(--padding-m);
+
+      @media (max-width: 768px) {
+        gap: var(--padding-m);
+      }
     }
   }
 }
