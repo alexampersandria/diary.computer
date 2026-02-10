@@ -265,10 +265,12 @@ const deltaStyle = (position: number | null): string => {
           {#each derivedFields as field}
             {@const cellValue = row[field.key]}
             {@const dataType = typeof cellValue}
+            {@const isPercent =
+              dataType === 'string' && cellValue.endsWith('%')}
             {@const valueDelta = delta(field.key, cellValue)}
             <td
               class="cell"
-              data-type={dataType}
+              data-type={isPercent ? 'number' : dataType}
               data-key={field.key}
               data-value={cellValue}
               data-delta={valueDelta}>

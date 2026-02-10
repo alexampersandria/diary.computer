@@ -197,6 +197,7 @@ const navigateYear = async (year: number) => {
             { key: 'category', label: 'Category', sortable: true },
             { key: 'tag', label: 'Tag', sortable: true },
             { key: 'entry_count', label: 'Entry Count', sortable: true },
+            { key: 'percentage', label: '%' },
             { key: 'average_mood', label: 'Average Mood', sortable: true },
           ]}
           data={tagData?.map(tag => {
@@ -210,6 +211,9 @@ const navigateYear = async (year: number) => {
               entry_count: tag.entry_count,
               average_mood: tag.average_mood,
               median_mood: tag.median_mood,
+              percentage: moodData
+                ? `${formatNumber((tag.entry_count / moodData.entry_count) * 100)}%`
+                : undefined,
             }
           })}
           compareAverageTo={moodData?.average_mood}
