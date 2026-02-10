@@ -1,7 +1,12 @@
 <script lang="ts">
 import type { TableField, TableProps } from '$lib/types/components/table'
 import { formatKey } from '$lib/utils/formatKey'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-svelte'
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  SquareArrowOutUpRight,
+} from 'lucide-svelte'
 import Spinner from './Spinner.svelte'
 import { formatNumber } from '$lib/utils/numbers'
 
@@ -275,6 +280,21 @@ const deltaStyle = (position: number | null): string => {
                     {:else}
                       {formatNumber(cellValue)}
                     {/if}
+                  {:else if dataType === 'object'}
+                    {#if cellValue.href && cellValue.label}
+                      <div class="flex-between">
+                        <div class="label">
+                          {cellValue.label}
+                        </div>
+                        <div class="link dimmed">
+                          <a href={cellValue.href}>
+                            <SquareArrowOutUpRight />
+                          </a>
+                        </div>
+                      </div>
+                    {:else}
+                      <code>{JSON.stringify(cellValue)}</code>
+                    {/if}
                   {:else}
                     {cellValue}
                   {/if}
@@ -349,6 +369,10 @@ const deltaStyle = (position: number | null): string => {
         color: var(--text-muted);
         min-width: 5ch;
         font-family: 'Fira Code', monospace;
+      }
+
+      .value {
+        width: 100%;
       }
     }
   }

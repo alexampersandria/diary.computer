@@ -203,7 +203,10 @@ const navigateYear = async (year: number) => {
             const tagData = dataStore.getTag(tag.tag_id)
             return {
               category: tagData?.category.name,
-              tag: tagData?.name,
+              tag: {
+                label: tagData?.name,
+                href: `/app/tag/${tagData?.id}`,
+              },
               entry_count: tag.entry_count,
               average_mood: tag.average_mood,
               median_mood: tag.median_mood,
