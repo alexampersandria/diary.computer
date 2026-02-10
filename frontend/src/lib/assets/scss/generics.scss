@@ -240,6 +240,11 @@ form,
     label {
       width: auto;
     }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 }
 
@@ -372,4 +377,25 @@ code,
 pre {
   max-width: 100%;
   overflow: auto;
+}
+
+.button-icon-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  // match color picker
+  height: calc(var(--font-size-xl) + var(--padding-s) * 2);
+
+  button {
+    padding: var(--padding-xxs) var(--padding-s);
+
+    font-size: var(--font-size-xl);
+
+    color: var(--text-muted);
+
+    &.active {
+      color: var(--text-primary);
+    }
+  }
 }

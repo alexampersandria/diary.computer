@@ -21,6 +21,15 @@ let {
 
 <style lang="scss">
 .label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--padding-s);
+
+  :global(.lucide-icon) {
+    font-size: var(--font-size-xl);
+    color: var(--text-muted);
+  }
+
   &.bold {
     font-weight: 600;
   }

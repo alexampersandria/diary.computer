@@ -1,17 +1,18 @@
 <script lang="ts">
 import { goto } from '$app/navigation'
 import {
-  Book,
   CalendarDays,
   ChartLine,
   FolderOpen,
-  Github,
   House,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
   ScrollText,
   Settings,
+  SunMoon,
+  SunSnow,
+  SwatchBook,
   Tags,
   User,
   UserCog,
@@ -22,12 +23,12 @@ import Modal from '$lib/components/Modal.svelte'
 import { useUiStore } from '$lib/store/uiStore.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
 import Label from '$lib/components/Label.svelte'
-import Logo from '$lib/components/Logo.svelte'
 import Calendar from '$lib/components/Calendar.svelte'
 import { page } from '$app/state'
 import { watch } from 'runed'
 import ColorPicker from '$lib/components/ColorPicker.svelte'
 import ThemePicker from '$lib/components/ThemePicker.svelte'
+import TonePicker from '$lib/components/TonePicker.svelte'
 
 let { children } = $props()
 
@@ -237,37 +238,28 @@ watch(
 
     <div class="settings-options">
       <div class="form-field inline">
-        <Label>Theme</Label>
+        <Label>
+          <SunMoon />
+          Theme
+        </Label>
         <ThemePicker />
       </div>
 
       <div class="form-field inline">
-        <Label>Color</Label>
+        <Label>
+          <SunSnow />
+          Tone
+        </Label>
+        <TonePicker />
+      </div>
+
+      <div class="form-field inline">
+        <Label>
+          <SwatchBook />
+          Color
+        </Label>
         <ColorPicker bind:value={uiStore.color} />
       </div>
-    </div>
-
-    <div class="settings-actions">
-      <div class="internal">
-        <div class="internal-element">
-          <Button href="/" fullwidth>
-            <Logo /> Landing Page
-          </Button>
-        </div>
-
-        <div class="internal-element">
-          <Button href="/docs" fullwidth>
-            <Book /> Docs
-          </Button>
-        </div>
-      </div>
-
-      <Button
-        href="https://github.com/alexampersandria/diary.computer"
-        target="_blank"
-        fullwidth>
-        <Github /> GitHub
-      </Button>
     </div>
   </div>
 </Modal>
@@ -612,20 +604,10 @@ watch(
     padding-top: var(--padding-m);
   }
 
-  .user-actions,
-  .settings-actions {
+  .user-actions {
     display: flex;
     flex-direction: column;
     gap: var(--padding-xs);
-  }
-
-  .internal {
-    display: flex;
-    gap: var(--padding-xs);
-
-    .internal-element {
-      flex: 1;
-    }
   }
 
   &.settings-modal {
@@ -634,10 +616,6 @@ watch(
       flex-direction: column;
       gap: var(--padding-s);
       padding-block: var(--padding-m);
-    }
-
-    .settings-actions {
-      padding-top: var(--padding-s);
     }
   }
 }
