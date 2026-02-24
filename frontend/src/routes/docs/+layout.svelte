@@ -262,7 +262,10 @@ afterNavigate(() => {
   }
 
   .docs-content {
-    padding-bottom: var(--padding-xl);
+    &,
+    .container {
+      padding-bottom: var(--padding-xl);
+    }
 
     .toc {
       display: none;
