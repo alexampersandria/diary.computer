@@ -389,15 +389,13 @@ pre {
 
   button {
     padding: var(--padding-xs) var(--padding-m);
-
+    border-radius: var(--radius-xs);
     font-size: var(--font-size-l);
-
     color: var(--text-muted);
 
     &.active {
       color: var(--text-primary);
       background-color: var(--background-accent);
-      border-radius: var(--radius-xs);
     }
   }
 }
