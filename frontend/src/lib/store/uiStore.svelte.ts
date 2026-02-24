@@ -4,8 +4,12 @@ import type { Color } from '$lib/types/color'
 export const themes = ['dark', 'light', 'system'] as const
 export type Theme = (typeof themes)[number]
 
+export const tones = ['cold', 'warm'] as const
+export type Tone = (typeof tones)[number]
+
 export type UiState = {
   theme: Theme
+  tone: Tone
   color: Color
   loading: boolean
   leftMenuOpen: boolean
@@ -14,6 +18,7 @@ export type UiState = {
 }
 
 let theme: Theme = $state('system')
+let tone: Tone = $state('cold')
 let color: Color = $state('pink')
 let loading = $state(true)
 let leftMenuOpen = $state(true)
@@ -44,6 +49,12 @@ export const useUiStore: () => UiState = () => {
     },
     set theme(value) {
       theme = value
+    },
+    get tone() {
+      return tone
+    },
+    set tone(value) {
+      tone = value
     },
     get color() {
       return color
