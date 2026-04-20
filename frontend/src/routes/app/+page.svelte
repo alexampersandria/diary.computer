@@ -1,28 +1,57 @@
 <script lang="ts">
-import EntryPreview from '$lib/components/EntryPreview.svelte'
-import { useDataStore } from '$lib/store/dataStore.svelte'
+import PastSevenDays from '$lib/assemblies/PastSevenDays.svelte'
+import Today from '$lib/assemblies/Today.svelte'
 import { useUserStore } from '$lib/store/userStore.svelte'
-import { currentDate } from '$lib/utils/log'
-import { CalendarDays } from 'lucide-svelte'
+import { currentDate, fullDate } from '$lib/utils/log'
 
-let userStore = useUserStore()
-let dataStore = useDataStore()
+const userStore = useUserStore()
 
-let today = $derived.by(() => {
-  return dataStore.getEntry(currentDate())
-})
+const today = currentDate()
 </script>
 
-<div class="app-page home-page">
-  <div class="container">
-    {#if userStore.userDetails !== null}
-      <div class="today">
-        <div class="app-page-title">
-          <CalendarDays />
-          Today's Entry
+<div class="home-page">
+  {#if userStore.userDetails}
+    <div class="welcome-back">
+      <div class="container fill">
+        <h1>
+          Welcome back
+          {userStore.userDetails.name}
+        </h1>
+        <div class="today">
+          Today is
+          {fullDate(today)}
         </div>
-        <EntryPreview date={today ? today.date : currentDate()} entry={today} />
       </div>
-    {/if}
+    </div>
+  {/if}
+  <div class="app-page">
+    <div class="container">
+      <div class="home-elements">
+        <Today />
+        <PastSevenDays />
+      </div>
+    </div>
   </div>
 </div>
+
+<style lang="scss">
+.welcome-back {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--padding-xl) var(--padding-m);
+  min-height: 25svh;
+  background-color: var(--background-accent);
+  border-bottom: var(--border-width) solid var(--border-color);
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.home-elements {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-l);
+}
+</style>
