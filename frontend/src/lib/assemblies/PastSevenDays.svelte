@@ -36,7 +36,7 @@ let pastSevenDates = $derived.by(() => {
   for (let i = 1; i < 7; i++) {
     const date = new Date(today)
     date.setDate(date.getDate() - i)
-    array.push(timestampToDate(date.getTime()))
+    array.unshift(timestampToDate(date.getTime()))
   }
   return array
 })
